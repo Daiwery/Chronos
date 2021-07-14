@@ -7,12 +7,25 @@
 
     <fragment
         android:id="@+id/navigation_act"
-        android:name="com.daiwerystudio.chronos.ActFragment"
-        android:label="fragment_act"
-        tools:layout="@layout/fragment_act" />
+        android:name="com.daiwerystudio.chronos.UI.Act.ActFragment"
+        android:label="Действия"
+        tools:layout="@layout/fragment_act" >
+        <action
+            android:id="@+id/action_navigation_act_to_navigation_item_act"
+            app:destination="@id/navigation_item_act"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_navigation_act_self"
+            app:destination="@id/navigation_act" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_current_day"
-        android:name="com.daiwerystudio.chronos.CurrentDayFragment"
+        android:name="com.daiwerystudio.chronos.UI.CurrentDay.CurrentDayFragment"
         android:label="fragment_current_day"
         tools:layout="@layout/fragment_current_day" />
+    <fragment
+        android:id="@+id/navigation_item_act"
+        android:name="com.daiwerystudio.chronos.UI.Act.CreateItemActFragment"
+        android:label="Новое действие"
+        tools:layout="@layout/fragment_create_item_act" />
 </navigation>

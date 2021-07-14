@@ -51,4 +51,10 @@ dependencies {
     // Room component
     implementation 'androidx.room:room-runtime:2.4.0-alpha03'
     kapt 'androidx.room:room-compiler:2.4.0-alpha03'
+
+    // lifecycle component
+    implementation'androidx.lifecycle:lifecycle-extensions:2.2.0'
+
+    // RecyclerView component
+    implementation'androidx.recyclerview:recyclerview:1.0.0'
 }
