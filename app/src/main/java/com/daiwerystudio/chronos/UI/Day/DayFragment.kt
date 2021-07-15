@@ -1,4 +1,4 @@
-package com.daiwerystudio.chronos.UI.CurrentDay
+package com.daiwerystudio.chronos.UI.Day
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,11 +8,11 @@ import android.view.ViewGroup
 import com.daiwerystudio.chronos.R
 
 
-class CurrentDayFragment: Fragment() {
+class DayFragment: Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        return inflater.inflate(R.layout.fragment_current_day, container, false)
+        return inflater.inflate(R.layout.fragment_day, container, false)
     }
 
 }

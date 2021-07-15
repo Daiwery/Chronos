@@ -7,19 +7,19 @@
     android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/act_color"
+        android:id="@+id/action_type_color"
         android:layout_width="10dp"
         android:layout_height="20dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/act_name"
+        app:layout_constraintEnd_toStartOf="@+id/action_type_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/shape_oval" />
 
     <TextView
-        android:id="@+id/act_name"
+        android:id="@+id/action_type_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -27,7 +27,7 @@
         android:singleLine="true"
         android:text="TextView"
         android:textSize="30sp"
-        app:layout_constraintStart_toEndOf="@+id/act_color"
+        app:layout_constraintStart_toEndOf="@+id/action_type_color"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="HardcodedText" />
 </androidx.constraintlayout.widget.ConstraintLayout>
