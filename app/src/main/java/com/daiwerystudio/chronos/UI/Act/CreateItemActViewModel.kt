@@ -15,9 +15,4 @@ class CreateItemActViewModel: ViewModel() {
     fun updateAct(act: Act){
         actRepository.updateAct(act)
     }
-
-    fun deleteAct(act: Act){
-        actRepository.deleteAct(act)
-    }
-    
 }

@@ -5,6 +5,20 @@
     android:id="@+id/navigation_graph"
     app:startDestination="@id/navigation_current_day">
 
+     <fragment
+        android:id="@+id/navigation_child_act"
+        android:name="com.daiwerystudio.chronos.UI.Act.ActFragment"
+        android:label="navigation_child_act"
+        tools:layout="@layout/fragment_act">
+        <action
+            android:id="@+id/action_navigation_child_act_to_navigation_item_act"
+            app:destination="@id/navigation_item_act"
+            app:popUpTo="@id/navigation_child_act" />
+        <action
+            android:id="@+id/action_navigation_child_act_self"
+            app:destination="@id/navigation_child_act"
+            app:popUpTo="@id/navigation_child_act" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_act"
         android:name="com.daiwerystudio.chronos.UI.Act.ActFragment"
@@ -13,10 +27,11 @@
         <action
             android:id="@+id/action_navigation_act_to_navigation_item_act"
             app:destination="@id/navigation_item_act"
-            app:popUpToInclusive="false" />
+            app:popUpTo="@id/navigation_act" />
         <action
-            android:id="@+id/action_navigation_act_self"
-            app:destination="@id/navigation_act" />
+            android:id="@+id/action_navigation_act_to_navigation_child_act"
+            app:destination="@id/navigation_child_act"
+            app:popUpTo="@id/navigation_act" />
     </fragment>
     <fragment
         android:id="@+id/navigation_current_day"

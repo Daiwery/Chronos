@@ -1,6 +1,5 @@
 package com.daiwerystudio.chronos.UI.Act
 
-import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -16,4 +15,10 @@ class ActViewModel: ViewModel() {
     fun getActsFromParent(id: String){
         acts = actRepository.getActsFromParent(id)
     }
+
+    fun deleteActWithChild(act: Act){
+        actRepository.deleteActWithChild(act)
+    }
+
+    fun countRows(): LiveData<Int> = actRepository.countRows()
 }

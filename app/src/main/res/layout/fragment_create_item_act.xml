@@ -6,6 +6,7 @@
     android:orientation="vertical"
     tools:context=".UI.Act.CreateItemActFragment">
 
+
     <TextView
         style="?android:listSeparatorTextViewStyle"
         android:layout_width="match_parent"
@@ -23,4 +24,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Добавить" />
+
 </LinearLayout>

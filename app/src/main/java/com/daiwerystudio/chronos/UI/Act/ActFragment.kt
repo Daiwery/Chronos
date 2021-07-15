@@ -1,14 +1,12 @@
 package com.daiwerystudio.chronos.UI.Act
 
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.ShapeDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
+import android.widget.Toolbar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -26,21 +24,37 @@ class ActFragment: Fragment() {
     private var actAdapter: ActAdapter? = ActAdapter(emptyList())
     val bundle = Bundle()
 
-    private var parentAct: String? = ""
+    private var parentAct: Act? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
         val view = inflater.inflate(R.layout.fragment_act, container, false)
 
+        // Доступ к меню
+        val appCompatActivity = activity as AppCompatActivity
+        val appBar = appCompatActivity.supportActionBar
+        if (parentAct != null){
+            appBar?.setTitle(parentAct!!.name)
+        }
+
+        // Настройка RecyclerView
         actRecyclerView = view.findViewById(R.id.act_recyclerView) as RecyclerView
         actRecyclerView.layoutManager = LinearLayoutManager(context)
         actRecyclerView.adapter = actAdapter
 
+        // Настройка кнопки
         val fab = view.findViewById(R.id.fab) as FloatingActionButton
         fab.setOnClickListener{ v: View ->
-            bundle.putString("parentAct", parentAct)
-            v.findNavController().navigate(R.id.action_navigation_act_to_navigation_item_act, bundle) }
+            // Этот класс ипользуется одновременно для act и actChild
+            if (parentAct == null){
+                bundle.putString("idParentAct", "")
+                v.findNavController().navigate(R.id.action_navigation_act_to_navigation_item_act, bundle)
+            } else {
+                bundle.putString("idParentAct", parentAct!!.id.toString())
+                v.findNavController().navigate(R.id.action_navigation_child_act_to_navigation_item_act, bundle)
+            }
+        }
 
         return view
     }
@@ -73,8 +87,13 @@ class ActFragment: Fragment() {
         }
 
         override fun onClick(v: View) {
-            bundle.putString("parentAct", act.id.toString())
-            v.findNavController().navigate(R.id.action_navigation_act_self, bundle)
+            // Этот класс ипользуется одновременно для act и actChild
+            bundle.putSerializable("parentAct", act)
+            if (parentAct == null){
+                v.findNavController().navigate(R.id.action_navigation_act_to_navigation_child_act, bundle)
+            } else {
+                v.findNavController().navigate(R.id.action_navigation_child_act_self, bundle)
+            }
         }
     }
 
@@ -94,20 +113,47 @@ class ActFragment: Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
 
-        // Получаем аргументы
-        parentAct = arguments?.getString("parentAct")
+        // Get parentAct
+        parentAct = arguments?.getSerializable("parentAct") as Act?
+
+        // Update acts
         if (parentAct == null){
-            parentAct = ""
+            actViewModel.getActsFromParent("")
+        } else {
+            actViewModel.getActsFromParent(parentAct!!.id.toString())
         }
-
-        // Обновляем acts
-        actViewModel.getActsFromParent(parentAct!!)
     }
 
     override fun onStart() {
         super.onStart()
 
         bundle.clear()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        if (parentAct != null)
+            inflater.inflate(R.menu.fragment_act, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.edit_act -> {
+                // Изменяем текущее действие
+                bundle.putSerializable("act", parentAct)
+                requireActivity().findNavController(R.id.nav_host_fragment)
+                    .navigate(R.id.action_navigation_child_act_to_navigation_item_act, bundle)
+                return true
+            }
+            R.id.delete_act -> {
+                actViewModel.deleteActWithChild(parentAct!!)
+                requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 }

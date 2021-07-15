@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import java.io.Serializable
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -19,7 +20,7 @@ data class Act(
     var parent: String = "",
     var name: String = UUID.randomUUID().toString(),
     var color: Int = Color.rgb((Math.random()*255).toInt(), (Math.random()*255).toInt(), (Math.random()*255).toInt())
-)
+) : Serializable
 
 class ActTypeConverters {
     @TypeConverter
@@ -37,6 +38,13 @@ class ActTypeConverters {
 interface ActDao {
     @Query("SELECT * FROM act_table WHERE parent=(:id)")
     fun getActsFromParent(id: String): LiveData<List<Act>>
+
+    // Это функция нужна для реккурентного удаления всех acts от какого-то parent (см. ниже)
+    @Query("SELECT * FROM act_table WHERE parent=(:id)")
+    fun getActsFromParentAsList(id: String): List<Act>
+
+    @Query("SELECT COUNT(*) FROM act_table")
+    fun countRows(): LiveData<Int>
 
     @Update
     fun updateAct(act: Act)
@@ -57,7 +65,7 @@ abstract class ActDatabase : RoomDatabase() {
 
 
 class ActRepository private constructor(context: Context) {
-    private val database : ActDatabase = Room.databaseBuilder(
+    private val database: ActDatabase = Room.databaseBuilder(
         context.applicationContext,
         ActDatabase::class.java,
         DATABASE_NAME).build()
@@ -65,22 +73,31 @@ class ActRepository private constructor(context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
 
     fun getActsFromParent(id: String): LiveData<List<Act>> = actDao.getActsFromParent(id)
+    fun countRows(): LiveData<Int> = actDao.countRows()
 
     fun updateAct(act: Act) {
         executor.execute {
             actDao.updateAct(act)
         }
     }
+
     fun addAct(act: Act) {
         executor.execute {
             actDao.addAct(act)
         }
     }
-    fun deleteAct(act: Act) {
+
+
+    fun deleteActWithChild(act: Act){
         executor.execute {
+            val childActs = actDao.getActsFromParentAsList(act.id.toString())
             actDao.deleteAct(act)
+            for (childAct in childActs){
+                deleteActWithChild(childAct)
+            }
         }
     }
+
 
 
     companion object {
