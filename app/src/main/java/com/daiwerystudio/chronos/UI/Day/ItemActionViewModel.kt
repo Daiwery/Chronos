@@ -9,14 +9,19 @@ import com.daiwerystudio.chronos.DataBase.ActionTypeRepository
 import java.util.*
 
 
-class DayViewModel: ViewModel() {
+class ItemActionViewModel: ViewModel() {
     private val actionRepository = ActionRepository.get()
-    lateinit var actions: LiveData<List<Action>>
     private val actionTypeRepository = ActionTypeRepository.get()
+    var actionTypes: LiveData<List<ActionType>> = actionTypeRepository.getActionTypesFromParent("")
 
-    fun getActionsFromTimes(time1: Long, time2: Long){
-        actions = actionRepository.getActionsFromTimes(time1, time2)
+
+    fun getActionTypesFromParent(id: String){
+        actionTypes = actionTypeRepository.getActionTypesFromParent(id)
     }
 
     fun getActionType(id: UUID): LiveData<ActionType> = actionTypeRepository.getActionType(id)
+
+    fun addAction(action: Action){
+        actionRepository.addAction(action)
+    }
 }

@@ -1,8 +1,6 @@
 package com.daiwerystudio.chronos.DataBase
 
-import android.app.Application
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import java.io.Serializable
@@ -16,8 +14,8 @@ private const val ACTION_DATABASE_NAME = "action-database"
 data class Action(
     @PrimaryKey val id: UUID = UUID.randomUUID(),
     var idActionType: UUID,
-    var startTime: Long,
-    var endTime: Long
+    var start: Long,
+    var end: Long
 ) : Serializable
 
 class ActionTypeConverters {
@@ -34,8 +32,8 @@ class ActionTypeConverters {
 
 @Dao
 interface ActionDao {
-    @Query("SELECT * FROM action_table WHERE (:time1) <= startTime <= (:time2) OR (:time1) <= endTime <= (:time2)")
-    fun getActionFromTimes(time1: Long, time2: Long): LiveData<List<Action>>
+    @Query("SELECT * FROM action_table WHERE (:time1) <= start <= (:time2) OR (:time1) <= end <= (:time2)")
+    fun getActionsFromTimes(time1: Long, time2: Long): LiveData<List<Action>>
 
     @Update
     fun updateAction(action: Action)
@@ -63,7 +61,7 @@ class ActionRepository private constructor(context: Context) {
     private val actionDao = database.actionDao()
     private val executor = Executors.newSingleThreadExecutor()
 
-    fun getActionFromTimes(time1: Long, time2: Long): LiveData<List<Action>> = actionDao.getActionFromTimes(time1, time2)
+    fun getActionsFromTimes(time1: Long, time2: Long): LiveData<List<Action>> = actionDao.getActionsFromTimes(time1, time2)
 
     fun updateAction(action: Action) {
         executor.execute {

@@ -45,6 +45,9 @@ interface ActionTypeDao {
     @Query("SELECT COUNT(*) FROM action_type_table")
     fun countRows(): LiveData<Int>
 
+    @Query("SELECT * FROM action_type_table WHERE id=(:id)")
+    fun getActionType(id: UUID): LiveData<ActionType>
+
     @Update
     fun updateActionType(actionType: ActionType)
 
@@ -73,6 +76,8 @@ class ActionTypeRepository private constructor(context: Context) {
 
     fun getActionTypesFromParent(id: String): LiveData<List<ActionType>> = actionTypeDao.getActionTypesFromParent(id)
     fun countRows(): LiveData<Int> = actionTypeDao.countRows()
+    fun getActionType(id: UUID): LiveData<ActionType> = actionTypeDao.getActionType(id)
+
 
     fun updateActionType(actionType: ActionType) {
         executor.execute {

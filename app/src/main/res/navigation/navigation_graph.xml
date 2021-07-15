@@ -3,44 +3,53 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_graph"
-    app:startDestination="@id/navigation_current_day">
+    app:startDestination="@id/navigation_day">
 
      <fragment
-        android:id="@+id/navigation_child_act"
+        android:id="@+id/navigation_child_action_type"
         android:name="com.daiwerystudio.chronos.UI.ActionType.ActionTypeFragment"
         android:label="navigation_child_act"
         tools:layout="@layout/fragment_action_type">
         <action
             android:id="@+id/action_navigation_child_action_type_to_navigation_item_action_type"
-            app:destination="@id/navigation_item_act"
-            app:popUpTo="@id/navigation_child_act" />
+            app:destination="@id/navigation_item_action_type"
+            app:popUpTo="@id/navigation_child_action_type" />
         <action
             android:id="@+id/action_navigation_child_action_type_self"
-            app:destination="@id/navigation_child_act"
-            app:popUpTo="@id/navigation_child_act" />
+            app:destination="@id/navigation_child_action_type"
+            app:popUpTo="@id/navigation_child_action_type" />
     </fragment>
     <fragment
-        android:id="@+id/navigation_act"
+        android:id="@+id/navigation_action_type"
         android:name="com.daiwerystudio.chronos.UI.ActionType.ActionTypeFragment"
         android:label="Действия"
         tools:layout="@layout/fragment_action_type" >
         <action
             android:id="@+id/action_navigation_action_type_to_navigation_item_action_type"
-            app:destination="@id/navigation_item_act"
-            app:popUpTo="@id/navigation_act" />
+            app:destination="@id/navigation_item_action_type"
+            app:popUpTo="@id/navigation_action_type" />
         <action
             android:id="@+id/action_navigation_action_type_to_navigation_child_action_type"
-            app:destination="@id/navigation_child_act"
-            app:popUpTo="@id/navigation_act" />
+            app:destination="@id/navigation_child_action_type"
+            app:popUpTo="@id/navigation_action_type" />
     </fragment>
     <fragment
-        android:id="@+id/navigation_current_day"
+        android:id="@+id/navigation_day"
         android:name="com.daiwerystudio.chronos.UI.Day.DayFragment"
         android:label="fragment_current_day"
-        tools:layout="@layout/fragment_day" />
+        tools:layout="@layout/fragment_day" >
+        <action
+            android:id="@+id/action_navigation_day_to_navigation_item_action"
+            app:destination="@id/navigation_item_action" />
+    </fragment>
     <fragment
-        android:id="@+id/navigation_item_act"
+        android:id="@+id/navigation_item_action_type"
         android:name="com.daiwerystudio.chronos.UI.ActionType.ItemActionTypeFragment"
         android:label="Новое действие"
         tools:layout="@layout/fragment_item_action_type" />
+    <fragment
+        android:id="@+id/navigation_item_action"
+        android:name="com.daiwerystudio.chronos.UI.Day.ItemActionFragment"
+        android:label="fragment_item_action"
+        tools:layout="@layout/fragment_item_action" />
 </navigation>

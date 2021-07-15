@@ -59,7 +59,7 @@ class ActionTypeFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        actionTypeViewModel.actionTypes.observe(viewLifecycleOwner, Observer { acts -> updateUI(acts) })
+        actionTypeViewModel.actionTypes.observe(viewLifecycleOwner, Observer { actionTypes -> updateUI(actionTypes) })
     }
 
     private fun updateUI(actionsType: List<ActionType>) {
@@ -95,16 +95,16 @@ class ActionTypeFragment: Fragment() {
         }
     }
 
-    private inner class ActionTypeAdapter(var actionsType: List<ActionType>): RecyclerView.Adapter<ActionTypeHolder>(){
+    private inner class ActionTypeAdapter(var actionTypes: List<ActionType>): RecyclerView.Adapter<ActionTypeHolder>(){
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionTypeHolder {
             val view = layoutInflater.inflate(R.layout.list_item_action_type, parent, false)
             return ActionTypeHolder(view)
         }
 
-        override fun getItemCount() = actionsType.size
+        override fun getItemCount() = actionTypes.size
 
         override fun onBindViewHolder(holder: ActionTypeHolder, position: Int) {
-            val act = actionsType[position]
+            val act = actionTypes[position]
             holder.bind(act)
         }
     }
@@ -118,9 +118,9 @@ class ActionTypeFragment: Fragment() {
 
         // Update actionTypes
         if (parentActionType == null){
-            actionTypeViewModel.getActsFromParent("")
+            actionTypeViewModel.getActionTypesFromParent("")
         } else {
-            actionTypeViewModel.getActsFromParent(parentActionType!!.id.toString())
+            actionTypeViewModel.getActionTypesFromParent(parentActionType!!.id.toString())
         }
     }
 

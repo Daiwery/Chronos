@@ -10,7 +10,7 @@ class ActionTypeViewModel: ViewModel() {
     private val actionTypeRepository = ActionTypeRepository.get()
     lateinit var actionTypes: LiveData<List<ActionType>>  // У act без родителей, parent=""
 
-    fun getActsFromParent(id: String){
+    fun getActionTypesFromParent(id: String){
         actionTypes = actionTypeRepository.getActionTypesFromParent(id)
     }
 
