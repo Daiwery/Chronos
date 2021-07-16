@@ -1,4 +1,4 @@
-package com.daiwerystudio.chronos.UI.Day
+package com.daiwerystudio.chronos.ui.day
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -13,8 +13,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.daiwerystudio.chronos.DataBase.Action
-import com.daiwerystudio.chronos.DataBase.ActionType
+import com.daiwerystudio.chronos.database.Action
+import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat

@@ -1,11 +1,11 @@
-package com.daiwerystudio.chronos.UI.Day
+package com.daiwerystudio.chronos.ui.day
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.daiwerystudio.chronos.DataBase.Action
-import com.daiwerystudio.chronos.DataBase.ActionRepository
-import com.daiwerystudio.chronos.DataBase.ActionType
-import com.daiwerystudio.chronos.DataBase.ActionTypeRepository
+import com.daiwerystudio.chronos.database.Action
+import com.daiwerystudio.chronos.database.ActionRepository
+import com.daiwerystudio.chronos.database.ActionType
+import com.daiwerystudio.chronos.database.ActionTypeRepository
 import java.util.*
 
 

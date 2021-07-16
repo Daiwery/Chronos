@@ -1,4 +1,4 @@
-package com.daiwerystudio.chronos.DataBase
+package com.daiwerystudio.chronos.database
 
 import android.app.Application
 import android.util.Log

@@ -1,4 +1,4 @@
-package com.daiwerystudio.chronos.UI.ActionType
+package com.daiwerystudio.chronos.ui.actiontype
 
 import android.os.Bundle
 import android.view.*
@@ -11,18 +11,19 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.daiwerystudio.chronos.DataBase.ActionType
+import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
-class ActionTypeFragment: Fragment() {
-    private val actionTypeViewModel: ActionTypeViewModel by lazy { ViewModelProviders.of(this).get(ActionTypeViewModel::class.java) }
+class ChildActionTypeFragment: Fragment() {
+    private val childActionTypeViewModel: ChildActionTypeViewModel
+    by lazy { ViewModelProviders.of(this).get(ChildActionTypeViewModel::class.java) }
     private lateinit var actionTypeRecyclerView: RecyclerView
     private var actionTypeAdapter: ActionTypeAdapter? = ActionTypeAdapter(emptyList())
-    val bundle = Bundle()
 
-    private var parentActionType: ActionType? = null
+    val bundle = Bundle()
+    private lateinit var parentActionType: ActionType
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -32,9 +33,8 @@ class ActionTypeFragment: Fragment() {
         // Доступ к меню
         val appCompatActivity = activity as AppCompatActivity
         val appBar = appCompatActivity.supportActionBar
-        if (parentActionType != null){
-            appBar?.setTitle(parentActionType!!.name)
-        }
+        appBar?.setTitle(parentActionType.name)
+
 
         // Настройка RecyclerView
         actionTypeRecyclerView = view.findViewById(R.id.action_type_recycler_view) as RecyclerView
@@ -44,14 +44,8 @@ class ActionTypeFragment: Fragment() {
         // Настройка кнопки
         val fab = view.findViewById(R.id.fab) as FloatingActionButton
         fab.setOnClickListener{ v: View ->
-            // Этот класс ипользуется одновременно для act и actChild
-            if (parentActionType == null){
-                bundle.putString("idParentAct", "")
-                v.findNavController().navigate(R.id.action_navigation_action_type_to_navigation_item_action_type, bundle)
-            } else {
-                bundle.putString("idParentAct", parentActionType!!.id.toString())
-                v.findNavController().navigate(R.id.action_navigation_child_action_type_to_navigation_item_action_type, bundle)
-            }
+            bundle.putString("idParentActionType", parentActionType.id.toString())
+            v.findNavController().navigate(R.id.action_navigation_child_action_type_to_navigation_item_action_type, bundle)
         }
 
         return view
@@ -59,7 +53,7 @@ class ActionTypeFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        actionTypeViewModel.actionTypes.observe(viewLifecycleOwner, Observer { actionTypes -> updateUI(actionTypes) })
+        childActionTypeViewModel.actionTypes.observe(viewLifecycleOwner, Observer { actionTypes -> updateUI(actionTypes) })
     }
 
     private fun updateUI(actionsType: List<ActionType>) {
@@ -85,13 +79,8 @@ class ActionTypeFragment: Fragment() {
         }
 
         override fun onClick(v: View) {
-            // Этот класс ипользуется одновременно для act и actChild
-            bundle.putSerializable("parentAct", actionType)
-            if (parentActionType == null){
-                v.findNavController().navigate(R.id.action_navigation_action_type_to_navigation_child_action_type, bundle)
-            } else {
-                v.findNavController().navigate(R.id.action_navigation_child_action_type_self, bundle)
-            }
+            bundle.putSerializable("parentActionType", actionType)
+            v.findNavController().navigate(R.id.action_navigation_child_action_type_self, bundle)
         }
     }
 
@@ -114,14 +103,10 @@ class ActionTypeFragment: Fragment() {
         setHasOptionsMenu(true)
 
         // Get parentActionType
-        parentActionType = arguments?.getSerializable("parentAct") as ActionType?
+        parentActionType = arguments?.getSerializable("parentActionType") as ActionType
 
         // Update actionTypes
-        if (parentActionType == null){
-            actionTypeViewModel.getActionTypesFromParent("")
-        } else {
-            actionTypeViewModel.getActionTypesFromParent(parentActionType!!.id.toString())
-        }
+        childActionTypeViewModel.getActionTypesFromParent(parentActionType.id.toString())
     }
 
     override fun onStart() {
@@ -133,21 +118,20 @@ class ActionTypeFragment: Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 
-        if (parentActionType != null)
-            inflater.inflate(R.menu.fragment_action_type, menu)
+        inflater.inflate(R.menu.fragment_child_action_type, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.edit_action_type -> {
-                // Изменяем текущее действие
-                bundle.putSerializable("act", parentActionType)
+                // Изменяем текущий тип действия
+                bundle.putSerializable("actionType", parentActionType)
                 requireActivity().findNavController(R.id.nav_host_fragment)
                     .navigate(R.id.action_navigation_child_action_type_to_navigation_item_action_type, bundle)
                 return true
             }
             R.id.delete_action_type -> {
-                actionTypeViewModel.deleteActWithChild(parentActionType!!)
+                childActionTypeViewModel.deleteActWithChild(parentActionType)
                 requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
                 return true
             }

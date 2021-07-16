@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.day.DayFragment">
+    tools:context=".ui.actiontype.ChildActionTypeFragment">
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -19,28 +20,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <HorizontalScrollView
-            android:id="@+id/horizontalScrollView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/clockImageView"
-                android:layout_width="500dp"
-                android:layout_height="50dp" />
-        </HorizontalScrollView>
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/action_recycler_view"
+            android:id="@+id/action_type_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView">
-
-        </androidx.recyclerview.widget.RecyclerView>
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteY="537dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </FrameLayout>

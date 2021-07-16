@@ -1,4 +1,4 @@
-package com.daiwerystudio.chronos.UI.ActionType
+package com.daiwerystudio.chronos.ui.actiontype
 
 import android.os.Bundle
 import android.view.*
@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
-import com.daiwerystudio.chronos.DataBase.ActionType
+import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.R
 
 
@@ -64,7 +64,7 @@ class ItemActionTypeFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         // Получаем аргументы
-        idParentActionType = arguments?.getString("idParentAct")
-        actionType = arguments?.getSerializable("act") as ActionType?
+        idParentActionType = arguments?.getString("idParentActionType")
+        actionType = arguments?.getSerializable("actionType") as ActionType?
     }
 }

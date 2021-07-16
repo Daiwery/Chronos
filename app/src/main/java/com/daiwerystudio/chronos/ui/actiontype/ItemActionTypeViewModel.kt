@@ -1,8 +1,8 @@
-package com.daiwerystudio.chronos.UI.ActionType
+package com.daiwerystudio.chronos.ui.actiontype
 
 import androidx.lifecycle.ViewModel
-import com.daiwerystudio.chronos.DataBase.ActionType
-import com.daiwerystudio.chronos.DataBase.ActionTypeRepository
+import com.daiwerystudio.chronos.database.ActionType
+import com.daiwerystudio.chronos.database.ActionTypeRepository
 
 
 class ItemActionTypeViewModel: ViewModel() {

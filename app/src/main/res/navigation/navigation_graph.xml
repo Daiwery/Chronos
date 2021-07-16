@@ -7,7 +7,7 @@
 
      <fragment
         android:id="@+id/navigation_child_action_type"
-        android:name="com.daiwerystudio.chronos.UI.ActionType.ActionTypeFragment"
+        android:name="com.daiwerystudio.chronos.ui.actiontype.ChildActionTypeFragment"
         android:label="navigation_child_act"
         tools:layout="@layout/fragment_action_type">
         <action
@@ -21,7 +21,7 @@
     </fragment>
     <fragment
         android:id="@+id/navigation_action_type"
-        android:name="com.daiwerystudio.chronos.UI.ActionType.ActionTypeFragment"
+        android:name="com.daiwerystudio.chronos.ui.actiontype.ActionTypeFragment"
         android:label="Действия"
         tools:layout="@layout/fragment_action_type" >
         <action
@@ -35,7 +35,7 @@
     </fragment>
     <fragment
         android:id="@+id/navigation_day"
-        android:name="com.daiwerystudio.chronos.UI.Day.DayFragment"
+        android:name="com.daiwerystudio.chronos.ui.day.DayFragment"
         android:label="fragment_current_day"
         tools:layout="@layout/fragment_day" >
         <action
@@ -44,12 +44,12 @@
     </fragment>
     <fragment
         android:id="@+id/navigation_item_action_type"
-        android:name="com.daiwerystudio.chronos.UI.ActionType.ItemActionTypeFragment"
+        android:name="com.daiwerystudio.chronos.ui.actiontype.ItemActionTypeFragment"
         android:label="Новое действие"
         tools:layout="@layout/fragment_item_action_type" />
     <fragment
         android:id="@+id/navigation_item_action"
-        android:name="com.daiwerystudio.chronos.UI.Day.ItemActionFragment"
+        android:name="com.daiwerystudio.chronos.ui.day.ItemActionFragment"
         android:label="fragment_item_action"
         tools:layout="@layout/fragment_item_action" />
 </navigation>

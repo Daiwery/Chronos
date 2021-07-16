@@ -1,14 +1,14 @@
-package com.daiwerystudio.chronos.UI.ActionType
+package com.daiwerystudio.chronos.ui.actiontype
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.daiwerystudio.chronos.DataBase.ActionType
-import com.daiwerystudio.chronos.DataBase.ActionTypeRepository
+import com.daiwerystudio.chronos.database.ActionType
+import com.daiwerystudio.chronos.database.ActionTypeRepository
 
 
-class ActionTypeViewModel: ViewModel() {
+class ChildActionTypeViewModel: ViewModel() {
     private val actionTypeRepository = ActionTypeRepository.get()
-    lateinit var actionTypes: LiveData<List<ActionType>>  // У act без родителей, parent=""
+    lateinit var actionTypes: LiveData<List<ActionType>>
 
     fun getActionTypesFromParent(id: String){
         actionTypes = actionTypeRepository.getActionTypesFromParent(id)
@@ -17,6 +17,4 @@ class ActionTypeViewModel: ViewModel() {
     fun deleteActWithChild(actionType: ActionType){
         actionTypeRepository.deleteActionTypeWithChild(actionType)
     }
-
-    fun countRows(): LiveData<Int> = actionTypeRepository.countRows()
 }

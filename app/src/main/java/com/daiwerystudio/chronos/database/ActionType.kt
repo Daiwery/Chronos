@@ -1,9 +1,7 @@
-package com.daiwerystudio.chronos.DataBase
+package com.daiwerystudio.chronos.database
 
-import android.app.Application
 import android.content.Context
 import android.graphics.Color
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import java.io.Serializable

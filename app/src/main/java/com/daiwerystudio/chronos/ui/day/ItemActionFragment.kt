@@ -1,4 +1,4 @@
-package com.daiwerystudio.chronos.UI.Day
+package com.daiwerystudio.chronos.ui.day
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -9,10 +9,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.daiwerystudio.chronos.DataBase.ActionType
+import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.R
 
 
