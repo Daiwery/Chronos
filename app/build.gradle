@@ -60,4 +60,8 @@ dependencies {
 
     // RecyclerView component
     implementation'androidx.recyclerview:recyclerview:1.0.0'
+
+
+    // ColorPicker
+    implementation 'com.jaredrummler:colorpicker:1.1.0'
 }

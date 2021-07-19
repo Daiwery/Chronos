@@ -18,24 +18,35 @@
             android:layout_width="10dp"
             android:layout_height="20dp"
             android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="10dp"
+            android:colorFilter="@{actionType.color}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/action_type_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/shape_oval" />
+            app:srcCompat="@drawable/oval_list_item_action_type" />
 
         <TextView
             android:id="@+id/action_type_name"
+            style="@style/TextAppearance.AppCompat.Menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:paddingBottom="10dp"
+            android:layout_marginTop="8dp"
+            android:paddingBottom="0dp"
             android:singleLine="true"
+            android:text="@{actionType.name}"
             android:textSize="30sp"
             app:layout_constraintStart_toEndOf="@+id/action_type_color"
             app:layout_constraintTop_toTopOf="parent"
-            android:text="@{actionType.name}"
-            tools:text="action_type_name"/>
+            tools:text="Сон" />
+
+        <ImageView
+            android:id="@+id/multiColorLineImage"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/action_type_name" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

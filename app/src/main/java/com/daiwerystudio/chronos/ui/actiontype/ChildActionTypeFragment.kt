@@ -1,50 +1,64 @@
 package com.daiwerystudio.chronos.ui.actiontype
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.R
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.daiwerystudio.chronos.databinding.FragmentActionTypeBinding
+import com.daiwerystudio.chronos.databinding.FragmentChildActionTypeBinding
+import com.daiwerystudio.chronos.databinding.ListItemActionTypeBinding
+import com.daiwerystudio.chronos.lineItemListActionType
+
 
 
 class ChildActionTypeFragment: Fragment() {
+    // ViewModel
     private val childActionTypeViewModel: ChildActionTypeViewModel
-    by lazy { ViewModelProviders.of(this).get(ChildActionTypeViewModel::class.java) }
-    private lateinit var actionTypeRecyclerView: RecyclerView
-    private var actionTypeAdapter: ActionTypeAdapter? = ActionTypeAdapter(emptyList())
-
+    by lazy { ViewModelProvider(this).get(ChildActionTypeViewModel::class.java) }
+    // Data Binding
+    private lateinit var binding: FragmentChildActionTypeBinding
+    // Bundle
     val bundle = Bundle()
     private lateinit var parentActionType: ActionType
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+        // Get parentActionType and update actionTypes
+        parentActionType = arguments?.getSerializable("parentActionType") as ActionType
+        childActionTypeViewModel.getActionTypesFromParent(parentActionType.id.toString())
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        val view = inflater.inflate(R.layout.fragment_action_type, container, false)
+        // Data Binding
+        binding = FragmentChildActionTypeBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        // Доступ к меню
-        val appCompatActivity = activity as AppCompatActivity
-        val appBar = appCompatActivity.supportActionBar
-        appBar?.setTitle(parentActionType.name)
+        // Set parentActionType
+        binding.parentActionType = parentActionType
 
+        // Setting recyclerView
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = ActionTypeAdapter(emptyList())
+        }
 
-        // Настройка RecyclerView
-        actionTypeRecyclerView = view.findViewById(R.id.action_type_recycler_view) as RecyclerView
-        actionTypeRecyclerView.layoutManager = LinearLayoutManager(context)
-        actionTypeRecyclerView.adapter = actionTypeAdapter
-
-        // Настройка кнопки
-        val fab = view.findViewById(R.id.fab) as FloatingActionButton
-        fab.setOnClickListener{ v: View ->
-            bundle.putString("idParentActionType", parentActionType.id.toString())
+        // Setting fab
+        binding.fab.setOnClickListener{ v: View ->
+            bundle.putSerializable("parentActionType", parentActionType)
             v.findNavController().navigate(R.id.action_navigation_child_action_type_to_navigation_item_action_type, bundle)
         }
 
@@ -53,74 +67,43 @@ class ChildActionTypeFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        childActionTypeViewModel.actionTypes.observe(viewLifecycleOwner, Observer { actionTypes -> updateUI(actionTypes) })
-    }
+        // Observation of actionTypes
+        childActionTypeViewModel.actionTypes.observe(viewLifecycleOwner, Observer {
+                actionTypes -> binding.recyclerView.adapter = ActionTypeAdapter(actionTypes)
+        })
 
-    private fun updateUI(actionsType: List<ActionType>) {
-        actionTypeAdapter = ActionTypeAdapter(actionsType)
-        actionTypeRecyclerView.adapter = actionTypeAdapter
-    }
-
-
-    private inner class ActionTypeHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener {
-        private lateinit var actionType: ActionType
-
-        val nameTextView: TextView = itemView.findViewById(R.id.action_type_name)
-        val colorImageView: ImageView = itemView.findViewById(R.id.action_type_color)
-
-        init {
-            itemView.setOnClickListener(this)
-        }
-
-        fun bind(actionType: ActionType) {
-            this.actionType = actionType
-            nameTextView.text = this.actionType.name
-            colorImageView.setColorFilter(actionType.color)
-        }
-
-        override fun onClick(v: View) {
-            bundle.putSerializable("parentActionType", actionType)
-            v.findNavController().navigate(R.id.action_navigation_child_action_type_self, bundle)
-        }
-    }
-
-    private inner class ActionTypeAdapter(var actionTypes: List<ActionType>): RecyclerView.Adapter<ActionTypeHolder>(){
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionTypeHolder {
-            val view = layoutInflater.inflate(R.layout.list_item_action_type, parent, false)
-            return ActionTypeHolder(view)
-        }
-
-        override fun getItemCount() = actionTypes.size
-
-        override fun onBindViewHolder(holder: ActionTypeHolder, position: Int) {
-            val act = actionTypes[position]
-            holder.bind(act)
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-
-        // Get parentActionType
-        parentActionType = arguments?.getSerializable("parentActionType") as ActionType
-
-        // Update actionTypes
-        childActionTypeViewModel.getActionTypesFromParent(parentActionType.id.toString())
+        val appCompatActivity = activity as AppCompatActivity
+        // Menu
+        val appBar = appCompatActivity.supportActionBar
+        appBar?.setBackgroundDrawable(ColorDrawable(parentActionType.color))
+        // Status bar
+        appCompatActivity.window.setStatusBarColor(parentActionType.color)
     }
 
     override fun onStart() {
         super.onStart()
-
         bundle.clear()
     }
 
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        val appCompatActivity = activity as AppCompatActivity
+        // Menu
+        val appBar = appCompatActivity.supportActionBar
+        appBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.main_color)))
+        // Status bar
+        appCompatActivity.window.setStatusBarColor(resources.getColor(R.color.main_color))
+    }
+
+    // Set menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-
         inflater.inflate(R.menu.fragment_child_action_type, menu)
     }
 
+    // Click on element in menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.edit_action_type -> {
@@ -136,6 +119,50 @@ class ChildActionTypeFragment: Fragment() {
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+
+    private inner class ActionTypeHolder(private val binding: ListItemActionTypeBinding):
+        RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+        private lateinit var actionType: ActionType
+        private lateinit var colorsChildActionTypes: LiveData<List<Int>>
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        fun bind(actionType: ActionType) {
+            this.actionType = actionType
+            this.colorsChildActionTypes = childActionTypeViewModel.getColorsActionTypesFromParent(actionType.id.toString())
+
+            binding.actionType = this.actionType
+            this.colorsChildActionTypes.observe(viewLifecycleOwner, Observer { colorsChildActionTypes ->
+                binding.multiColorLineImage.setImageDrawable(lineItemListActionType(colorsChildActionTypes))
+            })
+        }
+
+        override fun onClick(v: View) {
+            bundle.putSerializable("parentActionType", actionType)
+            v.findNavController().navigate(R.id.action_navigation_child_action_type_self, bundle)
+        }
+    }
+
+    private inner class ActionTypeAdapter(var actionTypes: List<ActionType>): RecyclerView.Adapter<ActionTypeHolder>(){
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionTypeHolder {
+            val binding = DataBindingUtil.inflate<ListItemActionTypeBinding>(
+                layoutInflater,
+                R.layout.list_item_action_type,
+                parent,
+                false)
+            return ActionTypeHolder(binding)
+        }
+
+        override fun getItemCount() = actionTypes.size
+
+        override fun onBindViewHolder(holder: ActionTypeHolder, position: Int) {
+            val act = actionTypes[position]
+            holder.bind(act)
         }
     }
 }

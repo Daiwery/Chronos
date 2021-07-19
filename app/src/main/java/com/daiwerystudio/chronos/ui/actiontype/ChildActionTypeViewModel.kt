@@ -17,4 +17,6 @@ class ChildActionTypeViewModel: ViewModel() {
     fun deleteActWithChild(actionType: ActionType){
         actionTypeRepository.deleteActionTypeWithChild(actionType)
     }
+
+    fun getColorsActionTypesFromParent(id: String): LiveData<List<Int>> = actionTypeRepository.getColorsActionTypesFromParent(id)
 }

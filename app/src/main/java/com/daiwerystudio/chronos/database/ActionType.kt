@@ -15,7 +15,7 @@ private const val ACTION_TYPE_DATABASE_NAME = "action_type-database"
 data class ActionType(
     @PrimaryKey val id: UUID = UUID.randomUUID(),
     var parent: String = "",
-    var name: String = UUID.randomUUID().toString(),
+    var name: String = "",
     var color: Int = Color.rgb((Math.random()*255).toInt(), (Math.random()*255).toInt(), (Math.random()*255).toInt())
 ) : Serializable
 
@@ -40,8 +40,8 @@ interface ActionTypeDao {
     @Query("SELECT * FROM action_type_table WHERE parent=(:id)")
     fun getActionTypesFromParentAsList(id: String): List<ActionType>
 
-    @Query("SELECT COUNT(*) FROM action_type_table")
-    fun countRows(): LiveData<Int>
+    @Query("SELECT color FROM action_type_table WHERE parent=(:id)")
+    fun getColorsActionTypesFromParent(id: String): LiveData<List<Int>>
 
     @Query("SELECT * FROM action_type_table WHERE id=(:id)")
     fun getActionType(id: UUID): LiveData<ActionType>
@@ -73,8 +73,8 @@ class ActionTypeRepository private constructor(context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
 
     fun getActionTypesFromParent(id: String): LiveData<List<ActionType>> = actionTypeDao.getActionTypesFromParent(id)
-    fun countRows(): LiveData<Int> = actionTypeDao.countRows()
     fun getActionType(id: UUID): LiveData<ActionType> = actionTypeDao.getActionType(id)
+    fun getColorsActionTypesFromParent(id: String): LiveData<List<Int>> = actionTypeDao.getColorsActionTypesFromParent(id)
 
 
     fun updateActionType(actionType: ActionType) {

@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">Chronos</string>
+    <string name="action_types">Action Types</string>
+    <string name="current_day">Current day</string>
+    <string name="name_action_type">Name action type</string>
+    <string name="action_type_name_hint">For example, work</string>
+    <string name="color">Color</string>
+    <string name="new_action_type">New action type</string>
+    <string name="edit_action_type">Edit action type</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="goals">Goals</string>
 </resources>

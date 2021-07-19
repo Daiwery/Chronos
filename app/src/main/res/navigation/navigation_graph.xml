@@ -8,7 +8,7 @@
      <fragment
         android:id="@+id/navigation_child_action_type"
         android:name="com.daiwerystudio.chronos.ui.actiontype.ChildActionTypeFragment"
-        android:label="navigation_child_act"
+        android:label=""
         tools:layout="@layout/fragment_action_type">
         <action
             android:id="@+id/action_navigation_child_action_type_to_navigation_item_action_type"
@@ -22,11 +22,12 @@
     <fragment
         android:id="@+id/navigation_action_type"
         android:name="com.daiwerystudio.chronos.ui.actiontype.ActionTypeFragment"
-        android:label="Действия"
+        android:label=""
         tools:layout="@layout/fragment_action_type" >
         <action
             android:id="@+id/action_navigation_action_type_to_navigation_item_action_type"
             app:destination="@id/navigation_item_action_type"
+            app:launchSingleTop="false"
             app:popUpTo="@id/navigation_action_type" />
         <action
             android:id="@+id/action_navigation_action_type_to_navigation_child_action_type"
@@ -45,11 +46,44 @@
     <fragment
         android:id="@+id/navigation_item_action_type"
         android:name="com.daiwerystudio.chronos.ui.actiontype.ItemActionTypeFragment"
-        android:label="Новое действие"
+        android:label="@string/new_action_type"
         tools:layout="@layout/fragment_item_action_type" />
     <fragment
         android:id="@+id/navigation_item_action"
         android:name="com.daiwerystudio.chronos.ui.day.ItemActionFragment"
         android:label="fragment_item_action"
         tools:layout="@layout/fragment_item_action" />
+    <fragment
+        android:id="@+id/navigation_goal"
+        android:name="com.daiwerystudio.chronos.GoalFragment"
+        android:label="fragment_goal"
+        tools:layout="@layout/fragment_goal" >
+        <action
+            android:id="@+id/action_navigation_goal_to_navigation_child_goal"
+            app:destination="@id/navigation_child_goal"
+            app:popUpTo="@id/navigation_goal" />
+        <action
+            android:id="@+id/action_navigation_goal_to_navigation_item_goal"
+            app:destination="@id/navigation_item_goal"
+            app:popUpTo="@id/navigation_goal" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_child_goal"
+        android:name="com.daiwerystudio.chronos.ChildGoalFragment"
+        android:label="fragment_child_goal"
+        tools:layout="@layout/fragment_child_goal" >
+        <action
+            android:id="@+id/action_navigation_child_goal_to_navigation_item_goal"
+            app:destination="@id/navigation_item_goal"
+            app:popUpTo="@id/navigation_child_goal" />
+        <action
+            android:id="@+id/action_navigation_child_goal_self"
+            app:destination="@id/navigation_child_goal"
+            app:popUpTo="@id/navigation_child_goal" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_item_goal"
+        android:name="com.daiwerystudio.chronos.ItemGoalFragment"
+        android:label="fragment_item_goal"
+        tools:layout="@layout/fragment_item_goal" />
 </navigation>

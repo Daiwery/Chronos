@@ -4,11 +4,16 @@
     <item
         android:id="@+id/navigation_action_type"
         android:icon="@drawable/ic_baseline_work_24"
-        android:title="Acts" />
+        android:title="@string/action_types" />
 
     <item
         android:id="@+id/navigation_day"
         android:icon="@drawable/ic_baseline_home_24"
-        android:title="CurrentDay" />
+        android:title="@string/current_day" />
+
+    <item
+        android:id="@+id/navigation_goal"
+        android:icon="@drawable/ic_baseline_assignment_late_24"
+        android:title="@string/goals" />
 
 </menu>
