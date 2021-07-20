@@ -36,7 +36,7 @@ interface ActionTypeDao {
     @Query("SELECT * FROM action_type_table WHERE parent=(:id)")
     fun getActionTypesFromParent(id: String): LiveData<List<ActionType>>
 
-    // Это функция нужна для реккурентного удаления всех acts от какого-то parent (см. ниже)
+    // Это функция нужна для реккурентного удаления всех actionTypes от какого-то parent (см. ниже)
     @Query("SELECT * FROM action_type_table WHERE parent=(:id)")
     fun getActionTypesFromParentAsList(id: String): List<ActionType>
 
@@ -92,10 +92,10 @@ class ActionTypeRepository private constructor(context: Context) {
 
     fun deleteActionTypeWithChild(actionType: ActionType){
         executor.execute {
-            val childActs = actionTypeDao.getActionTypesFromParentAsList(actionType.id.toString())
+            val childActionTypes = actionTypeDao.getActionTypesFromParentAsList(actionType.id.toString())
             actionTypeDao.deleteActionType(actionType)
-            for (childAct in childActs){
-                deleteActionTypeWithChild(childAct)
+            for (childActionType in childActionTypes){
+                deleteActionTypeWithChild(childActionType)
             }
         }
     }

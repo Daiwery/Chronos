@@ -55,9 +55,9 @@
         tools:layout="@layout/fragment_item_action" />
     <fragment
         android:id="@+id/navigation_goal"
-        android:name="com.daiwerystudio.chronos.GoalFragment"
-        android:label="fragment_goal"
-        tools:layout="@layout/fragment_goal" >
+        android:label=""
+        android:name="com.daiwerystudio.chronos.ui.goal.GoalFragment"
+        tools:layout="@layout/fragment_goal">
         <action
             android:id="@+id/action_navigation_goal_to_navigation_child_goal"
             app:destination="@id/navigation_child_goal"
@@ -69,7 +69,7 @@
     </fragment>
     <fragment
         android:id="@+id/navigation_child_goal"
-        android:name="com.daiwerystudio.chronos.ChildGoalFragment"
+        android:name="com.daiwerystudio.chronos.ui.goal.ChildGoalFragment"
         android:label="fragment_child_goal"
         tools:layout="@layout/fragment_child_goal" >
         <action
@@ -83,7 +83,7 @@
     </fragment>
     <fragment
         android:id="@+id/navigation_item_goal"
-        android:name="com.daiwerystudio.chronos.ItemGoalFragment"
+        android:name="com.daiwerystudio.chronos.ui.goal.ItemGoalFragment"
         android:label="fragment_item_goal"
         tools:layout="@layout/fragment_item_goal" />
 </navigation>

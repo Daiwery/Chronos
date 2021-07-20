@@ -7,7 +7,7 @@
     <string name="color">Color</string>
     <string name="new_action_type">New action type</string>
     <string name="edit_action_type">Edit action type</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="goals">Goals</string>
+    <string name="not_achieved">Not achieved</string>
+    <string name="achieved">Achieved</string>
 </resources>
