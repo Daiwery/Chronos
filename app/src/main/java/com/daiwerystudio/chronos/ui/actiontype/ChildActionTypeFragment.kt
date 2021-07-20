@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.R
-import com.daiwerystudio.chronos.databinding.FragmentActionTypeBinding
 import com.daiwerystudio.chronos.databinding.FragmentChildActionTypeBinding
 import com.daiwerystudio.chronos.databinding.ListItemActionTypeBinding
 import com.daiwerystudio.chronos.lineItemListActionType
@@ -100,7 +99,7 @@ class ChildActionTypeFragment: Fragment() {
     // Set menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_child_action_type, menu)
+        inflater.inflate(R.menu.fragment_child, menu)
     }
 
     // Click on element in menu
@@ -114,7 +113,7 @@ class ChildActionTypeFragment: Fragment() {
                 return true
             }
             R.id.delete_action_type -> {
-                childActionTypeViewModel.deleteActWithChild(parentActionType)
+                childActionTypeViewModel.deleteActionTypeWithChild(parentActionType)
                 requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
                 return true
             }

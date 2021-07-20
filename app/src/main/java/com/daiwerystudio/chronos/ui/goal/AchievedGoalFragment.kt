@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
@@ -64,8 +65,8 @@ class AchievedGoalFragment : Fragment() {
         }
 
         override fun onClick(v: View) {
-//            bundle.putSerializable("parentActionType", actionType)
-//            v.findNavController().navigate(R.id.action_navigation_action_type_to_navigation_child_action_type, bundle)
+            bundle.putSerializable("parentGoal", achievedGoal)
+            v.findNavController().navigate(R.id.action_navigation_goal_to_navigation_child_goal, bundle)
         }
     }
 
@@ -73,7 +74,7 @@ class AchievedGoalFragment : Fragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AchievedGoalHolder {
             val binding = DataBindingUtil.inflate<ListItemAchievedGoalBinding>(
                 layoutInflater,
-                R.layout.list_item_action_type,
+                R.layout.list_item_achieved_goal,
                 parent,
                 false)
             return AchievedGoalHolder(binding)

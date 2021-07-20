@@ -25,10 +25,9 @@ class ItemActionTypeFragment : Fragment() {
     // Cringe Logic
     private var isCreate: Boolean = false
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
         // Get arguments
         parentActionType = arguments?.getSerializable("parentActionType") as ActionType?
         actionType = arguments?.getSerializable("actionType") as ActionType?

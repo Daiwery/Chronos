@@ -1,6 +1,7 @@
 package com.daiwerystudio.chronos.database
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import java.io.Serializable
@@ -36,9 +37,15 @@ interface GoalTypeDao {
     @Query("SELECT * FROM goal_table WHERE parent='' AND isAchieved=(:isAchieved)")
     fun getGoalsWithoutParentFromSolve(isAchieved: Boolean): LiveData<List<Goal>>
 
-    // Это функция нужна для реккурентного удаления всех goals от какого-то parent (см. ниже)
+    @Query("SELECT * FROM goal_table WHERE parent=(:id)")
+    fun getGoalsFromParent(id: String): LiveData<List<Goal>>
+
+    // Это функция нужна для реккурентного удаления всех goals от какого-то parent (см. ниже) (и не только)
     @Query("SELECT * FROM goal_table WHERE parent=(:id)")
     fun getGoalsFromParentAsList(id: String): List<Goal>
+
+    @Query("SELECT 100*AVG(isAchieved=1) FROM goal_table WHERE parent=(:id)")
+    fun getPercentAchieved(id: String): LiveData<Int>
 
     @Update
     fun updateGoal(goal: Goal)
@@ -67,6 +74,8 @@ class GoalRepository private constructor(context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
 
     fun getGoalsWithoutParentFromSolve(isAchieved: Boolean): LiveData<List<Goal>> = goalDao.getGoalsWithoutParentFromSolve(isAchieved)
+    fun getGoalsFromParent(id: String): LiveData<List<Goal>> = goalDao.getGoalsFromParent(id)
+    fun getPercentAchieved(id: String): LiveData<Int> = goalDao.getPercentAchieved(id)
 
     fun updateGoal(goal: Goal) {
         executor.execute {
@@ -86,6 +95,18 @@ class GoalRepository private constructor(context: Context) {
             goalDao.deleteGoal(goal)
             for (childGoal in childGoals){
                 deleteGoalWithChild(childGoal)
+            }
+        }
+    }
+
+    fun setAchievedGoalWithChild(goal: Goal){
+        executor.execute {
+            goal.isAchieved = true
+            goalDao.updateGoal(goal)
+
+            val childGoals = goalDao.getGoalsFromParentAsList(goal.id.toString())
+            for (childGoal in childGoals){
+                setAchievedGoalWithChild(childGoal)
             }
         }
     }

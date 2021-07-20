@@ -1,60 +1,190 @@
 package com.daiwerystudio.chronos.ui.goal
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
+import com.daiwerystudio.chronos.database.Goal
+import com.daiwerystudio.chronos.databinding.FragmentChildGoalBinding
+import com.daiwerystudio.chronos.databinding.ListItemAchievedGoalBinding
+import com.daiwerystudio.chronos.databinding.ListItemNotAchievedGoalBinding
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ChildGoalFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+private const val TYPE_ACHIEVED_GOAL = 1
+private const val TYPE_NOT_ACHIEVED_GOAL = 2
+
 class ChildGoalFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    // ViewModel
+    private val viewModel: ChildGoalViewModel
+    by lazy { ViewModelProvider(this).get(ChildGoalViewModel::class.java) }
+    // Data Binding
+    private lateinit var binding: FragmentChildGoalBinding
+    // Bundle
+    private var bundle = Bundle()
+    private lateinit var parentGoal: Goal
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+        setHasOptionsMenu(true)
+        // Get parentGoal and update goals
+        parentGoal = arguments?.getSerializable("parentGoal") as Goal
+        viewModel.getGoalsFromParent(parentGoal.id.toString())
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        // Data Binding
+        binding = FragmentChildGoalBinding.inflate(inflater, container, false)
+        val view = binding.root
+        binding.goal = parentGoal
+
+        // Setting recyclerView
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = GoalAdapter(emptyList())
+        }
+
+        // Setting fab
+        binding.fab.setOnClickListener{ v ->
+            bundle.putSerializable("parentGoal", parentGoal)
+            v.findNavController().navigate(R.id.action_navigation_child_goal_to_navigation_item_goal, bundle)
+        }
+
+        // Setting checkBox
+        binding.isAchieved.setOnClickListener { v ->
+            viewModel.setAchievedGoalWithChild(parentGoal)
+        }
+
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // Observation of goals
+        viewModel.goals.observe(viewLifecycleOwner, Observer {
+                goals -> binding.recyclerView.adapter = GoalAdapter(goals)
+        })
+    }
+
+
+    override fun onStart() {
+        super.onStart()
+        bundle.clear()
+    }
+
+    // Set menu
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_child, menu)
+    }
+
+    // Click on element in menu
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.edit_action_type -> {
+                // Изменяем текущий тип действия
+                bundle.putSerializable("goal", parentGoal)
+                requireActivity().findNavController(R.id.nav_host_fragment)
+                    .navigate(R.id.action_navigation_child_goal_to_navigation_item_goal, bundle)
+                return true
+            }
+            R.id.delete_action_type -> {
+                viewModel.deleteGoalWithChild(parentGoal)
+                requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_child_goal, container, false)
+    private inner class AchievedGoalHolder(private val binding: ListItemAchievedGoalBinding):
+        RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+        private lateinit var achievedGoal: Goal
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        fun bind(achievedGoal: Goal) {
+            this.achievedGoal = achievedGoal
+
+            binding.goalName.text = this.achievedGoal.name
+        }
+
+        override fun onClick(v: View) {
+            bundle.putSerializable("parentGoal", achievedGoal)
+            v.findNavController().navigate(R.id.action_navigation_child_goal_self, bundle)
+        }
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ChildGoalFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ChildGoalFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    private inner class NotAchievedGoalHolder(private val binding: ListItemNotAchievedGoalBinding):
+        RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+        private lateinit var notAchievedGoal: Goal
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        fun bind(notAchievedGoal: Goal) {
+            this.notAchievedGoal = notAchievedGoal
+
+            binding.goalName.text = notAchievedGoal.name
+            val percent = viewModel.getPercentAchieved(this.notAchievedGoal.id.toString())
+            percent.observe(viewLifecycleOwner, Observer {
+                    percent -> if (percent is Int) binding.progressBar.setProgress(percent)
+            })
+        }
+
+        override fun onClick(v: View) {
+            bundle.putSerializable("parentGoal", notAchievedGoal)
+            v.findNavController().navigate(R.id.action_navigation_child_goal_self, bundle)
+        }
     }
+
+    private inner class GoalAdapter(var goals: List<Goal>): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder{
+            return when (viewType){
+                TYPE_ACHIEVED_GOAL -> AchievedGoalHolder(DataBindingUtil.inflate(layoutInflater,
+                    R.layout.list_item_achieved_goal,
+                    parent,
+                    false))
+
+                TYPE_NOT_ACHIEVED_GOAL -> NotAchievedGoalHolder(DataBindingUtil.inflate<ListItemNotAchievedGoalBinding>(layoutInflater,
+                    R.layout.list_item_not_achieved_goal,
+                    parent,
+                    false))
+                else -> throw IllegalArgumentException("Invalid view type")
+            }
+        }
+
+        override fun getItemCount() = goals.size
+
+        override fun getItemViewType(position: Int): Int {
+            if (goals[position].isAchieved){
+                return TYPE_ACHIEVED_GOAL
+            } else {
+                return TYPE_NOT_ACHIEVED_GOAL
+            }
+        }
+
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            val goal = goals[position]
+            if (goal.isAchieved){
+                (holder as AchievedGoalHolder).bind(goal)
+            } else {
+                (holder as NotAchievedGoalHolder).bind(goal)
+            }
+        }
+    }
+
+
 }

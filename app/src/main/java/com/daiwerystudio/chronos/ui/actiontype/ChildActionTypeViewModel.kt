@@ -14,7 +14,7 @@ class ChildActionTypeViewModel: ViewModel() {
         actionTypes = actionTypeRepository.getActionTypesFromParent(id)
     }
 
-    fun deleteActWithChild(actionType: ActionType){
+    fun deleteActionTypeWithChild(actionType: ActionType){
         actionTypeRepository.deleteActionTypeWithChild(actionType)
     }
 

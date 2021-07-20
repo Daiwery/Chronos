@@ -42,7 +42,7 @@ class NotAchievedGoalFragment: Fragment() {
 
         // Setting fab
         binding.fab.setOnClickListener{ v: View ->
-//            v.findNavController().navigate(R.id.action_navigation_action_type_to_navigation_item_action_type, bundle)
+            v.findNavController().navigate(R.id.action_navigation_goal_to_navigation_item_goal)
         }
 
         return view
@@ -68,11 +68,15 @@ class NotAchievedGoalFragment: Fragment() {
             this.notAchievedGoal = notAchievedGoal
 
             binding.goalName.text = notAchievedGoal.name
+            val percent = viewModel.getPercentAchieved(this.notAchievedGoal.id.toString())
+            percent.observe(viewLifecycleOwner, Observer {
+                    percent -> if (percent is Int) binding.progressBar.setProgress(percent)
+            })
         }
 
         override fun onClick(v: View) {
-//            bundle.putSerializable("parentActionType", actionType)
-//            v.findNavController().navigate(R.id.action_navigation_action_type_to_navigation_child_action_type, bundle)
+            bundle.putSerializable("parentGoal", notAchievedGoal)
+            v.findNavController().navigate(R.id.action_navigation_goal_to_navigation_child_goal, bundle)
         }
     }
 
@@ -80,7 +84,7 @@ class NotAchievedGoalFragment: Fragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotAchievedGoalHolder {
             val binding = DataBindingUtil.inflate<ListItemNotAchievedGoalBinding>(
                 layoutInflater,
-                R.layout.list_item_action_type,
+                R.layout.list_item_not_achieved_goal,
                 parent,
                 false)
             return NotAchievedGoalHolder(binding)

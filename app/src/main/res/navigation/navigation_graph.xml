@@ -70,7 +70,7 @@
     <fragment
         android:id="@+id/navigation_child_goal"
         android:name="com.daiwerystudio.chronos.ui.goal.ChildGoalFragment"
-        android:label="fragment_child_goal"
+        android:label=""
         tools:layout="@layout/fragment_child_goal" >
         <action
             android:id="@+id/action_navigation_child_goal_to_navigation_item_goal"
@@ -84,6 +84,6 @@
     <fragment
         android:id="@+id/navigation_item_goal"
         android:name="com.daiwerystudio.chronos.ui.goal.ItemGoalFragment"
-        android:label="fragment_item_goal"
+        android:label="@string/new_goal"
         tools:layout="@layout/fragment_item_goal" />
 </navigation>

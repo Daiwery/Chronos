@@ -5,9 +5,14 @@ import androidx.lifecycle.ViewModel
 import com.daiwerystudio.chronos.database.Goal
 import com.daiwerystudio.chronos.database.GoalRepository
 
-class NotAchievedGoalViewModel : ViewModel() {
+class ItemGoalViewModel: ViewModel() {
     private val goalRepository = GoalRepository.get()
-    var notAchievedGoals: LiveData<List<Goal>> = goalRepository.getGoalsWithoutParentFromSolve(false)
 
-    fun getPercentAchieved(id: String): LiveData<Int> = goalRepository.getPercentAchieved(id)
+    fun updateGoal(goal: Goal) {
+        goalRepository.updateGoal(goal)
+    }
+
+    fun addGoal(goal: Goal) {
+        goalRepository.addGoal(goal)
+    }
 }
