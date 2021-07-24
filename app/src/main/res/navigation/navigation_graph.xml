@@ -55,8 +55,8 @@
         tools:layout="@layout/fragment_item_action" />
     <fragment
         android:id="@+id/navigation_goal"
-        android:label=""
         android:name="com.daiwerystudio.chronos.ui.goal.GoalFragment"
+        android:label="@string/goals"
         tools:layout="@layout/fragment_goal">
         <action
             android:id="@+id/action_navigation_goal_to_navigation_child_goal"
@@ -86,4 +86,18 @@
         android:name="com.daiwerystudio.chronos.ui.goal.ItemGoalFragment"
         android:label="@string/new_goal"
         tools:layout="@layout/fragment_item_goal" />
+    <fragment
+        android:id="@+id/navigation_timetable"
+        android:name="com.daiwerystudio.chronos.ui.timetable.TimetableFragment"
+        android:label="@string/timetables"
+        tools:layout="@layout/fragment_timetable" >
+        <action
+            android:id="@+id/action_navigation_timetable_to_navigation_child_timetable"
+            app:destination="@id/navigation_child_timetable" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_child_timetable"
+        android:name="com.daiwerystudio.chronos.ui.timetable.ChildTimetableFragment"
+        android:label=""
+        tools:layout="@layout/fragment_child_timetable" />
 </navigation>

@@ -105,14 +105,14 @@ class ChildActionTypeFragment: Fragment() {
     // Click on element in menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.edit_action_type -> {
+            R.id.edit -> {
                 // Изменяем текущий тип действия
                 bundle.putSerializable("actionType", parentActionType)
                 requireActivity().findNavController(R.id.nav_host_fragment)
                     .navigate(R.id.action_navigation_child_action_type_to_navigation_item_action_type, bundle)
                 return true
             }
-            R.id.delete_action_type -> {
+            R.id.delete -> {
                 childActionTypeViewModel.deleteActionTypeWithChild(parentActionType)
                 requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
                 return true

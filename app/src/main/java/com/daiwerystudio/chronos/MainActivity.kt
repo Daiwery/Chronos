@@ -26,7 +26,8 @@ class MainActivity : AppCompatActivity() {
         val appBarConfiguration = AppBarConfiguration(setOf(
             R.id.navigation_action_type,
             R.id.navigation_day,
-            R.id.navigation_goal)
+            R.id.navigation_goal,
+            R.id.navigation_timetable)
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_action_type ->  navView.visibility = View.VISIBLE
                 R.id.navigation_day ->  navView.visibility = View.VISIBLE
                 R.id.navigation_goal ->  navView.visibility = View.VISIBLE
+                R.id.navigation_timetable -> navView.visibility = View.VISIBLE
                 else -> navView.visibility = View.GONE
             }
         }

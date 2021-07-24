@@ -1,9 +1,7 @@
 package com.daiwerystudio.chronos.ui.goal
 
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -90,14 +88,13 @@ class ChildGoalFragment : Fragment() {
     // Click on element in menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.edit_action_type -> {
-                // Изменяем текущий тип действия
+            R.id.edit -> {
                 bundle.putSerializable("goal", parentGoal)
                 requireActivity().findNavController(R.id.nav_host_fragment)
                     .navigate(R.id.action_navigation_child_goal_to_navigation_item_goal, bundle)
                 return true
             }
-            R.id.delete_action_type -> {
+            R.id.delete -> {
                 viewModel.deleteGoalWithChild(parentGoal)
                 requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
                 return true
@@ -158,7 +155,7 @@ class ChildGoalFragment : Fragment() {
                     parent,
                     false))
 
-                TYPE_NOT_ACHIEVED_GOAL -> NotAchievedGoalHolder(DataBindingUtil.inflate<ListItemNotAchievedGoalBinding>(layoutInflater,
+                TYPE_NOT_ACHIEVED_GOAL -> NotAchievedGoalHolder(DataBindingUtil.inflate(layoutInflater,
                     R.layout.list_item_not_achieved_goal,
                     parent,
                     false))
@@ -178,13 +175,12 @@ class ChildGoalFragment : Fragment() {
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             val goal = goals[position]
-            if (goal.isAchieved){
-                (holder as AchievedGoalHolder).bind(goal)
-            } else {
-                (holder as NotAchievedGoalHolder).bind(goal)
+            when (this.getItemViewType(position)){
+                TYPE_ACHIEVED_GOAL -> (holder as AchievedGoalHolder).bind(goal)
+                TYPE_NOT_ACHIEVED_GOAL -> (holder as NotAchievedGoalHolder).bind(goal)
+                else -> throw IllegalArgumentException("Invalid view type")
             }
         }
     }
-
 
 }

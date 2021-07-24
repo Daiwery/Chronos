@@ -50,7 +50,7 @@ class NotAchievedGoalFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Observation of actionTypes
+        // Observation
        viewModel.notAchievedGoals.observe(viewLifecycleOwner, Observer { notAchievedGoals ->
             binding.recyclerView.adapter = NotAchievedGoalAdapter(notAchievedGoals)
         })

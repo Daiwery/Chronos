@@ -111,7 +111,7 @@ class ActionTypeRepository private constructor(context: Context) {
         }
 
         fun get(): ActionTypeRepository {
-            return INSTANCE ?: throw IllegalStateException("ActRepository must beinitialized")
+            return INSTANCE ?: throw IllegalStateException("ActionTypeRepository must beinitialized")
         }
     }
 }

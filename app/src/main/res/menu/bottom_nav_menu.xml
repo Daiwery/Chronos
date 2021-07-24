@@ -16,4 +16,9 @@
         android:icon="@drawable/ic_baseline_assignment_late_24"
         android:title="@string/goals" />
 
+    <item
+        android:id="@+id/navigation_timetable"
+        android:icon="@drawable/ic_baseline_event_note_24"
+        android:title="@string/timetable" />
+
 </menu>

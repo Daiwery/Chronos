@@ -3,15 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/edit_action_type"
+        android:id="@+id/edit"
         android:icon="@drawable/ic_baseline_edit_24"
-        android:title="Изменить"
+        android:title="@string/edit"
         app:showAsAction="ifRoom|withText" />
 
     <item
-        android:id="@+id/delete_action_type"
+        android:id="@+id/delete"
         android:icon="@drawable/ic_baseline_delete_24"
-        android:title="Удалить"
+        android:title="@string/delete"
         app:showAsAction="ifRoom|withText" />
 
 </menu>
