@@ -27,7 +27,7 @@ class ChildTimetableFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        // Get parentGoal and update goals
+
         timetable = arguments?.getSerializable("timetable") as Timetable
     }
 
@@ -52,7 +52,7 @@ class ChildTimetableFragment : Fragment() {
 
     private fun updateUI(){
         // Setting ViewPager2 and TabLayout
-        binding.viewPager2.adapter = PagerAdapter(activity as AppCompatActivity, timetable.countDays)
+        binding.viewPager2.adapter = PagerAdapter(this, timetable)
         TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
             tab.text = resources.getString(R.string.day)+" "+(position+1).toString()
         }.attach()
@@ -81,7 +81,7 @@ class ChildTimetableFragment : Fragment() {
         when (item.itemId) {
             R.id.edit -> {
                 TimetableDialog(timetable, false)
-                    .show(activity?.supportFragmentManager!!, "TimetableDialogBottomSheet")
+                    .show(activity?.supportFragmentManager!!, "TimetableDialog")
                 val liveDataTimetable = viewModel.getTimetable(timetable.id)
                 liveDataTimetable.observe(viewLifecycleOwner, Observer { _timetable ->
                         timetable = _timetable
@@ -99,11 +99,11 @@ class ChildTimetableFragment : Fragment() {
         }
     }
 
-    class PagerAdapter(activity: AppCompatActivity, var countDays: Int): FragmentStateAdapter(activity){
-        override fun getItemCount(): Int = countDays
+    class PagerAdapter(fragment: Fragment, var timetable: Timetable): FragmentStateAdapter(fragment){
+        override fun getItemCount(): Int = timetable.countDays
 
         override fun createFragment(position: Int): Fragment {
-            return ActionsTimetableFragment()
+            return ActionsTimetableFragment(timetable, position)
         }
 
     }

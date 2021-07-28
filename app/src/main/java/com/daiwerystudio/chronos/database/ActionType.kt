@@ -46,12 +46,13 @@ interface ActionTypeDao {
     @Query("SELECT * FROM action_type_table WHERE id=(:id)")
     fun getActionType(id: UUID): LiveData<ActionType>
 
+    @Query("SELECT color FROM action_type_table WHERE id=(:id)")
+    fun getColor(id: UUID): Int
+
     @Update
     fun updateActionType(actionType: ActionType)
-
     @Insert
     fun addActionType(actionType: ActionType)
-
     @Delete
     fun deleteActionType(actionType: ActionType)
 }
@@ -75,6 +76,7 @@ class ActionTypeRepository private constructor(context: Context) {
     fun getActionTypesFromParent(id: String): LiveData<List<ActionType>> = actionTypeDao.getActionTypesFromParent(id)
     fun getActionType(id: UUID): LiveData<ActionType> = actionTypeDao.getActionType(id)
     fun getColorsActionTypesFromParent(id: String): LiveData<List<Int>> = actionTypeDao.getColorsActionTypesFromParent(id)
+    fun getColor(id: UUID): Int = actionTypeDao.getColor(id)
 
 
     fun updateActionType(actionType: ActionType) {

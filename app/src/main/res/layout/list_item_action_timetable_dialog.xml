@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="actionType"
+            type="com.daiwerystudio.chronos.database.ActionType" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/frame"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:visibility="invisible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/frame_select_action_type" />
+
+        <ImageView
+            android:id="@+id/action_type_color"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:colorFilter="@{actionType.color}"
+            app:layout_constraintEnd_toEndOf="@+id/action_type_name"
+            app:layout_constraintStart_toStartOf="@+id/action_type_name"
+            app:layout_constraintTop_toBottomOf="@+id/action_type_name"
+            app:srcCompat="@drawable/oval_select_action_type" />
+
+        <TextView
+            android:id="@+id/action_type_name"
+            style="@style/TextAppearance.AppCompat.Menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="0dp"
+            android:singleLine="true"
+            android:text="@{actionType.name}"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/frame"
+            app:layout_constraintStart_toStartOf="@+id/frame"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Сон" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

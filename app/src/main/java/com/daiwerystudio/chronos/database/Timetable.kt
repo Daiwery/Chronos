@@ -18,18 +18,19 @@ data class Timetable(
     var name: String = "",
     var countDays: Int = 7,
     var isActive: Boolean = true,
-    var dayStart: Long = System.currentTimeMillis()/(1000*60*60*24)
+    var dayStart: Long = System.currentTimeMillis()/(1000*60*60*24)    // Days
 ) : Serializable
 
 
 @Entity(tableName = "actions_timetable_table")
 data class ActionTimetable(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    var timeStart: Int = 5,     // Minutes
+    var duration: Int = 90,     // Minutes
+    var actionTypeId: String = "",
     var timetableId: String,
     var dayIndex: Int,
     var indexList: Int,
-    var start: Long,
-    var duration: Long
 ) : Serializable
 
 
@@ -38,16 +39,20 @@ interface TimetableDao {
     @Query("SELECT * FROM timetable_table WHERE isActive=(:isActive)")
     fun getTimetableFromActive(isActive: Boolean): LiveData<List<Timetable>>
 
+
     @Query("SELECT * FROM actions_timetable_table " +
             "WHERE timetableId=(:timetableId) AND dayIndex=(:dayIndex)" +
             "ORDER BY indexList ASC")
-    fun getActionsTimetableFromDayIndex(timetableId: String, dayIndex: Int): LiveData<List<ActionTimetable>>
+    fun getActionsTimetableFromDayIndex(timetableId: String, dayIndex: Int): LiveData<MutableList<ActionTimetable>>
+
 
     @Query("DELETE FROM actions_timetable_table WHERE timetableId=(:timetableId)")
     fun deleteActionsTimetableFromTimetableId(timetableId: String)
 
+
     @Query("SELECT * FROM timetable_table WHERE id=(:id)")
     fun getTimetable(id: String): LiveData<Timetable>
+
 
     @Update
     fun updateTimetable(timetable: Timetable)
@@ -55,8 +60,11 @@ interface TimetableDao {
     fun addTimetable(timetable: Timetable)
     @Delete
     fun deleteTimetable(timetable: Timetable)
+
     @Update
     fun updateActionTimetable(actionTimetable: ActionTimetable)
+    @Update
+    fun updateListActionTimetable(listActionTimetable: List<ActionTimetable>)
     @Insert
     fun addActionTimetable(actionTimetable: ActionTimetable)
     @Delete
@@ -80,7 +88,7 @@ class TimetableRepository private constructor(context: Context) {
 
     fun getTimetableFromActive(isActive: Boolean): LiveData<List<Timetable>> =
         dao.getTimetableFromActive(isActive)
-    fun getActionsTimetableFromDayIndex(timetableId: String, dayIndex: Int): LiveData<List<ActionTimetable>> =
+    fun getActionsTimetableFromDayIndex(timetableId: String, dayIndex: Int): LiveData<MutableList<ActionTimetable>> =
         dao.getActionsTimetableFromDayIndex(timetableId, dayIndex)
     fun getTimetable(id: String): LiveData<Timetable> = dao.getTimetable(id)
 
@@ -99,6 +107,13 @@ class TimetableRepository private constructor(context: Context) {
         executor.execute {
             dao.deleteTimetable(timetable)
             dao.deleteActionsTimetableFromTimetableId(timetable.id)
+        }
+    }
+
+
+    fun updateListActionTimetable(listActionTimetable: List<ActionTimetable>){
+        executor.execute {
+            dao.updateListActionTimetable(listActionTimetable)
         }
     }
     fun updateActionTimetable(actionTimetable: ActionTimetable){

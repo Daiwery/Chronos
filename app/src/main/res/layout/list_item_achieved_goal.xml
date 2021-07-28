@@ -19,7 +19,7 @@
             android:layout_marginTop="8dp"
             android:singleLine="true"
             android:textColor="@color/black"
-            android:textSize="30sp"
+            android:textSize="20sp"
             app:layout_constraintEnd_toStartOf="@+id/imageView3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

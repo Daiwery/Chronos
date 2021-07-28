@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
@@ -24,6 +25,7 @@
                 android:layout_marginStart="8dp"
                 android:singleLine="true"
                 android:text="@{timetable.name}"
+                tools:text="Text"
                 android:textSize="24sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

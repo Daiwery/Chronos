@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentTimetableBinding
@@ -23,7 +24,7 @@ class TimetableFragment : Fragment() {
         val view = binding.root
 
         // Setting ViewPager2 and TabLayout
-        binding.viewPager2.adapter = PagerAdapter(activity as AppCompatActivity)
+        binding.viewPager2.adapter = PagerAdapter(this)
         TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
             when (position) {
                 0 -> tab.text = resources.getString(R.string.active)
@@ -34,7 +35,7 @@ class TimetableFragment : Fragment() {
         return view
     }
 
-    class PagerAdapter(activity: AppCompatActivity): FragmentStateAdapter(activity){
+    class PagerAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
         override fun getItemCount(): Int = 2
 
         override fun createFragment(position: Int): Fragment {
