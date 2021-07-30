@@ -1,22 +1,29 @@
 package com.daiwerystudio.chronos.ui.actiontype
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.database.ActionTypeRepository
 
 
 class ChildActionTypeViewModel: ViewModel() {
-    private val actionTypeRepository = ActionTypeRepository.get()
-    lateinit var actionTypes: LiveData<List<ActionType>>
+    private val repository = ActionTypeRepository.get()
+    var actionTypes: LiveData<List<ActionType>> = MutableLiveData()
+    lateinit var parentActionType: LiveData<ActionType>
+
 
     fun getActionTypesFromParent(id: String){
-        actionTypes = actionTypeRepository.getActionTypesFromParent(id)
+        actionTypes = repository.getActionTypesFromParent(id)
     }
 
     fun deleteActionTypeWithChild(actionType: ActionType){
-        actionTypeRepository.deleteActionTypeWithChild(actionType)
+        repository.deleteActionTypeWithChild(actionType)
     }
 
-    fun getColorsActionTypesFromParent(id: String): LiveData<List<Int>> = actionTypeRepository.getColorsActionTypesFromParent(id)
+    fun getActionType(id: String){
+        parentActionType = repository.getActionType(id)
+    }
+
+    fun getCountChild(id: String): LiveData<Int> = repository.getCountChild(id)
 }

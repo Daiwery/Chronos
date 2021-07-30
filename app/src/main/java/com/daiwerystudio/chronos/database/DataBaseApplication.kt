@@ -4,24 +4,21 @@ import android.app.Application
 import android.util.Log
 
 
-private val ACTION_TYPE_DATABASE_TAG = "action_type_database"
-private val ACTION_DATABASE_TAG = "action_database"
-private val GOAL_DATABASE_TAG = "action_database"
-private val TIMETABLE_DATABASE_TAG = "timetable_database"
+private const val DATABASE_TAG = "DATABASE"
 class DataBaseApplication: Application() {
     override fun onCreate() {
         super.onCreate()
 
         ActionTypeRepository.initialize(this)
-        Log.d(ACTION_TYPE_DATABASE_TAG, "Create action_type database")
+        Log.d(DATABASE_TAG, "Create action type database")
 
         ActionRepository.initialize(this)
-        Log.d(ACTION_DATABASE_TAG, "Create action database")
+        Log.d(DATABASE_TAG, "Create action database")
 
         GoalRepository.initialize(this)
-        Log.d(GOAL_DATABASE_TAG, "Create goal database")
+        Log.d(DATABASE_TAG, "Create goal database")
 
         TimetableRepository.initialize(this)
-        Log.d(TIMETABLE_DATABASE_TAG, "Create timetable database")
+        Log.d(DATABASE_TAG, "Create timetable database")
     }
 }

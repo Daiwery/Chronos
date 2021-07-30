@@ -10,28 +10,27 @@
         android:name="com.daiwerystudio.chronos.ui.actiontype.ChildActionTypeFragment"
         android:label=""
         tools:layout="@layout/fragment_action_type">
-        <action
-            android:id="@+id/action_navigation_child_action_type_to_navigation_item_action_type"
-            app:destination="@id/navigation_item_action_type"
-            app:popUpTo="@id/navigation_child_action_type" />
-        <action
-            android:id="@+id/action_navigation_child_action_type_self"
-            app:destination="@id/navigation_child_action_type"
-            app:popUpTo="@id/navigation_child_action_type" />
+         <action
+             android:id="@+id/action_navigation_child_action_type_self"
+             app:destination="@id/navigation_child_action_type"
+             app:enterAnim="@anim/fade_in"
+             app:exitAnim="@anim/fade_out"
+             app:popEnterAnim="@anim/fade_in"
+             app:popExitAnim="@anim/fade_out"
+             app:popUpTo="@id/navigation_child_action_type" />
     </fragment>
     <fragment
         android:id="@+id/navigation_action_type"
         android:name="com.daiwerystudio.chronos.ui.actiontype.ActionTypeFragment"
-        android:label=""
+        android:label="@string/action_types"
         tools:layout="@layout/fragment_action_type" >
-        <action
-            android:id="@+id/action_navigation_action_type_to_navigation_item_action_type"
-            app:destination="@id/navigation_item_action_type"
-            app:launchSingleTop="false"
-            app:popUpTo="@id/navigation_action_type" />
         <action
             android:id="@+id/action_navigation_action_type_to_navigation_child_action_type"
             app:destination="@id/navigation_child_action_type"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out"
             app:popUpTo="@id/navigation_action_type" />
     </fragment>
     <fragment
@@ -43,11 +42,6 @@
             android:id="@+id/action_navigation_day_to_navigation_item_action"
             app:destination="@id/navigation_item_action" />
     </fragment>
-    <fragment
-        android:id="@+id/navigation_item_action_type"
-        android:name="com.daiwerystudio.chronos.ui.actiontype.ItemActionTypeFragment"
-        android:label="@string/new_action_type"
-        tools:layout="@layout/fragment_item_action_type" />
     <fragment
         android:id="@+id/navigation_item_action"
         android:name="com.daiwerystudio.chronos.ui.day.ItemActionFragment"

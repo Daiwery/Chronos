@@ -7,8 +7,13 @@ import com.daiwerystudio.chronos.database.ActionTypeRepository
 
 
 class ActionTypeViewModel: ViewModel() {
-    private val actionTypeRepository = ActionTypeRepository.get()
-    // У actionType без родителей, parent=""
-    var actionTypes: LiveData<List<ActionType>> = actionTypeRepository.getActionTypesFromParent("")
-    fun getColorsActionTypesFromParent(id: String): LiveData<List<Int>> = actionTypeRepository.getColorsActionTypesFromParent(id)
+    private val repository = ActionTypeRepository.get()
+    var actionTypes: LiveData<List<ActionType>> = repository.getActionTypesFromParent("")
+
+
+    fun getCountChild(id: String): LiveData<Int> = repository.getCountChild(id)
+
+    fun deleteActionTypeWithChild(actionType: ActionType){
+        repository.deleteActionTypeWithChild(actionType)
+    }
 }

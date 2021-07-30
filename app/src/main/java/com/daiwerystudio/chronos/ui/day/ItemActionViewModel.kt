@@ -19,7 +19,7 @@ class ItemActionViewModel: ViewModel() {
         actionTypes = actionTypeRepository.getActionTypesFromParent(id)
     }
 
-    fun getActionType(id: UUID): LiveData<ActionType> = actionTypeRepository.getActionType(id)
+    fun getActionType(id: String): LiveData<ActionType> = actionTypeRepository.getActionType(id)
 
     fun addAction(action: Action){
         actionRepository.addAction(action)

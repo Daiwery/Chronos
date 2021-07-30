@@ -28,6 +28,7 @@ class TimetableDialog(var timetable: Timetable, var isCreated: Boolean) : Bottom
         val view = binding.root
         binding.timetable = timetable
 
+        // Text on button
         if (isCreated) {
             binding.button.text = resources.getString(R.string.add)
         } else {

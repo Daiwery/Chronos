@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ThemeOverlay.BottomNavigationView" parent="">
+        <item name="android:background">@color/black_300</item>
+        <item name="colorOnPrimary">@color/white</item>
+    </style>
+
+
+    <style name="ThemeOverlay.Card" parent="">
+        <item name="colorSurface">@color/black_200</item>
+    </style>
+
+</resources>

@@ -1,100 +1,93 @@
 package com.daiwerystudio.chronos.ui.actiontype
 
+import android.app.AlertDialog
+import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentChildActionTypeBinding
 import com.daiwerystudio.chronos.databinding.ListItemActionTypeBinding
-import com.daiwerystudio.chronos.lineItemListActionType
-
 
 
 class ChildActionTypeFragment: Fragment() {
     // ViewModel
-    private val childActionTypeViewModel: ChildActionTypeViewModel
+    private val viewModel: ChildActionTypeViewModel
     by lazy { ViewModelProvider(this).get(ChildActionTypeViewModel::class.java) }
     // Data Binding
     private lateinit var binding: FragmentChildActionTypeBinding
-    // Bundle
-    val bundle = Bundle()
-    private lateinit var parentActionType: ActionType
+    // Arguments
+    private lateinit var idParent: String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        // Get parentActionType and update actionTypes
-        parentActionType = arguments?.getSerializable("parentActionType") as ActionType
-        childActionTypeViewModel.getActionTypesFromParent(parentActionType.id.toString())
+
+        // Get arguments
+        idParent = arguments?.getString("idParent") as String
+        // Get data
+        viewModel.getActionTypesFromParent(idParent)
+        viewModel.getActionType(idParent)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
         // Data Binding
         binding = FragmentChildActionTypeBinding.inflate(inflater, container, false)
         val view = binding.root
+        // Loading view
+        binding.loadingView.visibility = View.VISIBLE
 
-        // Set parentActionType
-        binding.parentActionType = parentActionType
+        // Observe
+        viewModel.parentActionType.observe(viewLifecycleOwner, { actionType ->
+            // Binding
+            binding.parentActionType = actionType
+            // Title
+            (activity as AppCompatActivity).supportActionBar?.title = actionType.name
+        })
+
 
         // Setting recyclerView
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = ActionTypeAdapter(emptyList())
+            adapter = Adapter(emptyList())
+            itemAnimator = ItemAnimator()
         }
+        // Observation
+        viewModel.actionTypes.observe(viewLifecycleOwner, { actionTypes ->
+            // Loading view
+            binding.loadingView.visibility = View.VISIBLE
+            (binding.recyclerView.adapter as Adapter).setData(actionTypes)
+        })
+        // Support swipe. Смотри ниже.
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+
 
         // Setting fab
-        binding.fab.setOnClickListener{ v: View ->
-            bundle.putSerializable("parentActionType", parentActionType)
-            v.findNavController().navigate(R.id.action_navigation_child_action_type_to_navigation_item_action_type, bundle)
+        binding.fab.setOnClickListener{
+            // Dialog
+            val dialog = ActionTypeDialog()
+            dialog.arguments = Bundle().apply{
+                putSerializable("parentActionType", viewModel.parentActionType.value!!)
+            }
+            dialog.show(this.requireActivity().supportFragmentManager, "ActionTypeDialog")
         }
 
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // Observation of actionTypes
-        childActionTypeViewModel.actionTypes.observe(viewLifecycleOwner, Observer {
-                actionTypes -> binding.recyclerView.adapter = ActionTypeAdapter(actionTypes)
-        })
-
-        val appCompatActivity = activity as AppCompatActivity
-        // Menu
-        val appBar = appCompatActivity.supportActionBar
-        appBar?.setBackgroundDrawable(ColorDrawable(parentActionType.color))
-        // Status bar
-        appCompatActivity.window.setStatusBarColor(parentActionType.color)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        bundle.clear()
-    }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        val appCompatActivity = activity as AppCompatActivity
-        // Menu
-        val appBar = appCompatActivity.supportActionBar
-        appBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.main_color)))
-        // Status bar
-        appCompatActivity.window.setStatusBarColor(resources.getColor(R.color.main_color))
-    }
 
     // Set menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -102,19 +95,34 @@ class ChildActionTypeFragment: Fragment() {
         inflater.inflate(R.menu.fragment_child, menu)
     }
 
+
     // Click on element in menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.edit -> {
-                // Изменяем текущий тип действия
-                bundle.putSerializable("actionType", parentActionType)
-                requireActivity().findNavController(R.id.nav_host_fragment)
-                    .navigate(R.id.action_navigation_child_action_type_to_navigation_item_action_type, bundle)
+                // Dialog
+                val dialog = ActionTypeDialog()
+                dialog.arguments = Bundle().apply{
+                    putSerializable("actionType", viewModel.parentActionType.value!!)
+                }
+                dialog.show(this.requireActivity().supportFragmentManager, "ActionTypeDialog")
+
                 return true
             }
             R.id.delete -> {
-                childActionTypeViewModel.deleteActionTypeWithChild(parentActionType)
-                requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+                // Dialog
+                AlertDialog.Builder(context, R.style.App_AlertDialog)
+                    .setTitle(resources.getString(R.string.delete)+" '"+viewModel.parentActionType.value!!.name+"'?")
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        viewModel.deleteActionTypeWithChild(viewModel.parentActionType.value!!)
+                        requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+                    }
+                    .setNegativeButton(R.string.no){ _, _ ->
+                    }
+                    .setCancelable(false)
+                    .create()
+                    .show()
+
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -122,46 +130,215 @@ class ChildActionTypeFragment: Fragment() {
     }
 
 
-    private inner class ActionTypeHolder(private val binding: ListItemActionTypeBinding):
+    // Support animation recyclerView
+    private class DiffUtilCallback(private val oldList: List<ActionType>,
+                                   private val newList: List<ActionType>): DiffUtil.Callback() {
+
+        override fun getOldListSize() = oldList.size
+
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(oldPosition: Int, newPosition: Int): Boolean {
+            return oldList[oldPosition].id == newList[newPosition].id
+        }
+
+        override fun areContentsTheSame(oldPosition: Int, newPosition: Int): Boolean {
+            return oldList[oldPosition] == newList[newPosition]
+        }
+    }
+
+    // Support animation
+    private class ItemAnimator: DefaultItemAnimator(){
+        override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
+            val itemView = holder!!.itemView
+
+            // Listener
+            val listener = object : Animation.AnimationListener{
+                override fun onAnimationStart(animation: Animation?) {}
+                override fun onAnimationRepeat(animation: Animation?) {}
+                override fun onAnimationEnd(animation: Animation?) {
+                    dispatchAnimationFinished(holder)
+                }
+            }
+
+            // Animation
+            val animation = AnimationUtils.loadAnimation(itemView.context, R.anim.anim_add_item)
+            animation.setAnimationListener(listener)
+            itemView.startAnimation(animation)
+
+            return true
+        }
+    }
+
+
+
+    private inner class Holder(private val binding: ListItemActionTypeBinding):
         RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+
         private lateinit var actionType: ActionType
-        private lateinit var colorsChildActionTypes: LiveData<List<Int>>
 
         init {
             itemView.setOnClickListener(this)
+
+            // Setting edit
+            binding.edit.setOnClickListener{
+                // Dialog
+                val dialog = ActionTypeDialog()
+                dialog.arguments = Bundle().apply{
+                    putSerializable("actionType", actionType)
+                }
+
+                dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")
+            }
         }
 
         fun bind(actionType: ActionType) {
             this.actionType = actionType
-            this.colorsChildActionTypes = childActionTypeViewModel.getColorsActionTypesFromParent(actionType.id.toString())
-
             binding.actionType = this.actionType
-            this.colorsChildActionTypes.observe(viewLifecycleOwner, Observer { colorsChildActionTypes ->
-                binding.multiColorLineImage.setImageDrawable(lineItemListActionType(colorsChildActionTypes))
+
+            // Set count child
+            val live = viewModel.getCountChild(actionType.id)
+            live.observe(viewLifecycleOwner, { count ->
+                if (count != 0){
+                    binding.textView.visibility = View.VISIBLE
+                    binding.countChild.visibility = View.VISIBLE
+                    binding.countChild.text = count.toString()
+                } else {
+                    binding.textView.visibility = View.GONE
+                    binding.countChild.visibility = View.GONE
+                }
             })
         }
 
         override fun onClick(v: View) {
-            bundle.putSerializable("parentActionType", actionType)
+            val bundle = Bundle().apply{
+                putString("idParent", actionType.id)
+            }
             v.findNavController().navigate(R.id.action_navigation_child_action_type_self, bundle)
         }
     }
 
-    private inner class ActionTypeAdapter(var actionTypes: List<ActionType>): RecyclerView.Adapter<ActionTypeHolder>(){
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionTypeHolder {
-            val binding = DataBindingUtil.inflate<ListItemActionTypeBinding>(
-                layoutInflater,
+    private inner class Adapter(var actionTypes: List<ActionType>): RecyclerView.Adapter<Holder>(){
+        // Cringe Logic for animation
+        private var lastPosition = -1
+
+        fun setData(actionTypes: List<ActionType>){
+            // Находим, что изменилось
+            val diffUtilCallback = DiffUtilCallback(this.actionTypes, actionTypes)
+            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+            // Update data
+            this.actionTypes = actionTypes
+            // Notify
+            diffResult.dispatchUpdatesTo(this)
+
+            // Show view
+            binding.loadingView.visibility = View.GONE
+            if (actionTypes.isEmpty()){
+                binding.emptyView.visibility = View.VISIBLE
+            } else {
+                binding.emptyView.visibility = View.GONE
+            }
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+            return Holder(DataBindingUtil.inflate(layoutInflater,
                 R.layout.list_item_action_type,
-                parent,
-                false)
-            return ActionTypeHolder(binding)
+                parent, false))
         }
 
         override fun getItemCount() = actionTypes.size
 
-        override fun onBindViewHolder(holder: ActionTypeHolder, position: Int) {
-            val act = actionTypes[position]
-            holder.bind(act)
+        override fun onBindViewHolder(holder: Holder, position: Int) {
+            // Bind
+            holder.bind(actionTypes[position])
+
+            // Animation
+            if (holder.adapterPosition > lastPosition){
+                lastPosition = holder.adapterPosition
+
+                val animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.anim_add_item)
+                holder.itemView.startAnimation(animation)
+            }
         }
+    }
+
+
+    // Support swiped
+    private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
+        ItemTouchHelper.SimpleCallback(0,
+            ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+
+        private val mAdapter = binding.recyclerView.adapter!!
+        private val icon = ContextCompat.getDrawable(context!!, R.drawable.ic_baseline_delete_24)
+        private val background = ColorDrawable(resources.getColor(R.color.red_500))
+
+        override fun onMove(recyclerView: RecyclerView,
+                            viewHolder: RecyclerView.ViewHolder,
+                            target: RecyclerView.ViewHolder): Boolean {
+            return false
+        }
+
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val actionType = viewModel.actionTypes.value!![viewHolder.adapterPosition]
+            // Dialog
+            AlertDialog.Builder(context, R.style.App_AlertDialog)
+                .setTitle(resources.getString(R.string.delete)+" '"+actionType.name+"'?")
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    viewModel.deleteActionTypeWithChild(actionType)
+                }
+                .setNegativeButton(R.string.no){ _, _ ->
+                    // Delete
+                    mAdapter.notifyItemChanged(viewHolder.adapterPosition)
+                }
+                .setCancelable(false)
+                .create()
+                .show()
+        }
+
+        override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                                 dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+
+            val itemView = viewHolder.itemView
+            val backgroundCornerOffset = 20
+
+            val iconMargin = (itemView.height - icon!!.intrinsicHeight) / 2
+            val iconTop = itemView.top + (itemView.height - icon.intrinsicHeight) / 2
+            val iconBottom = iconTop + icon.intrinsicHeight
+
+
+            // Swipe left, right and unSwiped
+            when {
+                dX > 0 -> {
+                    val iconRight = itemView.left + iconMargin + icon.intrinsicWidth
+                    val iconLeft = itemView.left + iconMargin
+                    icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+
+                    background.setBounds(itemView.left, itemView.top,
+                        itemView.left + dX.toInt() + backgroundCornerOffset, itemView.bottom)
+
+                }
+                dX < 0 -> {
+                    val iconLeft = itemView.right - iconMargin - icon.intrinsicWidth
+                    val iconRight = itemView.right - iconMargin
+                    icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+
+                    background.setBounds(itemView.right + dX.toInt() - backgroundCornerOffset,
+                        itemView.top, itemView.right, itemView.bottom)
+
+                }
+                else -> {
+                    background.setBounds(0, 0, 0, 0)
+                }
+            }
+
+            // Draw
+            background.draw(c)
+            icon.draw(c)
+        }
+    }
+
+        ItemTouchHelper(simpleItemTouchCallback)
     }
 }

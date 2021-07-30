@@ -28,14 +28,14 @@ class ActionsTimetableViewModel : ViewModel() {
 
 
     private val actionTypeRepository = ActionTypeRepository.get()
-    fun getActionType(id: UUID): LiveData<ActionType> = actionTypeRepository.getActionType(id)
+    fun getActionType(id: String): LiveData<ActionType> = actionTypeRepository.getActionType(id)
 
 
     fun getActionsDrawable(actions: List<ActionTimetable>): List<ActionDrawable> {
         val actionsDrawable = mutableListOf<ActionDrawable>()
 
         actions.forEachIndexed { i, action ->
-            val color = actionTypeRepository.getColor(UUID.fromString(action.actionTypeId))
+            val color = actionTypeRepository.getColor(action.actionTypeId)
             var start = action.timeStart/(60f*24)
             if (i != 0) start += actionsDrawable[i - 1].end
 

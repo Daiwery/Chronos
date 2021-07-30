@@ -30,7 +30,7 @@
             app:layout_constraintEnd_toEndOf="@+id/action_type_name"
             app:layout_constraintStart_toStartOf="@+id/action_type_name"
             app:layout_constraintTop_toBottomOf="@+id/action_type_name"
-            app:srcCompat="@drawable/oval_select_action_type" />
+            app:srcCompat="@drawable/oval" />
 
         <TextView
             android:id="@+id/action_type_name"

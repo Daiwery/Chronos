@@ -122,7 +122,7 @@ class ActionsTimetableFragment(var timetable: Timetable, var dayIndex: Int) : Fr
         fun bind(action: ActionTimetable, position: Int) {
             this.action = action
 
-            val liveActionType = viewModel.getActionType(UUID.fromString(action.actionTypeId))
+            val liveActionType = viewModel.getActionType(action.actionTypeId)
             liveActionType.observe(viewLifecycleOwner, Observer { actionType ->
                 binding.actionType = actionType
             })

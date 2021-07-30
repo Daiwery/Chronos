@@ -1,13 +1,21 @@
 <resources>
     <string name="app_name">Chronos</string>
+
+    <string name="select">Select</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit">Edit</string>
+    <string name="add">Add</string>
+    <string name="name">Name</string>
+    <string name="delete">Delete</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="has_been_removed">has been removed</string>
+
     <string name="action_types">Action Types</string>
-    <string name="action_type">Action Type</string>
-    <string name="current_day">Current day</string>
-    <string name="name_action_type">Name action type</string>
     <string name="action_type_name_hint">For example, work</string>
+    <string name="count_child_actions">Count child-actions:</string>
+
     <string name="color">Color</string>
-    <string name="new_action_type">New action type</string>
-    <string name="edit_action_type">Edit action type</string>
     <string name="goals">Goals</string>
     <string name="not_achieved">Not achieved</string>
     <string name="achieved">Achieved</string>
@@ -21,16 +29,14 @@
     <string name="active">Active</string>
     <string name="not_active">Not active</string>
     <string name="timetables">Timetables</string>
-    <string name="name">Name</string>
     <string name="count_of_days">Count of days</string>
     <string name="present_day">Present day</string>
-    <string name="add">Add</string>
     <string name="day">Day</string>
-    <string name="edit">Edit</string>
-    <string name="delete">Delete</string>
     <string name="time_awakening">Time awakening</string>
     <string name="time_awakening_next_day">Time awakening next day</string>
     <string name="duration">Duration</string>
     <string name="start_after">Start after</string>
     <string name="select_action_type">Select action type</string>
+    <string name="current_day">Current day</string>
+    <string name="it_s_empty">It\'s empty</string>
 </resources>

@@ -12,67 +12,66 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        tools:context=".ui.actiontype.ItemActionTypeFragment">
+        tools:context=".ui.actiontype.ActionTypeDialog">
 
 
         <TextView
             android:id="@+id/textView3"
+            style="@style/Text.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@string/name_action_type"
+            android:text="@string/name"
             android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/action_type_name"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/action_type_name" />
 
         <EditText
             android:id="@+id/action_type_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
             android:hint="@string/action_type_name_hint"
             android:text="@{actionType.name}"
-            android:textSize="24sp"
-            app:layout_constraintStart_toStartOf="@+id/textView3"
-            app:layout_constraintTop_toBottomOf="@+id/textView3" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textView6"
+            style="@style/Text.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:text="@string/color"
             android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/action_type_color"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/action_type_name" />
+            app:layout_constraintTop_toTopOf="@+id/action_type_color" />
 
-        <com.jaredrummler.android.colorpicker.ColorPickerView
-            android:id="@+id/colorPickerView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:color="@{actionType.color}"
-            app:layout_constraintBottom_toTopOf="@+id/fab"
+        <ImageView
+            android:id="@+id/action_type_color"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:colorFilter="@{actionType.color}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView6" />
+            app:layout_constraintStart_toStartOf="@+id/action_type_name"
+            app:layout_constraintTop_toBottomOf="@+id/action_type_name"
+            app:srcCompat="@drawable/oval" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
+        <Button
+            android:id="@+id/button"
+            style="@style/Widget.BottomDialog.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:src="@drawable/ic_baseline_check_24"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:text="@string/add"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/action_type_color" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

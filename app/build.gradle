@@ -64,7 +64,7 @@ dependencies {
     implementation'androidx.recyclerview:recyclerview:1.0.0'
 
     // ColorPicker
-    implementation 'com.jaredrummler:colorpicker:1.1.0'
+    implementation "com.github.skydoves:colorpickerpreference:2.0.5"
 
     // ViewPager2
     implementation("androidx.viewpager2:viewpager2:1.0.0")

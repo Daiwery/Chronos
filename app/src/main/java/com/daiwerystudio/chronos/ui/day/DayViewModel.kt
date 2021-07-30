@@ -18,5 +18,5 @@ class DayViewModel: ViewModel() {
         actions = actionRepository.getActionsFromTimes(time1, time2)
     }
 
-    fun getActionType(id: UUID): LiveData<ActionType> = actionTypeRepository.getActionType(id)
+    fun getActionType(id: String): LiveData<ActionType> = actionTypeRepository.getActionType(id)
 }

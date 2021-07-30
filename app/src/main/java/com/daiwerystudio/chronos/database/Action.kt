@@ -13,7 +13,7 @@ private const val ACTION_DATABASE_NAME = "action-database"
 @Entity(tableName = "action_table")
 data class Action(
     @PrimaryKey val id: UUID = UUID.randomUUID(),
-    var idActionType: UUID,
+    var idActionType: String,
     var start: Long,
     var end: Long
 ) : Serializable
