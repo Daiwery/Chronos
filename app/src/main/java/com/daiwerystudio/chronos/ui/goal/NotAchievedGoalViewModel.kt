@@ -6,8 +6,17 @@ import com.daiwerystudio.chronos.database.Goal
 import com.daiwerystudio.chronos.database.GoalRepository
 
 class NotAchievedGoalViewModel : ViewModel() {
-    private val goalRepository = GoalRepository.get()
-    var notAchievedGoals: LiveData<List<Goal>> = goalRepository.getGoalsWithoutParentFromSolve(false)
+    private val repository = GoalRepository.get()
 
-    fun getPercentAchieved(id: String): LiveData<Int> = goalRepository.getPercentAchieved(id)
+    var goals: LiveData<List<Goal>> = repository.getGoalsWithoutParentFromSolve(false)
+
+    fun getPercentAchieved(id: String): LiveData<Int> = repository.getPercentAchieved(id)
+
+    fun deleteGoalWithChild(goal: Goal){
+        repository.deleteGoalWithChild(goal)
+    }
+
+    fun setAchievedGoalWithChild(goal: Goal){
+        repository.setAchievedGoalWithChild(goal)
+    }
 }

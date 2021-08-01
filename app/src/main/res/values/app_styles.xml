@@ -16,6 +16,9 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:textColorHint">@color/white_500</item>
         <item name="android:textSize">20sp</item>
+        <item name="android:inputType">textCapSentences|textAutoCorrect</item>
+        <item name="colorError">@color/red_500</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.EditText</item>
     </style>
 
 
@@ -37,9 +40,20 @@
         <item name="android:buttonBarNegativeButtonStyle">@style/Widget.AlertDialog.Button</item>
         <item name="android:background">@color/black_100</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
+
+    <style name="App.TabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.TabLayout</item>
+    </style>
+
+
+    <style name="App.CheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">18sp</item>
+        <item name="buttonTint">@color/purple_500</item>
+    </style>
 
 
 </resources>

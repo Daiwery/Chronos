@@ -1,21 +1,25 @@
 package com.daiwerystudio.chronos.ui.goal
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Goal
 import com.daiwerystudio.chronos.databinding.FragmentAchievedGoalBinding
-import com.daiwerystudio.chronos.databinding.ListItemAchievedGoalBinding
-import com.daiwerystudio.chronos.databinding.ListItemNotAchievedGoalBinding
+import com.daiwerystudio.chronos.databinding.ItemRecyclerViewAchievedGoalBinding
+import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
+import com.daiwerystudio.chronos.ui.ItemAnimator
+
 
 class AchievedGoalFragment : Fragment() {
     // ViewModel
@@ -23,69 +27,155 @@ class AchievedGoalFragment : Fragment() {
     by lazy { ViewModelProvider(this).get(AchievedGoalViewModel::class.java) }
     // Data Binding
     private lateinit var binding: FragmentAchievedGoalBinding
-    // Bundle
-    private var bundle = Bundle()
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         // Data Binding
         binding = FragmentAchievedGoalBinding.inflate(inflater, container, false)
         val view = binding.root
+        setLoadingView()
 
         // Setting recyclerView
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = AchievedGoalAdapter(emptyList())
+            adapter = Adapter(emptyList())
+            itemAnimator = ItemAnimator()
         }
+        // Observation
+        viewModel.goals.observe(viewLifecycleOwner, { goals ->
+            setLoadingView()
+            (binding.recyclerView.adapter as Adapter).setData(goals)
+        })
+        // Support swipe.
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+
 
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // Observation of actionTypes
-        viewModel.achievedGoals.observe(viewLifecycleOwner, Observer { achievedGoals ->
-            binding.recyclerView.adapter = AchievedGoalAdapter(achievedGoals)
-        })
+
+    private fun setLoadingView(){
+        binding.loadingView.visibility = View.VISIBLE
+        binding.emptyView.visibility = View.GONE
+    }
+    private fun setEmptyView(){
+        binding.loadingView.visibility = View.GONE
+        binding.emptyView.visibility = View.VISIBLE
+    }
+    private fun setNullView(){
+        binding.loadingView.visibility = View.GONE
+        binding.emptyView.visibility = View.GONE
     }
 
-    private inner class AchievedGoalHolder(private val binding: ListItemAchievedGoalBinding):
+
+    // Support animation recyclerView
+    private class DiffUtilCallback(private val oldList: List<Goal>,
+                                   private val newList: List<Goal>): DiffUtil.Callback() {
+
+        override fun getOldListSize() = oldList.size
+
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(oldPosition: Int, newPosition: Int): Boolean {
+            return oldList[oldPosition].id == newList[newPosition].id
+        }
+
+        override fun areContentsTheSame(oldPosition: Int, newPosition: Int): Boolean {
+            return oldList[oldPosition] == newList[newPosition]
+        }
+    }
+
+
+    private inner class Holder(private val binding: ItemRecyclerViewAchievedGoalBinding):
         RecyclerView.ViewHolder(binding.root), View.OnClickListener {
-        private lateinit var achievedGoal: Goal
+        private lateinit var goal: Goal
 
         init {
             itemView.setOnClickListener(this)
         }
 
-        fun bind(achievedGoal: Goal) {
-            this.achievedGoal = achievedGoal
+        fun bind(goal: Goal) {
+            this.goal = goal
 
-            binding.goalName.text = achievedGoal.name
+            binding.goalName.text = goal.name
         }
 
         override fun onClick(v: View) {
-            bundle.putSerializable("parentGoal", achievedGoal)
-            v.findNavController().navigate(R.id.action_navigation_goal_to_navigation_child_goal, bundle)
+            val bundle = Bundle().apply{
+                putString("idParent", goal.id)
+            }
+            v.findNavController().navigate(R.id.action_navigation_preview_goal_to_navigation_goal, bundle)
         }
     }
 
-    private inner class AchievedGoalAdapter(var achievedGoals: List<Goal>): RecyclerView.Adapter<AchievedGoalHolder>(){
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AchievedGoalHolder {
-            val binding = DataBindingUtil.inflate<ListItemAchievedGoalBinding>(
-                layoutInflater,
-                R.layout.list_item_achieved_goal,
-                parent,
-                false)
-            return AchievedGoalHolder(binding)
+    private inner class Adapter(var goals: List<Goal>): RecyclerView.Adapter<Holder>(){
+        // Cringe Logic for animation
+        private var lastPosition = -1
+
+        fun setData(newData: List<Goal>){
+            // Находим, что изменилось
+            val diffUtilCallback = DiffUtilCallback(goals, newData)
+            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+            // Update data
+            goals = newData
+            // Notify
+            diffResult.dispatchUpdatesTo(this)
+
+            // Show view
+            if (goals.isEmpty()){
+                setEmptyView()
+            } else {
+                setNullView()
+            }
         }
 
-        override fun getItemCount() = achievedGoals.size
-
-        override fun onBindViewHolder(holder: AchievedGoalHolder, position: Int) {
-            val achievedGoal = achievedGoals[position]
-            holder.bind(achievedGoal)
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+            return Holder(DataBindingUtil.inflate(layoutInflater,
+                R.layout.item_recycler_view_achieved_goal,
+                parent, false))
         }
+
+        override fun getItemCount() = goals.size
+
+        override fun onBindViewHolder(holder: Holder, position: Int) {
+            holder.bind(goals[position])
+
+            // Animation
+            if (holder.adapterPosition > lastPosition){
+                lastPosition = holder.adapterPosition
+
+                val animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.anim_add_item)
+                holder.itemView.startAnimation(animation)
+            }
+        }
+    }
+
+    // Support swiped
+    private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
+        CustomItemTouchCallback(requireContext(),0,
+            ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+
+        private val mAdapter = binding.recyclerView.adapter!!
+
+        override fun onMove(recyclerView: RecyclerView,
+                            viewHolder: RecyclerView.ViewHolder,
+                            target: RecyclerView.ViewHolder): Boolean {
+            return false
+        }
+
+        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder,
+                                           direction: Int) {
+            viewModel.deleteGoalWithChild(viewModel.goals.value!![viewHolder.adapterPosition])
+        }
+
+        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder,
+                                           direction: Int) {
+            mAdapter.notifyItemChanged(viewHolder.adapterPosition)
+        }
+        }
+
+        ItemTouchHelper(simpleItemTouchCallback)
     }
 
 }

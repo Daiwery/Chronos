@@ -11,4 +11,19 @@
         <item name="colorSurface">@color/black_200</item>
     </style>
 
+
+    <style name="ThemeOverlay.TabLayout" parent="">
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorSurface">@color/black_200</item>
+        <item name="colorOnSurface">@color/white</item>
+    </style>
+
+
+    <style name="ThemeOverlay.EditText" parent="">
+        <item name="android:colorControlNormal">@color/purple_500</item>
+    </style>
+
+
+
+
 </resources>

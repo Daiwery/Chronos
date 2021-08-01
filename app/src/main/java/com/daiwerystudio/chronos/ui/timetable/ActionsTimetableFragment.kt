@@ -1,18 +1,17 @@
  package com.daiwerystudio.chronos.ui.timetable
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.daiwerystudio.chronos.ActionDrawable
 import com.daiwerystudio.chronos.ClockDrawable
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.ActionTimetable
@@ -21,10 +20,9 @@ import com.daiwerystudio.chronos.databinding.FragmentActionsTimetableBinding
 import com.daiwerystudio.chronos.databinding.ListItemActionTimetableBinding
 import java.util.*
 import java.util.concurrent.Executors
-import kotlin.properties.Delegates
 
 
-class ActionsTimetableFragment(var timetable: Timetable, var dayIndex: Int) : Fragment() {
+ class ActionsTimetableFragment(var timetable: Timetable, var dayIndex: Int) : Fragment() {
     // ViewModel
     private val viewModel: ActionsTimetableViewModel
     by lazy { ViewModelProvider(this).get(ActionsTimetableViewModel::class.java) }
@@ -166,7 +164,9 @@ class ActionsTimetableFragment(var timetable: Timetable, var dayIndex: Int) : Fr
 
     // Support move and swiped
     private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
-        ItemTouchHelper.SimpleCallback(UP or DOWN, RIGHT or LEFT) {
+        ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+            ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
 
         override fun onMove(recyclerView: RecyclerView,
                             viewHolder: RecyclerView.ViewHolder,

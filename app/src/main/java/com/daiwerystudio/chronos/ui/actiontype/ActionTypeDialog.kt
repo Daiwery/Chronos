@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.core.widget.addTextChangedListener
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.database.ActionTypeRepository
@@ -74,14 +75,20 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                 .show()
         }
 
+        binding.actionTypeName.addTextChangedListener{
+            if (binding.actionTypeName.text.toString() != ""){
+                binding.error.visibility = View.INVISIBLE
+            } else {
+                binding.error.visibility = View.VISIBLE
+            }
+        }
+
         // Text on button
         if (isCreated) {
             binding.button.text = resources.getString(R.string.add)
         } else {
             binding.button.text = resources.getString(R.string.edit)
         }
-
-
         // Setting button
         binding.button.setOnClickListener{
             val name = binding.actionTypeName.text.toString()
@@ -99,9 +106,11 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                 } else {
                     repository.updateActionType(actionType!!)
                 }
-            }
 
-            this.dismiss()
+                this.dismiss()
+            } else {
+                binding.error.visibility = View.VISIBLE
+            }
         }
 
         return view

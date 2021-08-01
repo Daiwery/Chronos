@@ -25,29 +25,29 @@
             <ImageView
                 android:id="@+id/action_type_color"
                 android:layout_width="10dp"
-                android:layout_height="20dp"
+                android:layout_height="10dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="8dp"
                 android:layout_marginEnd="10dp"
                 android:colorFilter="@{actionType.color}"
+                app:layout_constraintBottom_toTopOf="@+id/multiColorLineImage"
                 app:layout_constraintEnd_toStartOf="@+id/action_type_name"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/action_type_name"
-                app:srcCompat="@drawable/oval_list_item_action_type" />
+                app:srcCompat="@drawable/oval" />
 
             <TextView
                 android:id="@+id/action_type_name"
                 style="@style/Text.Item"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_marginTop="8dp"
                 android:paddingBottom="0dp"
                 android:singleLine="true"
                 android:text="@{actionType.name}"
+                app:layout_constraintEnd_toStartOf="@+id/edit"
                 app:layout_constraintStart_toEndOf="@+id/action_type_color"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Сон" />
+                tools:text="5645645555555555555555555555" />
 
             <ImageView
                 android:id="@+id/multiColorLineImage"

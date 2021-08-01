@@ -71,7 +71,7 @@ class ItemActionFragment : Fragment() {
 
     private inner class ActionTypeAdapter(var actionTypes: List<ActionType>): RecyclerView.Adapter<ActionTypeHolder>(){
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionTypeHolder {
-            val view = layoutInflater.inflate(R.layout.list_item_action_type, parent, false)
+            val view = layoutInflater.inflate(R.layout.item_recycler_view_action_type, parent, false)
             return ActionTypeHolder(view)
         }
 

@@ -1,23 +1,24 @@
 package com.daiwerystudio.chronos.ui.actiontype
 
 import android.app.AlertDialog
-import android.graphics.Canvas
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.*
-import com.daiwerystudio.chronos.database.ActionType
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
+import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.databinding.FragmentChildActionTypeBinding
-import com.daiwerystudio.chronos.databinding.ListItemActionTypeBinding
+import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionTypeBinding
+import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
+import com.daiwerystudio.chronos.ui.ItemAnimator
 
 
 class ChildActionTypeFragment: Fragment() {
@@ -47,8 +48,7 @@ class ChildActionTypeFragment: Fragment() {
         // Data Binding
         binding = FragmentChildActionTypeBinding.inflate(inflater, container, false)
         val view = binding.root
-        // Loading view
-        binding.loadingView.visibility = View.VISIBLE
+        setLoadingView()
 
         // Observe
         viewModel.parentActionType.observe(viewLifecycleOwner, { actionType ->
@@ -67,11 +67,10 @@ class ChildActionTypeFragment: Fragment() {
         }
         // Observation
         viewModel.actionTypes.observe(viewLifecycleOwner, { actionTypes ->
-            // Loading view
-            binding.loadingView.visibility = View.VISIBLE
+            setLoadingView()
             (binding.recyclerView.adapter as Adapter).setData(actionTypes)
         })
-        // Support swipe. Смотри ниже.
+        // Support swipe.
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
 
@@ -89,10 +88,24 @@ class ChildActionTypeFragment: Fragment() {
     }
 
 
+    private fun setLoadingView(){
+        binding.loadingView.visibility = View.VISIBLE
+        binding.emptyView.visibility = View.GONE
+    }
+    private fun setEmptyView(){
+        binding.loadingView.visibility = View.GONE
+        binding.emptyView.visibility = View.VISIBLE
+    }
+    private fun setNullView(){
+        binding.loadingView.visibility = View.GONE
+        binding.emptyView.visibility = View.GONE
+    }
+
+
     // Set menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_child, menu)
+        inflater.inflate(R.menu.edit_delete_menu, menu)
     }
 
 
@@ -112,7 +125,7 @@ class ChildActionTypeFragment: Fragment() {
             R.id.delete -> {
                 // Dialog
                 AlertDialog.Builder(context, R.style.App_AlertDialog)
-                    .setTitle(resources.getString(R.string.delete)+" '"+viewModel.parentActionType.value!!.name+"'?")
+                    .setTitle(resources.getString(R.string.are_you_sure))
                     .setPositiveButton(R.string.yes) { _, _ ->
                         viewModel.deleteActionTypeWithChild(viewModel.parentActionType.value!!)
                         requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
@@ -131,8 +144,8 @@ class ChildActionTypeFragment: Fragment() {
 
 
     // Support animation recyclerView
-    private class DiffUtilCallback(private val oldList: List<ActionType>,
-                                   private val newList: List<ActionType>): DiffUtil.Callback() {
+    class DiffUtilCallback(private val oldList: List<ActionType>,
+                           private val newList: List<ActionType>): DiffUtil.Callback() {
 
         override fun getOldListSize() = oldList.size
 
@@ -147,32 +160,9 @@ class ChildActionTypeFragment: Fragment() {
         }
     }
 
-    // Support animation
-    private class ItemAnimator: DefaultItemAnimator(){
-        override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
-            val itemView = holder!!.itemView
-
-            // Listener
-            val listener = object : Animation.AnimationListener{
-                override fun onAnimationStart(animation: Animation?) {}
-                override fun onAnimationRepeat(animation: Animation?) {}
-                override fun onAnimationEnd(animation: Animation?) {
-                    dispatchAnimationFinished(holder)
-                }
-            }
-
-            // Animation
-            val animation = AnimationUtils.loadAnimation(itemView.context, R.anim.anim_add_item)
-            animation.setAnimationListener(listener)
-            itemView.startAnimation(animation)
-
-            return true
-        }
-    }
 
 
-
-    private inner class Holder(private val binding: ListItemActionTypeBinding):
+    private inner class Holder(private val binding: ItemRecyclerViewActionTypeBinding):
         RecyclerView.ViewHolder(binding.root), View.OnClickListener {
 
         private lateinit var actionType: ActionType
@@ -222,27 +212,26 @@ class ChildActionTypeFragment: Fragment() {
         // Cringe Logic for animation
         private var lastPosition = -1
 
-        fun setData(actionTypes: List<ActionType>){
+        fun setData(newData: List<ActionType>){
             // Находим, что изменилось
-            val diffUtilCallback = DiffUtilCallback(this.actionTypes, actionTypes)
+            val diffUtilCallback = DiffUtilCallback(actionTypes, newData)
             val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
             // Update data
-            this.actionTypes = actionTypes
+            actionTypes = newData
             // Notify
             diffResult.dispatchUpdatesTo(this)
 
             // Show view
-            binding.loadingView.visibility = View.GONE
             if (actionTypes.isEmpty()){
-                binding.emptyView.visibility = View.VISIBLE
+                setEmptyView()
             } else {
-                binding.emptyView.visibility = View.GONE
+                setNullView()
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
             return Holder(DataBindingUtil.inflate(layoutInflater,
-                R.layout.list_item_action_type,
+                R.layout.item_recycler_view_action_type,
                 parent, false))
         }
 
@@ -265,12 +254,10 @@ class ChildActionTypeFragment: Fragment() {
 
     // Support swiped
     private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
-        ItemTouchHelper.SimpleCallback(0,
+        CustomItemTouchCallback(requireContext(),0,
             ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
 
         private val mAdapter = binding.recyclerView.adapter!!
-        private val icon = ContextCompat.getDrawable(context!!, R.drawable.ic_baseline_delete_24)
-        private val background = ColorDrawable(resources.getColor(R.color.red_500))
 
         override fun onMove(recyclerView: RecyclerView,
                             viewHolder: RecyclerView.ViewHolder,
@@ -278,67 +265,16 @@ class ChildActionTypeFragment: Fragment() {
             return false
         }
 
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val actionType = viewModel.actionTypes.value!![viewHolder.adapterPosition]
-            // Dialog
-            AlertDialog.Builder(context, R.style.App_AlertDialog)
-                .setTitle(resources.getString(R.string.delete)+" '"+actionType.name+"'?")
-                .setPositiveButton(R.string.yes) { _, _ ->
-                    viewModel.deleteActionTypeWithChild(actionType)
-                }
-                .setNegativeButton(R.string.no){ _, _ ->
-                    // Delete
-                    mAdapter.notifyItemChanged(viewHolder.adapterPosition)
-                }
-                .setCancelable(false)
-                .create()
-                .show()
+        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder,
+                                           direction: Int) {
+            viewModel.deleteActionTypeWithChild(viewModel.actionTypes.value!![viewHolder.adapterPosition])
         }
 
-        override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
-                                 dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-
-            val itemView = viewHolder.itemView
-            val backgroundCornerOffset = 20
-
-            val iconMargin = (itemView.height - icon!!.intrinsicHeight) / 2
-            val iconTop = itemView.top + (itemView.height - icon.intrinsicHeight) / 2
-            val iconBottom = iconTop + icon.intrinsicHeight
-
-
-            // Swipe left, right and unSwiped
-            when {
-                dX > 0 -> {
-                    val iconRight = itemView.left + iconMargin + icon.intrinsicWidth
-                    val iconLeft = itemView.left + iconMargin
-                    icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
-
-                    background.setBounds(itemView.left, itemView.top,
-                        itemView.left + dX.toInt() + backgroundCornerOffset, itemView.bottom)
-
-                }
-                dX < 0 -> {
-                    val iconLeft = itemView.right - iconMargin - icon.intrinsicWidth
-                    val iconRight = itemView.right - iconMargin
-                    icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
-
-                    background.setBounds(itemView.right + dX.toInt() - backgroundCornerOffset,
-                        itemView.top, itemView.right, itemView.bottom)
-
-                }
-                else -> {
-                    background.setBounds(0, 0, 0, 0)
-                }
-            }
-
-            // Draw
-            background.draw(c)
-            icon.draw(c)
+        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder,
+                                           direction: Int) {
+            mAdapter.notifyItemChanged(viewHolder.adapterPosition)
         }
-    }
-
+        }
         ItemTouchHelper(simpleItemTouchCallback)
     }
 }

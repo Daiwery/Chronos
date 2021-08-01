@@ -6,6 +6,11 @@ import com.daiwerystudio.chronos.database.Goal
 import com.daiwerystudio.chronos.database.GoalRepository
 
 class AchievedGoalViewModel : ViewModel() {
-    private val goalRepository = GoalRepository.get()
-    var achievedGoals: LiveData<List<Goal>> = goalRepository.getGoalsWithoutParentFromSolve(true)
+    private val repository = GoalRepository.get()
+    
+    var goals: LiveData<List<Goal>> = repository.getGoalsWithoutParentFromSolve(true)
+
+    fun deleteGoalWithChild(goal: Goal){
+        repository.deleteGoalWithChild(goal)
+    }
 }

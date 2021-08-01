@@ -16,7 +16,6 @@ private const val ACTION_TYPE_DATABASE_NAME = "action_type-database"
 @Entity(tableName = "action_type_table")
 data class ActionType(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
-    // Если parent="", то это корневое действие.
     var parent: String = "",
     var name: String = "",
     var color: Int = Color.rgb((Math.random()*255).toInt(), (Math.random()*255).toInt(), (Math.random()*255).toInt())
@@ -76,8 +75,6 @@ class ActionTypeRepository private constructor(context: Context) {
         Room.databaseBuilder(context.applicationContext, ActionTypeDatabase::class.java, ACTION_TYPE_DATABASE_NAME).build()
     private val dao = database.dao()
     private val executor = Executors.newSingleThreadExecutor()
-
-
 
     fun getActionTypesFromParent(id: String): LiveData<List<ActionType>> = dao.getActionTypesFromParent(id)
 

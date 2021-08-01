@@ -12,8 +12,8 @@
         android:title="@string/current_day" />
 
     <item
-        android:id="@+id/navigation_goal"
-        android:icon="@drawable/ic_baseline_assignment_late_24"
+        android:id="@+id/navigation_preview_goal"
+        android:icon="@drawable/ic_baseline_article_24"
         android:title="@string/goals" />
 
     <item

@@ -73,7 +73,7 @@ class ChildTimetableFragment : Fragment() {
     // Set menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_child, menu)
+        inflater.inflate(R.menu.edit_delete_menu, menu)
     }
 
     // Click on element in menu

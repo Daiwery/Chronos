@@ -17,5 +17,7 @@
         <item name="bottomNavigationStyle">@style/App.BottomNavigationView</item>
         <item name="editTextStyle">@style/App.EditText</item>
         <item name="materialCardViewStyle">@style/App.CardView</item>
+        <item name="tabStyle">@style/App.TabLayout</item>
+        <item name="checkboxStyle">@style/App.CheckBox</item>
     </style>
 </resources>
