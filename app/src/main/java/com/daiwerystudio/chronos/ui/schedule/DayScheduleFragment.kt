@@ -102,7 +102,7 @@ import java.util.*
         // Setting fab
         binding.fab.setOnClickListener{
             // ActionSchedule
-            val actionSchedule = ActionSchedule(scheduleId=schedule.id, dayIndex=dayIndex,
+            val actionSchedule = ActionSchedule(scheduleID=schedule.id, dayIndex=dayIndex,
                 indexList=viewModel.actionsSchedule.value?.size!!)
 
             when (schedule.type){
