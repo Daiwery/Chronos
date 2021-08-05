@@ -6,30 +6,38 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Goal
 import com.daiwerystudio.chronos.database.GoalRepository
 import com.daiwerystudio.chronos.databinding.DialogGoalBinding
+import com.daiwerystudio.chronos.ui.DialogViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
 class GoalDialog : BottomSheetDialogFragment() {
+    // ViewModel
+    private val viewModel: DialogViewModel
+    by lazy { ViewModelProvider(this).get(DialogViewModel::class.java) }
     // Database
     private val goalRepository = GoalRepository.get()
     // Data Binding
     private lateinit var binding: DialogGoalBinding
     // Arguments
-    private var goal: Goal? = null
-    private var isCreated: Boolean = false
+    private lateinit var goal: Goal
+    var isCreated: Boolean = false
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Get arguments
-        goal = arguments?.getSerializable("goal") as Goal?
-        if (goal != null) goal = goal!!.copy()
+        goal = arguments?.getSerializable("goal") as Goal
+        goal = goal.copy()
         isCreated = arguments?.getBoolean("isCreated") as Boolean
+
+        // Recovery
+        if (viewModel.data != null) goal = viewModel.data as Goal
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +53,8 @@ class GoalDialog : BottomSheetDialogFragment() {
 
 
         binding.goalName.addTextChangedListener{
-            if (binding.goalName.text.toString() != ""){
+            goal.name = binding.goalName.text.toString()
+            if (goal.name != ""){
                 binding.error.visibility = View.INVISIBLE
             } else {
                 binding.error.visibility = View.VISIBLE
@@ -63,15 +72,11 @@ class GoalDialog : BottomSheetDialogFragment() {
 
         // Setting button
         binding.button.setOnClickListener{
-            val name = binding.goalName.text.toString()
-
-            if (name != ""){
-                goal!!.name = name
-
+            if (goal.name != ""){
                 if (isCreated){
-                    goalRepository.addGoal(goal!!)
+                    goalRepository.addGoal(goal)
                 } else {
-                    goalRepository.updateGoal(goal!!)
+                    goalRepository.updateGoal(goal)
                 }
 
                 this.dismiss()
@@ -82,6 +87,12 @@ class GoalDialog : BottomSheetDialogFragment() {
         }
 
         return view
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        viewModel.data = goal
     }
 
 }

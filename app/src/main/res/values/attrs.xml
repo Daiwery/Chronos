@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SelectActionTypeView">
+    </declare-styleable>
+
+    <declare-styleable name="TimeView">
+        <attr name="stripWidth" format="dimension" />
+        <attr name="spaceWidth" format="dimension" />
+        <attr name="corner" format="dimension" />
+        <attr name="colorColumn" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="ClockFaceView">
+        <attr name="textSize" format="dimension" />
+        <attr name="spaceHeight" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="ScheduleClockView">
+    </declare-styleable>
+</resources>

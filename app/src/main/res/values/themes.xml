@@ -1,16 +1,17 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.Chronos" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/black_300</item>
+        <item name="colorPrimary">@color/black_100</item>
         <item name="colorPrimaryDark">@color/black_100</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/purple_500</item>
-        <item name="colorSecondaryVariant">@color/purple_500</item>
+        <item name="colorSecondary">@color/purple_700</item>
+        <item name="colorSecondaryVariant">@color/purple_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Customize your theme here. -->
-        <item name="android:navigationBarColor">@color/black_300</item>
+
+        <item name="android:navigationBarColor">@color/black_100</item>
         <item name="android:windowBackground">@color/black_100</item>
 
         <item name="bottomSheetDialogTheme">@style/App.BottomDialog</item>
@@ -19,5 +20,7 @@
         <item name="materialCardViewStyle">@style/App.CardView</item>
         <item name="tabStyle">@style/App.TabLayout</item>
         <item name="checkboxStyle">@style/App.CheckBox</item>
+        <item name="spinnerStyle">@style/App.Spinner</item>
+        <item name="materialTimePickerTheme">@style/ThemeOverlay.TimePicker</item>
     </style>
 </resources>

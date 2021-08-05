@@ -52,7 +52,13 @@
     <style name="App.CheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">18sp</item>
-        <item name="buttonTint">@color/purple_500</item>
+        <item name="buttonTint">@color/purple_700</item>
+    </style>
+
+
+    <style name="App.Spinner" parent="Widget.AppCompat.Spinner">
+        <item name="android:popupBackground">@color/black_300</item>
+        <item name="android:backgroundTint">@color/purple_700</item>
     </style>
 
 

@@ -1,4 +1,4 @@
-package com.daiwerystudio.chronos
+package com.daiwerystudio.chronos.ui
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter

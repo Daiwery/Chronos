@@ -68,17 +68,17 @@
             app:popUpTo="@id/navigation_goal" />
     </fragment>
     <fragment
-        android:id="@+id/navigation_timetable"
-        android:name="com.daiwerystudio.chronos.ui.timetable.TimetableFragment"
-        android:label="@string/timetables"
-        tools:layout="@layout/fragment_timetable" >
+        android:id="@+id/navigation_preview_schedule"
+        android:name="com.daiwerystudio.chronos.ui.schedule.PreviewScheduleFragment"
+        android:label="@string/schedules"
+        tools:layout="@layout/fragment_preview_schedule">
         <action
-            android:id="@+id/action_navigation_timetable_to_navigation_child_timetable"
-            app:destination="@id/navigation_child_timetable" />
+            android:id="@+id/action_navigation_schedule_to_navigation_schedule"
+            app:destination="@id/navigation_schedule" />
     </fragment>
     <fragment
-        android:id="@+id/navigation_child_timetable"
-        android:name="com.daiwerystudio.chronos.ui.timetable.ChildTimetableFragment"
+        android:id="@+id/navigation_schedule"
+        android:name="com.daiwerystudio.chronos.ui.schedule.ScheduleFragment"
         android:label=""
-        tools:layout="@layout/fragment_child_timetable" />
+        tools:layout="@layout/fragment_schedule" />
 </navigation>

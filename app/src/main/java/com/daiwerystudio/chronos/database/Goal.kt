@@ -132,7 +132,7 @@ class GoalRepository private constructor(context: Context) {
         }
 
         fun get(): GoalRepository {
-            return INSTANCE ?: throw IllegalStateException("GoalRepository must beinitialized")
+            return INSTANCE ?: throw IllegalStateException("GoalRepository must be initialized")
         }
     }
 }

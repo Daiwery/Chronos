@@ -18,7 +18,7 @@ class DataBaseApplication: Application() {
         GoalRepository.initialize(this)
         Log.d(DATABASE_TAG, "Create goal database")
 
-        TimetableRepository.initialize(this)
+        ScheduleRepository.initialize(this)
         Log.d(DATABASE_TAG, "Create timetable database")
     }
 }

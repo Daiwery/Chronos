@@ -79,7 +79,8 @@ class ChildActionTypeFragment: Fragment() {
             // Dialog
             val dialog = ActionTypeDialog()
             dialog.arguments = Bundle().apply{
-                putSerializable("parentActionType", viewModel.parentActionType.value!!)
+                putSerializable("actionType", ActionType(parent=viewModel.parentActionType.value!!.id))
+                putBoolean("isCreated", true)
             }
             dialog.show(this.requireActivity().supportFragmentManager, "ActionTypeDialog")
         }
@@ -117,6 +118,7 @@ class ChildActionTypeFragment: Fragment() {
                 val dialog = ActionTypeDialog()
                 dialog.arguments = Bundle().apply{
                     putSerializable("actionType", viewModel.parentActionType.value!!)
+                    putBoolean("isCreated", false)
                 }
                 dialog.show(this.requireActivity().supportFragmentManager, "ActionTypeDialog")
 
@@ -176,6 +178,7 @@ class ChildActionTypeFragment: Fragment() {
                 val dialog = ActionTypeDialog()
                 dialog.arguments = Bundle().apply{
                     putSerializable("actionType", actionType)
+                    putBoolean("isCreated", false)
                 }
 
                 dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")

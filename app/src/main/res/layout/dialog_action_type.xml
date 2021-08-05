@@ -25,13 +25,13 @@
             android:layout_marginStart="8dp"
             android:text="@string/name"
             android:textAlignment="center"
-            app:layout_constraintBottom_toBottomOf="@+id/action_type_name"
+            app:layout_constraintBottom_toBottomOf="@+id/name"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/action_type_name" />
+            app:layout_constraintTop_toTopOf="@+id/name" />
 
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/action_type_name"
+            android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -53,19 +53,19 @@
             android:layout_marginStart="8dp"
             android:text="@string/color"
             android:textAlignment="center"
-            app:layout_constraintBottom_toBottomOf="@+id/action_type_color"
+            app:layout_constraintBottom_toBottomOf="@+id/color"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/action_type_color" />
+            app:layout_constraintTop_toTopOf="@+id/color" />
 
         <ImageView
-            android:id="@+id/action_type_color"
+            android:id="@+id/color"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginTop="8dp"
             android:colorFilter="@{actionType.color}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/action_type_name"
-            app:layout_constraintTop_toBottomOf="@+id/action_type_name"
+            app:layout_constraintStart_toStartOf="@+id/name"
+            app:layout_constraintTop_toBottomOf="@+id/name"
             app:srcCompat="@drawable/oval" />
 
         <Button
@@ -76,7 +76,7 @@
             android:text="@string/add"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/action_type_color" />
+            app:layout_constraintTop_toBottomOf="@+id/color" />
 
         <ImageView
             android:id="@+id/error"
@@ -84,9 +84,9 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/action_type_name"
-            app:layout_constraintEnd_toEndOf="@+id/action_type_name"
-            app:layout_constraintTop_toTopOf="@+id/action_type_name"
+            app:layout_constraintBottom_toBottomOf="@+id/name"
+            app:layout_constraintEnd_toEndOf="@+id/name"
+            app:layout_constraintTop_toTopOf="@+id/name"
             app:srcCompat="@drawable/ic_baseline_error_24" />
 
 

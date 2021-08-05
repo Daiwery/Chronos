@@ -56,6 +56,10 @@ class ActionTypeFragment: Fragment() {
         binding.fab.setOnClickListener{
             // Dialog
             val dialog = ActionTypeDialog()
+            dialog.arguments = Bundle().apply{
+                putSerializable("actionType", ActionType())
+                putBoolean("isCreated", true)
+            }
             dialog.show(this.requireActivity().supportFragmentManager, "ActionTypeDialog")
         }
 
@@ -109,6 +113,7 @@ class ActionTypeFragment: Fragment() {
                 val dialog = ActionTypeDialog()
                 dialog.arguments = Bundle().apply{
                     putSerializable("actionType", actionType)
+                    putBoolean("isCreated", false)
                 }
 
                 dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")

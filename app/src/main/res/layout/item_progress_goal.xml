@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:width="50dp"
-            android:gravity="center"
+            android:gravity="left"
             android:singleLine="true"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"

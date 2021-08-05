@@ -38,7 +38,6 @@ class NotAchievedGoalFragment: Fragment() {
         val view = binding.root
         setLoadingView()
 
-
         // Setting recyclerView
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -111,7 +110,7 @@ class NotAchievedGoalFragment: Fragment() {
             // Setting edit
             binding.edit.setOnClickListener{
                 // Dialog
-                val dialog =GoalDialog()
+                val dialog = GoalDialog()
                 dialog.arguments = Bundle().apply{
                     putSerializable("goal", goal)
                     putBoolean("isCreated", false)

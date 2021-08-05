@@ -2,7 +2,7 @@
 <resources>
 
     <style name="ThemeOverlay.BottomNavigationView" parent="">
-        <item name="android:background">@color/black_300</item>
+        <item name="android:background">@color/black_100</item>
         <item name="colorOnPrimary">@color/white</item>
     </style>
 
@@ -13,17 +13,22 @@
 
 
     <style name="ThemeOverlay.TabLayout" parent="">
-        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimary">@color/purple_700</item>
         <item name="colorSurface">@color/black_200</item>
         <item name="colorOnSurface">@color/white</item>
     </style>
 
 
     <style name="ThemeOverlay.EditText" parent="">
-        <item name="android:colorControlNormal">@color/purple_500</item>
+        <item name="android:colorControlNormal">@color/purple_700</item>
     </style>
 
 
-
+    <style name="ThemeOverlay.TimePicker" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <item name="colorSurface">@color/black_100</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorPrimary">@color/purple_700</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
 
 </resources>

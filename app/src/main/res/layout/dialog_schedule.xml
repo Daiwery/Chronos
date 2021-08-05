@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.schedule.ScheduleDialog">
+
+    <data>
+        <variable
+            name="schedule"
+            type="com.daiwerystudio.chronos.database.Schedule" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <TextView
+            android:id="@+id/textView7"
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/name"
+            app:layout_constraintBottom_toBottomOf="@+id/name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/name" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:ems="5"
+            android:hint="@string/schedule_name_hint"
+            android:singleLine="true"
+            android:text="@{schedule.name}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView8"
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/count_of_days"
+            app:layout_constraintBottom_toBottomOf="@+id/countDays"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/countDays" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/countDays"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:ems="2"
+            android:inputType="numberDecimal"
+            android:singleLine="true"
+            android:text="@{String.valueOf(schedule.countDays)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/name" />
+
+        <TextView
+            android:id="@+id/textView9"
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/present_day"
+            app:layout_constraintBottom_toBottomOf="@+id/currentDay"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/currentDay" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/currentDay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:ems="2"
+            android:inputType="numberDecimal"
+            android:singleLine="true"
+            android:text="@{String.valueOf((System.currentTimeMillis()/(1000*60*60*24)-schedule.dayStart)%schedule.countDays+1)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/countDays" />
+
+
+        <Button
+            android:id="@+id/button"
+            style="@style/Widget.BottomDialog.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.547"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/type" />
+
+        <Spinner
+            android:id="@+id/type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/currentDay" />
+
+        <TextView
+            android:id="@+id/textView13"
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/type"
+            app:layout_constraintBottom_toBottomOf="@+id/type"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/type" />
+
+        <ImageView
+            android:id="@+id/error_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/name"
+            app:layout_constraintEnd_toEndOf="@+id/name"
+            app:layout_constraintTop_toTopOf="@+id/name"
+            app:srcCompat="@drawable/ic_baseline_error_24" />
+
+        <ImageView
+            android:id="@+id/error_count_days"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/countDays"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/countDays"
+            app:srcCompat="@drawable/ic_baseline_error_24" />
+
+        <ImageView
+            android:id="@+id/error_current_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/currentDay"
+            app:layout_constraintEnd_toEndOf="@+id/currentDay"
+            app:layout_constraintTop_toTopOf="@+id/currentDay"
+            app:srcCompat="@drawable/ic_baseline_error_24" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

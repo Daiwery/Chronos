@@ -7,10 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.database.ActionTypeRepository
 import com.daiwerystudio.chronos.databinding.DialogActionTypeBinding
+import com.daiwerystudio.chronos.ui.DialogViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.skydoves.colorpickerview.ColorEnvelope
 import com.skydoves.colorpickerview.ColorPickerDialog
@@ -18,14 +20,15 @@ import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 
 
 class ActionTypeDialog : BottomSheetDialogFragment() {
+    // ViewModel
+    private val viewModel: DialogViewModel
+    by lazy { ViewModelProvider(this).get(DialogViewModel::class.java) }
     // Database
     private val repository = ActionTypeRepository.get()
     // Data Binding
     private lateinit var binding: DialogActionTypeBinding
     // Arguments
-    private var parentActionType: ActionType? = null
-    private var actionType: ActionType? = null
-    // Cringe Logic
+    private lateinit var actionType: ActionType
     private var isCreated: Boolean = false
 
 
@@ -33,16 +36,12 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
         super.onCreate(savedInstanceState)
 
         // Get arguments
-        parentActionType = arguments?.getSerializable("parentActionType") as ActionType?
-        actionType = arguments?.getSerializable("actionType") as ActionType?
+        actionType = arguments?.getSerializable("actionType") as ActionType
+        actionType = actionType.copy()
+        isCreated = arguments?.getBoolean("isCreated") as Boolean
 
-        // Preprocessing (Cringe)
-        if (actionType == null) {
-            actionType = ActionType()
-            isCreated = true
-        } else {
-            actionType = actionType!!.copy()
-        }
+        // Recovery
+        if (viewModel.data != null) actionType = viewModel.data as ActionType
     }
 
 
@@ -59,14 +58,14 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
 
 
         // Setting color picker
-        binding.actionTypeColor.setOnClickListener{
+        binding.color.setOnClickListener{
             // Dialog
             ColorPickerDialog.Builder(context, R.style.App_ColorPickerDialog)
                 .setPreferenceName("ColorPickerDialog")
                 .setPositiveButton(resources.getString(R.string.select), object : ColorEnvelopeListener {
                         override fun onColorSelected(envelope: ColorEnvelope, fromUser: Boolean) {
-                            actionType!!.color = envelope.color
-                            binding.actionTypeColor.setColorFilter(envelope.color)
+                            actionType.color = envelope.color
+                            binding.color.setColorFilter(envelope.color)
                         }
                     })
                 .setNegativeButton(resources.getString(R.string.cancel)) {
@@ -75,8 +74,9 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                 .show()
         }
 
-        binding.actionTypeName.addTextChangedListener{
-            if (binding.actionTypeName.text.toString() != ""){
+        binding.name.addTextChangedListener{
+            actionType.name = binding.name.text.toString()
+            if (actionType.name != ""){
                 binding.error.visibility = View.INVISIBLE
             } else {
                 binding.error.visibility = View.VISIBLE
@@ -91,20 +91,11 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
         }
         // Setting button
         binding.button.setOnClickListener{
-            val name = binding.actionTypeName.text.toString()
-            val color = actionType!!.color
-
-            if (name != ""){
-                actionType!!.name = name
-                actionType!!.color = color
-
+            if (actionType.name != ""){
                 if (isCreated){
-                    var parent = ""
-                    if (parentActionType != null) parent = parentActionType!!.id
-                    actionType!!.parent = parent
-                    repository.addActionType(actionType!!)
+                    repository.addActionType(actionType)
                 } else {
-                    repository.updateActionType(actionType!!)
+                    repository.updateActionType(actionType)
                 }
 
                 this.dismiss()
@@ -114,5 +105,12 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
         }
 
         return view
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        viewModel.data = actionType
     }
 }

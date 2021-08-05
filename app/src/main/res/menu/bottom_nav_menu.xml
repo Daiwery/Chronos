@@ -9,7 +9,7 @@
     <item
         android:id="@+id/navigation_day"
         android:icon="@drawable/ic_baseline_home_24"
-        android:title="@string/current_day" />
+        android:title="@string/present_day" />
 
     <item
         android:id="@+id/navigation_preview_goal"
@@ -17,8 +17,8 @@
         android:title="@string/goals" />
 
     <item
-        android:id="@+id/navigation_timetable"
+        android:id="@+id/navigation_preview_schedule"
         android:icon="@drawable/ic_baseline_event_note_24"
-        android:title="@string/timetable" />
+        android:title="@string/schedule" />
 
 </menu>

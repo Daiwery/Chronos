@@ -2,7 +2,6 @@ package com.daiwerystudio.chronos.ui.goal
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.CheckBox
@@ -18,7 +17,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Goal
-import com.daiwerystudio.chronos.databinding.*
+import com.daiwerystudio.chronos.databinding.FragmentGoalBinding
+import com.daiwerystudio.chronos.databinding.ItemProgressGoalBinding
+import com.daiwerystudio.chronos.databinding.ItemRecyclerViewAchievedGoalBinding
+import com.daiwerystudio.chronos.databinding.ItemRecyclerViewNotAchievedGoalBinding
 import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
 import com.daiwerystudio.chronos.ui.ItemAnimator
 import java.util.*

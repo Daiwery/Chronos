@@ -1,26 +1,24 @@
-package com.daiwerystudio.chronos.ui.timetable
+package com.daiwerystudio.chronos.ui.schedule
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.daiwerystudio.chronos.R
-import com.daiwerystudio.chronos.databinding.FragmentTimetableBinding
+import com.daiwerystudio.chronos.databinding.FragmentPreviewScheduleBinding
 import com.google.android.material.tabs.TabLayoutMediator
 
 
-class TimetableFragment : Fragment() {
+class PreviewScheduleFragment : Fragment() {
     // Data Binding
-    private lateinit var binding: FragmentTimetableBinding
+    private lateinit var binding: FragmentPreviewScheduleBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         // Data Binding
-        binding = FragmentTimetableBinding.inflate(inflater, container, false)
+        binding = FragmentPreviewScheduleBinding.inflate(inflater, container, false)
         val view = binding.root
 
         // Setting ViewPager2 and TabLayout
@@ -40,8 +38,8 @@ class TimetableFragment : Fragment() {
 
         override fun createFragment(position: Int): Fragment {
             return when (position) {
-                0 -> ActiveTimetableFragment()
-                1 -> NotActiveTimetableFragment()
+                0 -> ActiveScheduleFragment()
+                1 -> NotActiveScheduleFragment()
                 else -> throw IllegalAccessException("Invalid position")
             }
         }
