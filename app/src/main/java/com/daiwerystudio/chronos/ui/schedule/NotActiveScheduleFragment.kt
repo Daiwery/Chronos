@@ -187,13 +187,11 @@ class NotActiveScheduleFragment : Fragment() {
             return false
         }
 
-        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder,
-                                           direction: Int) {
+        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder) {
             viewModel.deleteScheduleWithActions(viewModel.schedules.value!![viewHolder.adapterPosition])
         }
 
-        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder,
-                                           direction: Int) {
+        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder) {
             mAdapter.notifyItemChanged(viewHolder.adapterPosition)
         }
         }

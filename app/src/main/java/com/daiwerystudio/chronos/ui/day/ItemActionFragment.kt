@@ -51,8 +51,8 @@ class ItemActionFragment : Fragment() {
     private inner class ActionTypeHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener {
         private lateinit var actionType: ActionType
 
-        val nameTextView: TextView = itemView.findViewById(R.id.name)
-        val colorImageView: ImageView = itemView.findViewById(R.id.color)
+        val nameTextView: TextView = itemView.findViewById(R.id.textView1)
+        val colorImageView: ImageView = itemView.findViewById(R.id.imageView)
 
         init {
             itemView.setOnClickListener(this)

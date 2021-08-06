@@ -294,13 +294,11 @@ import java.util.*
             return true
         }
 
-        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder,
-                                           direction: Int) {
+        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder) {
             viewModel.deleteActionSchedule(viewModel.actionsSchedule.value!![viewHolder.adapterPosition])
         }
 
-        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder,
-                                           direction: Int) {
+        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder) {
             mAdapter.notifyItemChanged(viewHolder.adapterPosition)
         }
         }

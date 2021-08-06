@@ -23,18 +23,18 @@
             android:paddingBottom="5dp">
 
             <ImageView
-                android:id="@+id/color"
+                android:id="@+id/imageView"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:layout_marginStart="8dp"
                 android:colorFilter="@{actionType.color}"
-                app:layout_constraintBottom_toBottomOf="@+id/name"
+                app:layout_constraintBottom_toBottomOf="@+id/textView1"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/name"
+                app:layout_constraintTop_toTopOf="@+id/textView1"
                 app:srcCompat="@drawable/oval" />
 
             <TextView
-                android:id="@+id/name"
+                android:id="@+id/textView1"
                 style="@style/Text.Item"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
                 android:text="@{actionType.name}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/startTextView"
-                app:layout_constraintStart_toEndOf="@+id/color"
+                app:layout_constraintStart_toEndOf="@+id/imageView"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Test" />
 

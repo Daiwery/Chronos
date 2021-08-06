@@ -26,8 +26,9 @@ import com.daiwerystudio.chronos.R
 
 /**
  * Необходим для анимации Holder-ов в Recycler View. В суперклассе уже существует стандартная
- * анимация, по этой переопределяется только анимация при добавлении Holder-а в RecyclerView.
- * При окончании анимации необохдимо вызывать dispatchAnimationFinished(holder).
+ * анимация, по этой причине переопределяется только анимация при добавлении Holder-а в RecyclerView.
+ * Используемая аниманиция: anim.anim_add_item.
+ * При окончании анимации необоходимо вызывать dispatchAnimationFinished(holder).
  */
 class ItemAnimator: DefaultItemAnimator(){
     override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {

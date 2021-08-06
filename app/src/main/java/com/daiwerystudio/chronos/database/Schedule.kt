@@ -24,12 +24,12 @@ const val TYPE_SCHEDULE_RELATIVE = 0
 const val TYPE_SCHEDULE_ABSOLUTE = 1
 
 /**
- * Класс для хранеия асписания и его параметров в базе данных.
+ * Класс для хранения расписания и его параметров в базе данных.
  *
  * Интерфейс Serializable необходим для передачи объекта класса в пакете Bundle.
  *
  * @property id уникальный идентификатор.
- * @property dayStart день, с которо начинает работать данное расписание. Это значение
+ * @property dayStart день, с которого начинает работать данное расписание. Это значение
  * само по себе фиктивное. Но оно необходимо для определения номера дня расписания по
  * текущему дню.
  * @property name имя. UI.
@@ -50,7 +50,6 @@ data class Schedule(
     var type: Int = TYPE_SCHEDULE_RELATIVE,
     var defaultStartDayTime: Long = 6*60*60,
 ) : Serializable
-
 
 /**
  * Класс для хранения действия в расписании.
@@ -194,14 +193,12 @@ class ScheduleRepository private constructor(context: Context) {
     private val mDatabase: ScheduleDatabase = Room.databaseBuilder(context.applicationContext,
         ScheduleDatabase::class.java,
         SCHEDULE_DATABASE_NAME).build()
-
     /**
      * Интрейфс DAO для взаимодействия с базой данных.
      */
     private val mDao = mDatabase.dao()
-
     /**
-     * Отдельный поток для обновления, добавления и удаления action type.
+     * Отдельный поток для обновления, добавления и удаления.
      */
     private val mExecutor = Executors.newSingleThreadExecutor()
 

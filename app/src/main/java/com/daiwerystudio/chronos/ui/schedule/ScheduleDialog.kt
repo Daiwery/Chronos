@@ -64,14 +64,14 @@ class ScheduleDialog : BottomSheetDialogFragment() {
         binding.type.setSelection(schedule.type)
 
 
-        binding.name.addTextChangedListener{
-            schedule.name = binding.name.text.toString()
-            if (binding.name.text.toString() != ""){
-                binding.errorName.visibility = View.INVISIBLE
-            } else {
-                binding.errorName.visibility = View.VISIBLE
-            }
-        }
+//        binding.name.addTextChangedListener{
+//            schedule.name = binding.name.text.toString()
+//            if (binding.name.text.toString() != ""){
+//                binding.errorName.visibility = View.INVISIBLE
+//            } else {
+//                binding.errorName.visibility = View.VISIBLE
+//            }
+//        }
         binding.countDays.addTextChangedListener{
             if (binding.countDays.text.toString() != ""){
                 schedule.countDays = binding.countDays.text.toString().toInt()
@@ -107,10 +107,10 @@ class ScheduleDialog : BottomSheetDialogFragment() {
         // Setting button
         binding.button.setOnClickListener {
             var permission = true
-            if (binding.name.text.toString() == ""){
-                permission = false
-                binding.errorName.visibility = View.VISIBLE
-            }
+//            if (binding.name.text.toString() == ""){
+//                permission = false
+//                binding.errorName.visibility = View.VISIBLE
+//            }
             if (binding.countDays.text.toString() == ""){
                 permission = false
                 binding.errorCountDays.visibility = View.VISIBLE

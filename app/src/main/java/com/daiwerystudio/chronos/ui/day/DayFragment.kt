@@ -63,8 +63,8 @@ class DayFragment: Fragment() {
         private lateinit var action: Action
         private lateinit var actionType: LiveData<ActionType>
 
-        val nameTextView: TextView = itemView.findViewById(R.id.name)
-        val colorImageView: ImageView = itemView.findViewById(R.id.color)
+        val nameTextView: TextView = itemView.findViewById(R.id.textView1)
+        val colorImageView: ImageView = itemView.findViewById(R.id.imageView)
         val actionTimeTextView: TextView = itemView.findViewById(R.id.action_time)
 
         init {

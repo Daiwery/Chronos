@@ -388,13 +388,11 @@ class GoalFragment : Fragment() {
             return true
         }
 
-        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder,
-                                           direction: Int) {
+        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder) {
             viewModel.deleteGoalWithChild(viewModel.goals.value!![viewHolder.adapterPosition])
         }
 
-        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder,
-                                           direction: Int) {
+        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder) {
             mAdapter.notifyItemChanged(viewHolder.adapterPosition)
         }
         }
@@ -445,7 +443,7 @@ class GoalFragment : Fragment() {
         fun bind(goal: Goal, last: Boolean) {
             this.goal = goal
 
-            binding.name.text = goal.name
+//            binding.name.text = goal.name
             binding.point.isActivated = goal.isAchieved
             binding.bridge.isActivated = goal.isAchieved
 

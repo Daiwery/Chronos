@@ -40,7 +40,7 @@ data class Goal(
 ) : Serializable
 
 /**
- * С помощью этого интерфейса выплоняются запросы к базе данных.
+ * С помощью этого интерфейса выполняются запросы к базе данных.
  *
  * Запросы написаны на SQLite.
  */
@@ -120,11 +120,10 @@ interface GoalTypeDao {
     fun addGoal(goal: Goal)
 }
 
-
 /**
  * Класс базы данных с указанием, что нужно хранить и какой номер версии.
  */
-@Database(entities = [Goal::class], version=1, exportSchema = false)
+@Database(entities = [Goal::class], version=1, exportSchema=false)
 abstract class GoalDatabase : RoomDatabase() {
     abstract fun dao(): GoalTypeDao
 }
@@ -141,14 +140,12 @@ class GoalRepository private constructor(context: Context) {
     private val mDatabase: GoalDatabase = Room.databaseBuilder(context.applicationContext,
         GoalDatabase::class.java,
         GOAL_DATABASE_NAME).build()
-
     /**
      * Интрейфс DAO для взаимодействия с базой данных.
      */
     private val mDao = mDatabase.dao()
-
     /**
-     * Отдельный поток для обновления, добавления и удаления action type.
+     * Отдельный поток для обновления, добавления и удаления.
      */
     private val mExecutor = Executors.newSingleThreadExecutor()
 

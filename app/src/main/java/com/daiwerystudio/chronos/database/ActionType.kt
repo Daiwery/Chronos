@@ -36,7 +36,7 @@ data class ActionType(
 ) : Serializable
 
 /**
- * С помощью этого интерфейса выплоняются запросы к базе данных.
+ * С помощью этого интерфейса выполняются запросы к базе данных.
  *
  * Запросы написаны на SQLite.
  */
@@ -97,7 +97,7 @@ interface ActionTypeDao {
 }
 
 /**
- * Класс базы данных с указанием, что нужно хранить и какой номер версии.
+ * Класс базы данных с указанием, что нужно хранить и номера версии.
  */
 @Database(entities = [ActionType::class], version=1, exportSchema=false)
 abstract class ActionTypeDatabase : RoomDatabase() {
@@ -116,12 +116,10 @@ class ActionTypeRepository private constructor(context: Context) {
     private val mDatabase: ActionTypeDatabase = Room.databaseBuilder(context.applicationContext,
         ActionTypeDatabase::class.java,
         ACTION_TYPE_DATABASE_NAME).build()
-
     /**
      * Интрейфс DAO для взаимодействия с базой данных.
      */
     private val mDao = mDatabase.dao()
-
     /**
      * Отдельный поток для обновления, добавления и удаления action type.
      */

@@ -7,7 +7,7 @@
 
      <fragment
         android:id="@+id/navigation_child_action_type"
-        android:name="com.daiwerystudio.chronos.ui.actiontype.ChildActionTypeFragment"
+        android:name="com.daiwerystudio.chronos.ui.action_type.ChildActionTypeFragment"
         android:label=""
         tools:layout="@layout/fragment_action_type">
          <action
@@ -21,7 +21,7 @@
     </fragment>
     <fragment
         android:id="@+id/navigation_action_type"
-        android:name="com.daiwerystudio.chronos.ui.actiontype.ActionTypeFragment"
+        android:name="com.daiwerystudio.chronos.ui.action_type.ActionTypeFragment"
         android:label="@string/action_types"
         tools:layout="@layout/fragment_action_type" >
         <action
