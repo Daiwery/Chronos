@@ -33,5 +33,12 @@ fun setBooleanVisibility(view: View, visibility: Boolean){
     else view.visibility = View.GONE
 }
 
-
+/**
+ * Устанавливает isActivated ImageView. Используется в GoalFragment для ProgressGoal.
+ * При переписывании этого виджета, данный BindingAdapter необходимо удалить.
+ */
+@BindingAdapter("android:activated")
+fun setActivated(image: ImageView, activated: Boolean){
+    image.isActivated = activated
+}
 

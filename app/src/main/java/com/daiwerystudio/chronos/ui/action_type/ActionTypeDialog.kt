@@ -52,19 +52,20 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
      * Тип действия, который получает диалог из Bundle.
      */
     private lateinit var actionType: ActionType
-
     /**
      * Определяет, создается или изменяется тип действия. Диалог получает его из Bundle.
      */
     private var isCreated: Boolean = false
 
-
+    /**
+     * Выполняет перед созданиес интефейса. Получает данные из Bundle.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         isCreated = arguments?.getBoolean("isCreated") as Boolean
         actionType = arguments?.getSerializable("actionType") as ActionType
-        // Необходимо скопировать все значение, т.к. передается ссылка.
+        // Необходимо скопировать значение, т.к. передается ссылка.
         // Это нужно, чтобы RecyclerView смог засечь изменение данных и перерисовал holder.
         actionType = actionType.copy()
 

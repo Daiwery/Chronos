@@ -45,10 +45,10 @@ class ActiveScheduleFragment : Fragment() {
             itemAnimator = ItemAnimator()
         }
         // Observation
-        viewModel.schedules.observe(viewLifecycleOwner, { schedules ->
-            setLoadingView()
-            (binding.recyclerView.adapter as Adapter).setData(schedules)
-        })
+//        viewModel.schedules.observe(viewLifecycleOwner, { schedules ->
+//            setLoadingView()
+//            (binding.recyclerView.adapter as Adapter).setData(schedules)
+//        })
         // Support swipe.
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 

@@ -27,7 +27,7 @@ import com.daiwerystudio.chronos.ui.ItemAnimator
 
 /**
  * Класс фрагмента, использующийся для показа типов действий без родителей. Создается по
- * fragment_action_type с помозью binding. Состоит из FloatingActionButton, использующийся для создания
+ * fragment_action_type с помощью data binding. Состоит из FloatingActionButton, использующийся для создания
  * пользователем нового типа действий с помощью диалога ActionTypeDialog; из RecyclerView, необходимый для визуализации;
  * на каждом Holder-е есть иконка edit, при нажатии на которую пользователь может изменить выбранный
  * тип, а при нажатии на сам Holder появляется ChildActionTypeFragment, с дочерними типами действий;
@@ -78,7 +78,7 @@ class ActionTypeFragment: Fragment() {
 
         viewModel.actionTypes.observe(viewLifecycleOwner, {
             // Нельзя создавать новый адаптер, так как используется DiffUtil
-            // для нахождения оптимизированных изменений данных.
+            // для нахождения изменений данных.
             (binding.recyclerView.adapter as Adapter).setData(it)
         })
 
@@ -94,6 +94,7 @@ class ActionTypeFragment: Fragment() {
 
         return view
     }
+
 
     /**
      * Устанавливает видимым layout_empty, а layout_loading невидимым.

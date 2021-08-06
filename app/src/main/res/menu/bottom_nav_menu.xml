@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/navigation_action_type"
         android:icon="@drawable/ic_baseline_work_24"
-        android:title="@string/action_types" />
+        tools:ignore="MenuTitle" />
 
     <item
         android:id="@+id/navigation_day"
         android:icon="@drawable/ic_baseline_home_24"
-        android:title="@string/present_day" />
+        tools:ignore="MenuTitle" />
 
     <item
         android:id="@+id/navigation_preview_goal"
         android:icon="@drawable/ic_baseline_article_24"
-        android:title="@string/goals" />
+        tools:ignore="MenuTitle" />
 
     <item
         android:id="@+id/navigation_preview_schedule"
         android:icon="@drawable/ic_baseline_event_note_24"
-        android:title="@string/schedule" />
+        tools:ignore="MenuTitle" />
 
 </menu>

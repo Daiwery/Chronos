@@ -61,10 +61,8 @@ class ChildActionTypeFragment: Fragment() {
      * Создание всего UI в фрагменте. Настройка RecyclerView, подписка на данные из viewModel
      * и настройка fab, при нажатии на которую возникает диалог создания типа действия.
      */
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
         binding = FragmentChildActionTypeBinding.inflate(inflater, container, false)
         val view = binding.root
 
@@ -125,7 +123,7 @@ class ChildActionTypeFragment: Fragment() {
     }
 
     /**
-     * Выполняется при нажатии на элемент в меню. В зависимости нажатого элемента, либо позволяет
+     * Выполняется при нажатии на элемент в меню. В зависимости нажатого элемента либо позволяет
      * изменить родительский тип действия, либо удалить его и его дерево.
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -289,12 +287,11 @@ class ChildActionTypeFragment: Fragment() {
 
     /**
      * Переопределение класа CustomItemTouchCallback из файла RecyclerViewAnimation.
-     * Перемещения вверх или вниз запрещены, взмахи влево или вправо разрешены.
+     * Перемещения вверх или вниз запрешены, взмахи влево или вправо разрешены.
      */
     private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
         CustomItemTouchCallback(requireContext(),0,
             ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
-
         /**
          * Адаптер RecyclerView в этом фрагменте. Нужен в функции onClickNegativeButton, чтобы
          * уведомить адаптер, что произошла отмена удаления и нужно вернуть holder на место.

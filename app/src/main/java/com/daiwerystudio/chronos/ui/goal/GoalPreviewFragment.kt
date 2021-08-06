@@ -1,3 +1,8 @@
+/*
+* Дата создания: 06.08.2021
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*/
+
 package com.daiwerystudio.chronos.ui.goal
 
 import android.os.Bundle
@@ -10,18 +15,27 @@ import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentGoalPreviewBinding
 import com.google.android.material.tabs.TabLayoutMediator
 
-
+/**
+ * Класс фрагмента, который увидит пользователь после нажатия кнопки на нижней панели.
+ * Содержит в себе только два элемента: TabLayout и ViewPager, так как используется как
+ * контейнер для AchievedGoalFragment и NotAchievedGoalFragment.
+ * @see AchievedGoalFragment
+ * @see NotAchievedGoalFragment
+ */
 class GoalPreviewFragment: Fragment() {
-    // Data Binding
+    /**
+     * Data Binding
+     */
     private lateinit var binding: FragmentGoalPreviewBinding
 
+    /**
+     * Создание UI.
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        // Data Binding
         binding = FragmentGoalPreviewBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        // Setting ViewPager2 and TabLayout
         binding.viewPager2.adapter = PagerAdapter(this)
         TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
             when (position) {
@@ -33,7 +47,9 @@ class GoalPreviewFragment: Fragment() {
         return view
     }
 
-
+    /**
+     * Наследуется от FragmentStateAdapter. Является адаптером для pager. См. оф. документацию.
+     */
     class PagerAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
         override fun getItemCount(): Int = 2
 
