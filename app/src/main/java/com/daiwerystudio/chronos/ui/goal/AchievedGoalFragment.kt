@@ -57,10 +57,10 @@ class AchievedGoalFragment : Fragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
 
-        viewModel.goals.observe(viewLifecycleOwner, { goals ->
+        viewModel.goals.observe(viewLifecycleOwner, {
             // Нельзя создавать новый адаптер, так как используется DiffUtil
             // для нахождения изменений данных.
-            (binding.recyclerView.adapter as Adapter).setData(goals)
+            (binding.recyclerView.adapter as Adapter).setData(it)
         })
 
         return view
@@ -197,7 +197,6 @@ class AchievedGoalFragment : Fragment() {
     private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
         CustomItemTouchCallback(requireContext(),0,
             ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
-
         /**
          * Адаптер RecyclerView в этом фрагменте. Нужен в функции onClickNegativeButton, чтобы
          * уведомить адаптер, что произошла отмена удаления и нужно вернуть holder на место.

@@ -10,6 +10,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.daiwerystudio.chronos.R
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 /*
  * В данном файле написаны все кастомные Binding Adapter, использующиеся в приложении.
@@ -25,7 +27,8 @@ fun setColorFilter(imageView: ImageView, color: Int) {
 }
 
 /**
- * Устанавливает видимость View в зависимости от булевой переменной. Если true - VISIBLE, false - GONE
+ * Устанавливает видимость View в зависимости от булевой переменной.
+ * Если true - VISIBLE, false - GONE.
  */
 @BindingAdapter("android:booleanVisibility")
 fun setBooleanVisibility(view: View, visibility: Boolean){
@@ -40,5 +43,25 @@ fun setBooleanVisibility(view: View, visibility: Boolean){
 @BindingAdapter("android:activated")
 fun setActivated(image: ImageView, activated: Boolean){
     image.isActivated = activated
+}
+
+/**
+ * Устанавливает время в TextView.
+ */
+@BindingAdapter("android:textTime")
+fun setTextTime(textView: TextView, time: Long){
+    if (time < 0)  textView.text = "??:??"
+    else {
+        textView.text = DateTimeFormatter.ofPattern("HH:mm")
+            .format(LocalTime.ofSecondOfDay(time%(24*60*60)))
+    }
+}
+@BindingAdapter("android:textTime")
+fun setTextTime(textView: TextView, time: Int){
+    if (time < 0)  textView.text = "??:??"
+    else {
+        textView.text = DateTimeFormatter.ofPattern("HH:mm")
+            .format(LocalTime.ofSecondOfDay(time%(24L*60*60)))
+    }
 }
 

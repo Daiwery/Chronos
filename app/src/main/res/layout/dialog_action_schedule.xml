@@ -5,13 +5,17 @@
     tools:context=".ui.schedule.ActionScheduleDialog">
 
     <data>
-
+        <variable
+            name="actionSchedule"
+            type="com.daiwerystudio.chronos.database.ActionSchedule" />
+        <variable
+            name="type"
+            type="Integer" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
 
         <TextView
             android:id="@+id/textView7"
@@ -19,11 +23,10 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:text="@string/start_after"
-            app:layout_constraintBottom_toBottomOf="@+id/start_after_text_view"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/start_after_text_view" />
-
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textView8"
@@ -31,22 +34,21 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
             android:text="@string/duration"
-            app:layout_constraintBottom_toBottomOf="@+id/duration_text_view"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/duration_text_view" />
+            app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
 
         <com.daiwerystudio.chronos.ui.SelectActionTypeView
             android:id="@+id/selectActionType"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:minHeight="50dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/duration_text_view" />
-
+            app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
         <Button
             android:id="@+id/button"
@@ -59,28 +61,67 @@
             app:layout_constraintTop_toBottomOf="@+id/selectActionType" />
 
         <TextView
-            android:id="@+id/start_after_text_view"
+            android:id="@+id/start_after"
             style="@style/Text.Item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
+            android:booleanVisibility="@{type == 0}"
             android:textSize="20sp"
+            android:textTime="@{actionSchedule.startAfter}"
+            app:layout_constraintBottom_toBottomOf="@+id/textView7"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="0:10" />
+            app:layout_constraintTop_toTopOf="@+id/textView7"
+            tools:text="0:10"
+            tools:visibility="gone" />
 
         <TextView
-            android:id="@+id/duration_text_view"
+            android:id="@+id/duration"
             style="@style/Text.Item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
+            android:booleanVisibility="@{type == 0}"
             android:textSize="20sp"
+            android:textTime="@{actionSchedule.duration}"
+            app:layout_constraintBottom_toBottomOf="@+id/textView8"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/start_after_text_view"
-            tools:text="1:50" />
+            app:layout_constraintTop_toTopOf="@+id/textView8"
+            tools:text="1:50"
+            tools:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/startTime"
+            style="@style/Text.Item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:booleanVisibility="@{type != 0}"
+            android:textSize="20sp"
+            android:textTime="@{actionSchedule.startTime}"
+            app:layout_constraintBottom_toBottomOf="@+id/textView7"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textView7"
+            tools:text="0:10"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/endTime"
+            style="@style/Text.Item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:booleanVisibility="@{type != 0}"
+            android:textSize="20sp"
+            android:textTime="@{actionSchedule.endTime}"
+            app:layout_constraintBottom_toBottomOf="@+id/textView8"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textView8"
+            tools:text="0:10"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

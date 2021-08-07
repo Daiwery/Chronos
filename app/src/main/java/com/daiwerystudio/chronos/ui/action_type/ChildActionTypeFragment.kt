@@ -53,7 +53,6 @@ class ChildActionTypeFragment: Fragment() {
         // Это необходимо для созданию меню по макету.
         setHasOptionsMenu(true)
 
-        // Если idParent не передался фрагменту, код вылетит с ошибкой.
         viewModel.idParent = arguments?.getString("idParent")
     }
 
@@ -112,7 +111,6 @@ class ChildActionTypeFragment: Fragment() {
         binding.loadingView.visibility = View.GONE
         binding.emptyView.visibility = View.GONE
     }
-
 
     /**
      * Уставнавливает меню и заполняет его по menu.edit_delete_menu.
@@ -287,7 +285,7 @@ class ChildActionTypeFragment: Fragment() {
 
     /**
      * Переопределение класа CustomItemTouchCallback из файла RecyclerViewAnimation.
-     * Перемещения вверх или вниз запрешены, взмахи влево или вправо разрешены.
+     * Перемещения вверх или вниз запрещены, взмахи влево или вправо разрешены.
      */
     private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
         CustomItemTouchCallback(requireContext(),0,

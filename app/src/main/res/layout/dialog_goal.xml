@@ -59,8 +59,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/goal_name"
             app:layout_constraintEnd_toEndOf="@+id/goal_name"
             app:layout_constraintTop_toTopOf="@+id/goal_name"
-            app:srcCompat="@drawable/ic_baseline_error_24" />
-
+            app:srcCompat="@drawable/ic_baseline_error_24"
+            tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

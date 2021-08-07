@@ -38,7 +38,7 @@ class GoalDialog : BottomSheetDialogFragment() {
      */
     private lateinit var binding: DialogGoalBinding
     /**
-    * Цнль, которую получает диалог из Bundle.
+    * Цель, которую получает диалог из Bundle.
     */
     private lateinit var goal: Goal
     /**
@@ -91,6 +91,8 @@ class GoalDialog : BottomSheetDialogFragment() {
                 else goalRepository.updateGoal(goal)
 
                 this.dismiss()
+            // Это нужно для того, чтоюы при первом появлении пустого TextInput ошибки не было,
+            // а после нажатия кнопки, без изменения TextInput, появлялась ошибка.
             } else binding.error.visibility = View.VISIBLE
         }
 

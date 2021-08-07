@@ -62,7 +62,6 @@ class GoalFragment : Fragment() {
         // Это необходимо для созданию меню по макету.
         setHasOptionsMenu(true)
 
-        // Если idParent не передался фрагменту, код вылетит с ошибкой.
         viewModel.idParent = arguments?.getString("idParent")
     }
 

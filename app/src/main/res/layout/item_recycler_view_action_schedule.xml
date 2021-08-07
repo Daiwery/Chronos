@@ -7,6 +7,9 @@
         <variable
             name="actionType"
             type="com.daiwerystudio.chronos.database.ActionType" />
+        <variable
+            name="actionSchedule"
+            type="com.daiwerystudio.chronos.database.ActionSchedule" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -31,7 +34,8 @@
                 app:layout_constraintBottom_toBottomOf="@+id/textView1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/textView1"
-                app:srcCompat="@drawable/oval" />
+                app:srcCompat="@drawable/oval"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/textView1"
@@ -76,6 +80,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
+                android:textTime="@{actionSchedule.startTime}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/startTextView"
                 tools:text="14:00" />
@@ -86,10 +91,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:textTime="@{actionSchedule.endTime}"
                 tools:text="15:00"
                 app:layout_constraintStart_toEndOf="@+id/endTextView"
                 app:layout_constraintTop_toBottomOf="@+id/startTextView" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
@@ -97,6 +102,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            app:srcCompat="@drawable/drawable_error_action_schedule" />
+            app:srcCompat="@drawable/drawable_error_action_schedule"
+            tools:ignore="ContentDescription" />
     </com.google.android.material.card.MaterialCardView>
 </layout>

@@ -1,3 +1,8 @@
+/*
+* Дата создания: 07.08.2021
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*/
+
 package com.daiwerystudio.chronos.ui.schedule
 
 import android.os.Bundle
@@ -10,18 +15,27 @@ import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentPreviewScheduleBinding
 import com.google.android.material.tabs.TabLayoutMediator
 
-
+/**
+ * Класс фрагмента, который увидит пользователь после нажатия кнопки на нижней панели.
+ * Содержит в себе только два элемента: TabLayout и ViewPager, так как используется как
+ * контейнер для ActiveScheduleFragment и NotActiveScheduleFragment.
+ * @see ActiveScheduleFragment
+ * @see NotActiveScheduleFragment
+ */
 class PreviewScheduleFragment : Fragment() {
-    // Data Binding
+    /**
+     * Data Binding
+     */
     private lateinit var binding: FragmentPreviewScheduleBinding
 
+    /**
+     * Создание UI.
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        // Data Binding
         binding = FragmentPreviewScheduleBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        // Setting ViewPager2 and TabLayout
         binding.viewPager2.adapter = PagerAdapter(this)
         TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
             when (position) {
@@ -33,6 +47,9 @@ class PreviewScheduleFragment : Fragment() {
         return view
     }
 
+    /**
+     * Наследуется от FragmentStateAdapter. Является адаптером для pager. См. оф. документацию.
+     */
     class PagerAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
         override fun getItemCount(): Int = 2
 
@@ -45,5 +62,4 @@ class PreviewScheduleFragment : Fragment() {
         }
 
     }
-
 }
