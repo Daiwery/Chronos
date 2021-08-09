@@ -224,6 +224,8 @@ class GoalFragment : Fragment() {
         fun bind(goal: Goal) {
             this.goal = goal
             binding.goalName.text = goal.name
+
+            binding.imageView3.visibility = View.VISIBLE
         }
 
         /**
@@ -285,6 +287,8 @@ class GoalFragment : Fragment() {
         fun bind(goal: Goal) {
             this.goal = goal
             binding.goal = goal
+
+            binding.imageView3.visibility = View.VISIBLE
 
             val percent = viewModel.getPercentAchieved(goal.id)
             percent.observe(viewLifecycleOwner, {

@@ -3,7 +3,7 @@
     <declare-styleable name="SelectActionTypeView">
     </declare-styleable>
 
-    <declare-styleable name="TimeView">
+    <declare-styleable name="ScheduleView">
         <attr name="stripWidth" format="dimension" />
         <attr name="spaceWidth" format="dimension" />
         <attr name="corner" format="dimension" />

@@ -13,6 +13,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.daiwerystudio.chronos.database.ScheduleRepository
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
@@ -25,6 +26,18 @@ class MainActivity : AppCompatActivity() {
      * Переменная, которая управляет навигацией в приложении между фрагментами.
      */
     private lateinit var mNavController: NavController
+
+    /**
+     * Связь с базой данных. Нужен для получения количества испорченных расписаний, чтобы
+     * установить бейдж на меню.
+     */
+    private var mScheduleRepository = ScheduleRepository.get()
+
+    /**
+     * Количество активных и испорченных расписаний в обертке LiveData. С помощью подписки
+     * на него устанавливаем бейдж.
+     */
+    private var mCountCorrupted = mScheduleRepository.getCountActiveCorruptedSchedules()
 
     /**
      * Переопределение функции суперкласса. Запускается в начале жизненного цикла.
@@ -40,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         mNavController = navHostFragment.navController
         val appBarConfiguration = AppBarConfiguration(setOf(
             R.id.navigation_action_type,
-            R.id.navigation_day,
+            R.id.navigation_day_container,
             R.id.navigation_preview_goal,
             R.id.navigation_preview_schedule)
         )
@@ -51,12 +64,21 @@ class MainActivity : AppCompatActivity() {
         mNavController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.navigation_action_type ->  navView.visibility = View.VISIBLE
-                R.id.navigation_day ->  navView.visibility = View.VISIBLE
+                R.id.navigation_day_container ->  navView.visibility = View.VISIBLE
                 R.id.navigation_preview_goal ->  navView.visibility = View.VISIBLE
                 R.id.navigation_preview_schedule -> navView.visibility = View.VISIBLE
                 else -> navView.visibility = View.GONE
             }
         }
+
+        val badge = navView.getOrCreateBadge(R.id.navigation_preview_schedule)
+        mCountCorrupted.observeForever {
+            if (it != null && it > 0) {
+                badge.isVisible = true
+                badge.number = it
+            } else badge.isVisible = false
+        }
+
     }
 
     /**

@@ -10,7 +10,6 @@
         <item name="colorSecondaryVariant">@color/purple_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Customize your theme here. -->
-
         <item name="android:navigationBarColor">@color/black_100</item>
         <item name="android:windowBackground">@color/black_100</item>
 
@@ -22,5 +21,6 @@
         <item name="checkboxStyle">@style/App.CheckBox</item>
         <item name="spinnerStyle">@style/App.Spinner</item>
         <item name="materialTimePickerTheme">@style/ThemeOverlay.TimePicker</item>
+        <item name="materialCalendarTheme">@style/ThemeOverlay.DatePicker</item>
     </style>
 </resources>

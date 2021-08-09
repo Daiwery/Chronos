@@ -148,6 +148,7 @@ class ActiveScheduleFragment : Fragment() {
 
             val array = resources.getStringArray(R.array.types_schedule)
             binding.type.text = array[schedule.type]
+
         }
 
         /**

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_graph"
-    app:startDestination="@id/navigation_day">
+    app:startDestination="@id/navigation_day_container">
 
      <fragment
         android:id="@+id/navigation_child_action_type"
@@ -33,20 +33,6 @@
             app:popExitAnim="@anim/fade_out"
             app:popUpTo="@id/navigation_action_type" />
     </fragment>
-    <fragment
-        android:id="@+id/navigation_day"
-        android:name="com.daiwerystudio.chronos.ui.day.DayFragment"
-        android:label="fragment_current_day"
-        tools:layout="@layout/fragment_day" >
-        <action
-            android:id="@+id/action_navigation_day_to_navigation_item_action"
-            app:destination="@id/navigation_item_action" />
-    </fragment>
-    <fragment
-        android:id="@+id/navigation_item_action"
-        android:name="com.daiwerystudio.chronos.ui.day.ItemActionFragment"
-        android:label="fragment_item_action"
-        tools:layout="@layout/fragment_item_action" />
     <fragment
         android:id="@+id/navigation_preview_goal"
         android:name="com.daiwerystudio.chronos.ui.goal.GoalPreviewFragment"
@@ -81,4 +67,9 @@
         android:name="com.daiwerystudio.chronos.ui.schedule.ScheduleFragment"
         android:label=""
         tools:layout="@layout/fragment_schedule" />
+    <fragment
+        android:id="@+id/navigation_day_container"
+        android:name="com.daiwerystudio.chronos.ui.day.DayContainerFragment"
+        android:label="fragment_day_container"
+        tools:layout="@layout/fragment_day_container" />
 </navigation>

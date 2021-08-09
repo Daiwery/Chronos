@@ -5,13 +5,18 @@
 
 package com.daiwerystudio.chronos.ui
 
+import android.text.format.DateFormat
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.daiwerystudio.chronos.R
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.*
 
 /*
  * В данном файле написаны все кастомные Binding Adapter, использующиеся в приложении.
@@ -50,18 +55,31 @@ fun setActivated(image: ImageView, activated: Boolean){
  */
 @BindingAdapter("android:textTime")
 fun setTextTime(textView: TextView, time: Long){
-    if (time < 0)  textView.text = "??:??"
+    // Подробности в updateStartEndTimes в DayScheduleFragment
+    if (time < 0)  textView.text = "???"
     else {
-        textView.text = DateTimeFormatter.ofPattern("HH:mm")
-            .format(LocalTime.ofSecondOfDay(time%(24*60*60)))
-    }
-}
-@BindingAdapter("android:textTime")
-fun setTextTime(textView: TextView, time: Int){
-    if (time < 0)  textView.text = "??:??"
-    else {
-        textView.text = DateTimeFormatter.ofPattern("HH:mm")
-            .format(LocalTime.ofSecondOfDay(time%(24L*60*60)))
+        val localTime = time+TimeZone.getDefault().getOffset(System.currentTimeMillis())
+        textView.text = LocalTime.ofSecondOfDay(localTime%(24*60*60))
+            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
     }
 }
 
+/**
+ * Устанавливает локальное время в TextView.
+ */
+@BindingAdapter("android:textLocalTime")
+fun setTextLocalTime(textView: TextView, time: Long){
+    val localTime = time+TimeZone.getDefault().getOffset(System.currentTimeMillis())/1000
+    textView.text = LocalTime.ofSecondOfDay(localTime%(24*60*60))
+        .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+}
+
+/**
+ * Устанавливает локальную дату в TextView.
+ */
+@BindingAdapter("android:textDate")
+fun setTextDate(textView: TextView, time: Long){
+    val localTime = time+TimeZone.getDefault().getOffset(System.currentTimeMillis())/1000
+    textView.text = LocalDate.ofEpochDay(localTime/(24*60*60))
+        .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+}

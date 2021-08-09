@@ -6,7 +6,9 @@
 package com.daiwerystudio.chronos.ui.schedule
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.daiwerystudio.chronos.database.DaySchedule
 import com.daiwerystudio.chronos.database.Schedule
 import com.daiwerystudio.chronos.database.ScheduleRepository
 
@@ -31,6 +33,7 @@ class ScheduleViewModel : ViewModel() {
                 updateData()
             }
         }
+
     /**
      * Данные из базы данных в обертке LiveData. Есть подписка во фрагменте.
      */
@@ -38,11 +41,20 @@ class ScheduleViewModel : ViewModel() {
         private set
 
     /**
+     * Данные из базы данных в обертке LiveData. Есть подписка во фрагменте.
+     * Представляет из себя словарь вида словарь вида: индекс дня - количество испорченных действий.
+     */
+    var corruptedDays: LiveData<List<DaySchedule>> = MutableLiveData()
+        private set
+
+    /**
      * Извлекает данные из базы данных.
      */
     private fun updateData(){
         schedule = repository.getSchedule(id!!)
+        corruptedDays = repository.getCorruptedDays(id!!)
     }
+
 
     /**
      * Удаляет расписание со всеми действиями.

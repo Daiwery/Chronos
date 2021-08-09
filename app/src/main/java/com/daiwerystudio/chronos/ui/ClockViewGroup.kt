@@ -37,7 +37,7 @@ import java.util.concurrent.Executors
  * Возможная модификация: при смене defaultStartDayTime все расчеты происходят заного.
  * Лучше сделать что-то более оптимизированное.
  */
-class TimeView(context: Context, attrs: AttributeSet): View(context, attrs) {
+class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) {
     /**
      * Ширина линии. UI. Получает из xml.
      */
@@ -102,13 +102,13 @@ class TimeView(context: Context, attrs: AttributeSet): View(context, attrs) {
      * Инициализация виджета. Получение из xml необходимых атрибутов.
      */
     init {
-        context.theme.obtainStyledAttributes(attrs, R.styleable.TimeView,
+        context.theme.obtainStyledAttributes(attrs, R.styleable.ScheduleView,
             0, 0).apply {
             try {
-                stripWidth = getDimensionPixelSize(R.styleable.TimeView_stripWidth, 0).toFloat()
-                spaceWidth = getDimensionPixelSize(R.styleable.TimeView_spaceWidth , 0).toFloat()
-                corner = getDimensionPixelSize(R.styleable.TimeView_corner , 0).toFloat()
-                colorColumn = getColor(R.styleable.TimeView_colorColumn , 0)
+                stripWidth = getDimensionPixelSize(R.styleable.ScheduleView_stripWidth, 0).toFloat()
+                spaceWidth = getDimensionPixelSize(R.styleable.ScheduleView_spaceWidth , 0).toFloat()
+                corner = getDimensionPixelSize(R.styleable.ScheduleView_corner , 0).toFloat()
+                colorColumn = getColor(R.styleable.ScheduleView_colorColumn , 0)
             } finally {
                 recycle()
             }
@@ -131,11 +131,12 @@ class TimeView(context: Context, attrs: AttributeSet): View(context, attrs) {
 
     /**
      * Интерфейс, который сообщает, какой action schedule испорчен посредстом его id.
+     * countCorrupted нужен, чтобы при равенстве его нулю, отметить расписание, как не испорченное.
      */
     private var mCorruptedListener: CorruptedListener? = null
     interface CorruptedListener{
         fun addCorrupt(id: String)
-        fun deleteCorrupt(id: String)
+        fun deleteCorrupt(id: String, countCorrupted: Int)
     }
     fun setCorruptedListener(corruptedListener: CorruptedListener){
         mCorruptedListener = corruptedListener
@@ -218,7 +219,9 @@ class TimeView(context: Context, attrs: AttributeSet): View(context, attrs) {
      * таким же, как и у действия (это нужно для в/д нескольких расписаний).
      * Выбор регулирует параметр useSchedule.
      */
-    fun setActionsSchedule(actionsSchedule: List<ActionSchedule>, useSchedule: Boolean){
+    fun setActionsSchedule(actionsSchedule: List<ActionSchedule>,
+                           useSchedule: Boolean,
+                           defaultStartDayTime: Long?){
         Executors.newSingleThreadExecutor().execute {
             this.mCount = 1
 
@@ -231,11 +234,16 @@ class TimeView(context: Context, attrs: AttributeSet): View(context, attrs) {
                 val start = it.startTime/(24f*60*60)
                 val end = it.endTime/(24f*60*60)
 
-                // Здесь не совсем все очевидно. См. updateStartEndTimes в DayScheduleFragment.
-                if (start < 0f || end < 0f) {
-                    corrupted.add(it.id)
-                    return@forEach
-                }
+                // В абсолютном расписании невозможно указать время больше, чем 24 часа.
+                // Но в относительном можно. Но тут все по-другому. Все, что больше 24 часов,
+                // должно находится в промежутке между 00:00 и defaultDayStartTime, но в следующем
+                // дне. Если не влезает, то ошибка.
+                // Если defaultStartDayTime == null, то это не относительное расписание.
+                if (defaultStartDayTime != null)
+                    if (start-1f >= defaultStartDayTime/(24f*60*60) || end-1f >= defaultStartDayTime/(24f*60*60)) {
+                        corrupted.add(it.id)
+                        return@forEach
+                    }
 
                 rawPoints.add(Point(it.id, true, start, color))
                 rawPoints.add(Point(it.id,false, end, color))
@@ -340,7 +348,7 @@ class TimeView(context: Context, attrs: AttributeSet): View(context, attrs) {
             val diffResult = DiffUtil.calculateDiff(diff , false)
             mCorrupted.forEachIndexed { i, id ->
                 if (diffResult.convertOldPositionToNew(i) == DiffUtil.DiffResult.NO_POSITION)
-                    mHandler.post { mCorruptedListener?.deleteCorrupt(id) }
+                    mHandler.post { mCorruptedListener?.deleteCorrupt(id, corrupted.size) }
             }
             corrupted.forEachIndexed { i, id ->
                 if (diffResult.convertNewPositionToOld(i) == DiffUtil.DiffResult.NO_POSITION)
@@ -591,9 +599,9 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
  */
 class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(context, attrs) {
     /**
-     * TimeView. Необходим для настройки интерфейсов.
+     * ActionsScheduleView. Необходим для настройки интерфейсов.
      */
-    private val timeView: TimeView
+    private val scheduleView: ScheduleView
     /**
      * ClockFaceView. Необходим для задания времени начала.
      */
@@ -605,15 +613,15 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
     init {
         inflate(context, R.layout.layout_schedule_clock_view, this)
 
-        timeView = findViewById(R.id.timeView)
-        timeView.setFinishedListener{ mFinishedListener?.finish() }
-        timeView.setCorruptedListener(object : TimeView.CorruptedListener{
+        scheduleView = findViewById(R.id.timeView)
+        scheduleView.setFinishedListener{ mFinishedListener?.finish() }
+        scheduleView.setCorruptedListener(object : ScheduleView.CorruptedListener{
             override fun addCorrupt(id: String) {
                 mCorruptedListener?.addCorrupt(id)
             }
 
-            override fun deleteCorrupt(id: String) {
-                mCorruptedListener?.deleteCorrupt(id)
+            override fun deleteCorrupt(id: String, countCorrupted: Int) {
+                mCorruptedListener?.deleteCorrupt(id, countCorrupted)
             }
         })
 
@@ -637,7 +645,7 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
     private var mCorruptedListener: CorruptedListener? = null
     interface CorruptedListener{
         fun addCorrupt(id: String)
-        fun deleteCorrupt(id: String)
+        fun deleteCorrupt(id: String, countCorrupted: Int)
     }
     fun setCorruptedListener(corruptedListener: CorruptedListener){
         mCorruptedListener = corruptedListener
@@ -647,8 +655,10 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
     /**
      * Установка данных для TimeView.
      */
-    fun setActionsSchedule(actionsSchedule: List<ActionSchedule>, useSchedule: Boolean){
-        timeView.setActionsSchedule(actionsSchedule, useSchedule)
+    fun setActionsSchedule(actionsSchedule: List<ActionSchedule>,
+                           useSchedule: Boolean,
+                           defaultStartDayTime: Long?){
+        scheduleView.setActionsSchedule(actionsSchedule, useSchedule, defaultStartDayTime)
     }
 
     /**
@@ -656,6 +666,6 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
      */
     fun setStartTime(startTime: Long){
         clockFaceView.setStartTime(startTime)
-        timeView.setStartTime(startTime)
+        scheduleView.setStartTime(startTime)
     }
 }

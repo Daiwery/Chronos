@@ -221,7 +221,7 @@ class GoalRepository private constructor(context: Context) {
     }
 
     /**
-     * Создаение экземпляр синглтона.
+     * Создаение экземпляра синглтона.
      */
     companion object {
         private var INSTANCE: GoalRepository? = null

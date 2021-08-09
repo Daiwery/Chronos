@@ -17,4 +17,9 @@
         <item name="android:textColor">@color/white_500</item>
     </style>
 
+    <style name="Text.EditTime" parent="@style/TextAppearance.MaterialComponents.Body1">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/purple_700</item>
+    </style>
+
 </resources>

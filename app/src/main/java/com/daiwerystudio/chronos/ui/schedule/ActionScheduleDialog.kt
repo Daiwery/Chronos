@@ -40,7 +40,7 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
      * Репозиторий для взаимодействия с базой данных. Данные из базы данных не извлекаются,
      * поэтому помещать его в ViewModel нет смысла.
      */
-    private val timetableRepository = ScheduleRepository.get()
+    private val repository = ScheduleRepository.get()
     /**
      * Привязка данных.
      */
@@ -200,8 +200,8 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
                 permission = false
 
             if (permission){
-                if (isCreated) timetableRepository.addActionSchedule(actionSchedule)
-                else timetableRepository.updateActionSchedule(actionSchedule)
+                if (isCreated) repository.addActionSchedule(actionSchedule)
+                else repository.updateActionSchedule(actionSchedule)
 
                 this.dismiss()
             }

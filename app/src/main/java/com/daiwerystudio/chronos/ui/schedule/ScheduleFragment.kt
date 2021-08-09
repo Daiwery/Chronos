@@ -75,12 +75,17 @@ class ScheduleFragment : Fragment() {
 
             // Нельзя создавать новый адаптер, так как используется notifyItemRangeInserted
             (binding.viewPager2.adapter as PagerAdapter).setData(it)
-
-            // При изменении данных, переходим в тот день, который является активным сейчас.
-            val index = (System.currentTimeMillis()/(1000*60*60*24)-it.dayStart).toInt()%it.countDays
-            binding.tabLayout.selectTab(binding.tabLayout.getTabAt(index))
         })
 
+        viewModel.corruptedDays.observe(viewLifecycleOwner, {
+            it?.forEach { daySchedule ->
+                val badge = binding.tabLayout.getTabAt(daySchedule.dayIndex)?.orCreateBadge
+                if (daySchedule.countCorrupted > 0){
+                    badge?.isVisible = true
+                    badge?.number = daySchedule.countCorrupted
+                } else badge?.isVisible = false
+            }
+        })
 
         binding.button.setOnClickListener {
             val schedule = viewModel.schedule.value!!
