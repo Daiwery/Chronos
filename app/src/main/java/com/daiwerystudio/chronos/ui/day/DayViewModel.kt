@@ -6,15 +6,8 @@
 package com.daiwerystudio.chronos.ui.day
 
 import android.icu.util.TimeZone
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import com.daiwerystudio.chronos.R
+import androidx.lifecycle.*
 import com.daiwerystudio.chronos.database.*
-import java.lang.IllegalArgumentException
 import java.util.concurrent.Executors
 
 /**

@@ -15,7 +15,6 @@ import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.DialogActionScheduleBinding
 import com.daiwerystudio.chronos.ui.DialogViewModel
-import com.daiwerystudio.chronos.ui.action_type.ActionTypeDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat

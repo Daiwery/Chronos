@@ -5,14 +5,11 @@
 
 package com.daiwerystudio.chronos.ui
 
-import android.text.format.DateFormat
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import com.daiwerystudio.chronos.R
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
