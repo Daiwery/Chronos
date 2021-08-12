@@ -7,9 +7,6 @@ package com.daiwerystudio.chronos.ui.day
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Color
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
