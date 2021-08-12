@@ -5,11 +5,11 @@
 
 package com.daiwerystudio.chronos.ui.schedule
 
+import android.icu.util.TimeZone
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.widget.addTextChangedListener
@@ -55,6 +55,10 @@ class ScheduleDialog : BottomSheetDialogFragment() {
      * Определяет, создается или изменяется ли диалог. Диалог получает его из Bundle.
      */
     private var isCreated: Boolean = true
+    /**
+     * Смещение времени в часовом поезде.
+     */
+    private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
     /**
      * Выполняет перед созданиес интефейса. Получает данные из Bundle.
@@ -80,6 +84,7 @@ class ScheduleDialog : BottomSheetDialogFragment() {
         val view = binding.root
         binding.schedule = schedule
 
+        binding.currentDay.setText((((System.currentTimeMillis()+local)/(1000*60*60*24)-schedule.dayStart)%schedule.countDays+1).toString())
 
         ArrayAdapter.createFromResource(requireContext(), R.array.types_schedule,
             R.layout.item_spinner).also { adapter ->
@@ -107,7 +112,7 @@ class ScheduleDialog : BottomSheetDialogFragment() {
 
         binding.currentDay.addTextChangedListener{
             if (binding.currentDay.text.toString() != ""){
-                schedule.dayStart = System.currentTimeMillis()/(1000*60*60*24)-binding.currentDay.text.toString().toInt()+1
+                schedule.dayStart = (System.currentTimeMillis()+local)/(1000*60*60*24)-binding.currentDay.text.toString().toInt()+1
                 binding.errorCurrentDay.visibility = View.INVISIBLE
             } else binding.errorCurrentDay.visibility = View.VISIBLE
         }

@@ -80,7 +80,6 @@
             android:ems="2"
             android:inputType="numberDecimal"
             android:singleLine="true"
-            android:text="@{String.valueOf((System.currentTimeMillis()/(1000*60*60*24)-schedule.dayStart)%schedule.countDays+1)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/countDays" />
 

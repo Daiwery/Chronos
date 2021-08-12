@@ -65,6 +65,20 @@ fun setTextTime(textView: TextView, time: Long){
 }
 
 /**
+ * Устанавливает время в TextView с секундами.
+ */
+@BindingAdapter("android:textTimeWithSeconds")
+fun setTextTimeWithSeconds(textView: TextView, time: Long){
+    // Подробности в updateStartEndTimes в DayScheduleFragment
+    if (time < 0)  textView.text = "???"
+    else {
+        val localTime = time+TimeZone.getDefault().getOffset(System.currentTimeMillis())
+        textView.text = LocalTime.ofSecondOfDay(localTime%(24*60*60))
+            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM))
+    }
+}
+
+/**
  * Устанавливает локальное время в TextView.
  */
 @BindingAdapter("android:textLocalTime")

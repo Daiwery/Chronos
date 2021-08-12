@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Chronos</string>
-
     <string name="edit">Edit</string>
     <string name="add">Add</string>
     <string name="name">Name</string>
@@ -9,20 +8,17 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="it_s_empty">It\'s empty</string>
-
     <string name="action_types">Action Types</string>
     <string name="action_type_name_hint">Work</string>
-    <string name="count_">Count:</string>
+    <string name="children_">Children:</string>
     <string name="select">Select</string>
     <string name="cancel">Cancel</string>
-
     <string name="goals">Goals</string>
     <string name="not_achieved">Not achieved</string>
     <string name="achieved">Achieved</string>
     <string name="goal_name_hint">Dream</string>
     <string name="note">Note</string>
     <string name="subgoals">Subgoals</string>
-
     <string name="schedule">Schedule</string>
     <string name="active">Active</string>
     <string name="not_active">Not active</string>
@@ -55,7 +51,12 @@
     <string name="duration">Duration</string>
     <string name="start_after">Start after</string>
     <string name="select_action_type">Select action type</string>
-
     <string name="day">Day</string>
     <string name="day_">Day:</string>
+    <string name="warnings_">Warnings:</string>
+    <string name="you_must_">You must:</string>
+    <string name="nothing">Nothing</string>
+    <string name="error">Error</string>
+    <string name="you_doing_">You doing:</string>
+    <string name="stop">Stop</string>
 </resources>

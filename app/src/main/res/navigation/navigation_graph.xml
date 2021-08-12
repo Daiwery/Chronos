@@ -41,6 +41,10 @@
         <action
             android:id="@+id/action_navigation_preview_goal_to_navigation_goal"
             app:destination="@id/navigation_goal"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out"
             app:popUpTo="@id/navigation_preview_goal" />
     </fragment>
     <fragment
@@ -51,6 +55,10 @@
         <action
             android:id="@+id/action_navigation_goal_self"
             app:destination="@id/navigation_goal"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out"
             app:popUpTo="@id/navigation_goal" />
     </fragment>
     <fragment
@@ -60,6 +68,10 @@
         tools:layout="@layout/fragment_preview_schedule">
         <action
             android:id="@+id/action_navigation_schedule_to_navigation_schedule"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out"
             app:destination="@id/navigation_schedule" />
     </fragment>
     <fragment

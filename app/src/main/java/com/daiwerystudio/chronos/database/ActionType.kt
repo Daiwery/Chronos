@@ -56,6 +56,12 @@ interface ActionTypeDao {
     fun getActionType(id: String): LiveData<ActionType>
 
     /**
+     * Возвращает все action type в обертке LiveData.
+     */
+    @Query("SELECT * FROM action_type_table")
+    fun getAllActionType(): LiveData<List<ActionType>>
+
+    /**
      * Возвращает цвет action type с заданным id. Используется для визуализации в
      * TimeView в отдельном потоке, поэтому не имеет обретки LiveData.
      */
@@ -134,6 +140,11 @@ class ActionTypeRepository private constructor(context: Context) {
      * Возвращает одного action type с заданным id.
      */
     fun getActionType(id: String): LiveData<ActionType> = mDao.getActionType(id)
+
+    /**
+     * Возвращает все action type в обертке LiveData.
+     */
+    fun getAllActionType(): LiveData<List<ActionType>> = mDao.getAllActionType()
 
     /**
      * Возвращает цвет action type с заданным id. Используется для визуализации в

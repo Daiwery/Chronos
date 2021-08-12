@@ -1,115 +1,560 @@
+/*
+* Дата создания: 11.08.2021
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*/
+
 package com.daiwerystudio.chronos.ui.day
 
-import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.animation.AnimationUtils
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Action
 import com.daiwerystudio.chronos.database.ActionType
-import com.daiwerystudio.chronos.R
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.text.SimpleDateFormat
+import com.daiwerystudio.chronos.databinding.FragmentDayBinding
+import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
+import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
+import com.daiwerystudio.chronos.ui.ItemAnimator
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
-
+/**
+ * Основная логика такая же, как и в остальных объектах. Но имеет несколько особенностей:
+ * Содержится внутри бесконечного ViewPager2; используется таймер, чтобы проверить, какое сейчас
+ * нужно делать действие (в ClockViewGroup); сохраняет в SharedPreferences
+ * текущее действие, которое выполняет пользователь, и по таймеру меняет соответсвующий UI.
+ */
 class DayFragment: Fragment() {
-    private val actionViewModel: DayViewModel by lazy { ViewModelProviders.of(this).get(DayViewModel::class.java) }
-    private lateinit var actionRecyclerView: RecyclerView
-    private var actionAdapter: DayFragment.ActionAdapter? = ActionAdapter(emptyList())
-    private var currentStartDayTime: Long = (System.currentTimeMillis()/(24*60*60*1000))*(24*60*60*1000)
+    /**
+     * ViewModel.
+     */
+    private val viewModel: DayViewModel
+    by lazy { ViewModelProvider(this).get(DayViewModel::class.java) }
 
+    /**
+     * Привязка данных.
+     */
+    private lateinit var binding: FragmentDayBinding
+
+    /**
+     * Переменная для связи с локальным файлом настроек. Нужен для хранения времени пробуждения
+     * и для доступа к текущему действию.
+     */
+    private lateinit var preferences: SharedPreferences
+
+    /**
+     * id типа действия, которое нужно сейчас выполнять в обертке MutableLiveData.
+     * Его id меняется в таймере.
+     */
+    private val idMustActionType: MutableLiveData<String?> = MutableLiveData()
+
+    /**
+     * Тип действия, который нужно выполнить. Связан с idMustActionType.
+     * Это все нужно, чтобы была подписка на изменения базы данных.
+     */
+    private val mustActionType: LiveData<ActionType> =
+        Transformations.switchMap(idMustActionType) {
+            when (it){
+                null -> {
+                    val actionType = MutableLiveData<ActionType>()
+                    actionType.value = ActionType(id="", name=resources.getString(R.string.error))
+
+                    actionType
+                }
+                "" -> {
+                    val actionType = MutableLiveData<ActionType>()
+                    actionType.value = ActionType(id="", name=resources.getString(R.string.nothing))
+
+                    actionType
+                }
+                else -> viewModel.getActionType(it)
+            }
+        }
+
+
+    /**
+     * Время начала выполняющегося действия.
+     */
+    private var doingStartTime: Long = (System.currentTimeMillis())/1000
+    /**
+     * id типа действия, которое сейчас выполняет пользователь в обертке MutableLiveData.
+     */
+    private val idDoingActionType: MutableLiveData<String> = MutableLiveData()
+
+    /**
+     * Тип действия, которое выполняет пользователль. Связан с idDoingActionType.
+     * Это все нужно, чтобы была подписка на изменения базы данных.
+     */
+    private val doingActionType: LiveData<ActionType> =
+        Transformations.switchMap(idDoingActionType) {
+            when (it){
+                "" -> {
+                    val actionType = MutableLiveData<ActionType>()
+                    actionType.value = ActionType(id="", name=resources.getString(R.string.nothing))
+
+                    actionType
+                }
+                else -> {
+                    viewModel.getActionType(it)
+                }
+            }
+        }
+
+    /**
+     * Timer. Каждую секунду извлекает обновляет UI для выполняющегося действия,
+     * если оно не null.
+     */
+    private val mTimer: Handler = Handler(Looper.getMainLooper())
+
+    /**
+     * Runnable объект для таймера.
+     */
+    private val runnableTimer = RunnableTimer()
+
+    /**
+     * Выполняется перед созданием UI.
+     */
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewModel.day = arguments?.getInt("day") as Int
+
+        (activity as AppCompatActivity).supportActionBar?.title =
+            LocalDate.ofEpochDay(viewModel.day*1L).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+
+        preferences = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
+        viewModel.startDayTime.value = preferences.getLong("startDayTime", 6*60*60L)
+
+        // Если значение есть, то действие выполняется, но работа приложения
+        // было прервано.
+        idDoingActionType.value = preferences.getString("doingActionTypeID", "")
+        doingStartTime = preferences.getLong("doingStartTime", (System.currentTimeMillis())/1000)
+    }
+
+    /**
+     * Создание UI.
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
+        binding = FragmentDayBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        val view = inflater.inflate(R.layout.fragment_day, container, false)
+        val position = viewModel.day-(System.currentTimeMillis()+viewModel.local
+                +viewModel.startDayTime.value!!)/(1000*60*60*24)
+        if (position == 0L) setPresent()
+        if (position < 0L) setPast()
+        if (position > 0L) setFuture()
 
-        // Настройка RecyclerView
-        actionRecyclerView = view.findViewById(R.id.action_recycler_view) as RecyclerView
-        actionRecyclerView.layoutManager = LinearLayoutManager(context)
-        actionRecyclerView.adapter = actionAdapter
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = Adapter(emptyList())
+            itemAnimator = ItemAnimator()
+        }
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
-        // Получем actions на текущем дне и обновляем currentStartDayTime
-        currentStartDayTime = (System.currentTimeMillis()/(24*60*60*1000))*(24*60*60*1000)
-        actionViewModel.getActionsFromTimes(currentStartDayTime, currentStartDayTime+24*60*60*1000)
 
-        // Настройка кнопки
-        val fab = view.findViewById(R.id.fab) as FloatingActionButton
-        fab.setOnClickListener{ v: View ->
+        mustActionType.observe(viewLifecycleOwner, {
+            binding.mustActionType = it
+
+            if (it.id == "") {
+                binding.startStop.visibility = View.GONE
+                binding.colorMustActionType.visibility = View.INVISIBLE
+            }
+            else {
+                binding.startStop.visibility = View.VISIBLE
+                binding.colorMustActionType.visibility = View.VISIBLE
+            }
+        })
+        binding.clock.setMustActionTypeListener{
+            idMustActionType.value = it
+        }
+
+        doingActionType.observe(viewLifecycleOwner, {
+            binding.doingActionType = it
+
+            if (it.id == "") {
+                binding.startStop.text = resources.getString(R.string.start)
+                binding.startTime.visibility = View.GONE
+                binding.colorDoingActionType.visibility = View.INVISIBLE
+            }
+            else {
+                binding.startStop.text = resources.getString(R.string.stop)
+                binding.startTime.visibility = View.VISIBLE
+                binding.colorDoingActionType.visibility = View.VISIBLE
+            }
+        })
+
+        // Запускаем таймер.
+        mTimer.post(runnableTimer)
+
+
+        binding.startStop.setOnClickListener{
+            val id = idDoingActionType.value!!
+            if (id == ""){
+                val dialog = DoingActionDialog()
+
+                dialog.arguments = Bundle().apply{
+                    putSerializable("actionTypeID", idMustActionType.value!!)
+                }
+
+                dialog.setAddDoingActionTypeListener{actionTypeID, startTime ->
+                    doingStartTime = startTime
+                    idDoingActionType.value = actionTypeID
+
+                    // Сохраняем выполняющее действие.
+                    val editor = preferences.edit()
+                    editor.putLong("doingStartTime", startTime).apply()
+                    editor.putString("doingActionTypeID", actionTypeID).apply()
+                }
+
+                dialog.show(this.requireActivity().supportFragmentManager, "ActionDialog")
+            } else {
+                val action = Action().apply{
+                    startTime = doingStartTime
+                    endTime = (System.currentTimeMillis())/1000
+                    actionTypeId = idDoingActionType.value!!
+                }
+                viewModel.addAction(action)
+
+                // "" - означает, что ничего не выполняется.
+                idDoingActionType.value = ""
+                val editor = preferences.edit()
+                editor.putString("doingActionTypeID", "").apply()
+            }
+        }
+
+
+        binding.clock.setFinishedListener{
+            binding.loadingClock.visibility = View.GONE
+        }
+        binding.clock.setClickListener{}
+        binding.clock.setCorruptedListener{
+            binding.countCorrupted = it
+        }
+
+
+        viewModel.actions.observe(viewLifecycleOwner,  {
+            // Изменения actions могут быть вызваны изменением startDayTime.
+            // Чтобы не было гонки потоков, устанавливаем значение здесь.
+            binding.clock.setStartTime(viewModel.startDayTime.value!!)
+
+            binding.clock.setActions(it, viewModel.local, viewModel.day)
+
+            (binding.recyclerView.adapter as Adapter).setData(it)
+        })
+
+        viewModel.actionsSchedule.observe(viewLifecycleOwner, {
+            binding.loadingClock.visibility = View.VISIBLE
+
+            // Изменения actions могут быть вызваны изменением startDayTime.
+            // Чтобы не было гонки потоков, устанавливаем значение здесь.
+            binding.clock.setStartTime(viewModel.startDayTime.value!!)
+
+            binding.clock.setActionsSchedule(it, viewModel.startDayTime.value!!)
+        })
+
+
+        binding.fab.setOnClickListener{
+            val dialog = ActionDialog()
+
+            val action = Action()
+            val time = System.currentTimeMillis()
+            val day = ((time+ TimeZone.getDefault().getOffset(time))/(1000*60*60*24)).toInt()
+            action.startTime += (viewModel.day-day)*24*60*60
+            action.endTime += (viewModel.day-day)*24*60*60
+
+            dialog.arguments = Bundle().apply{
+                putSerializable("action", action)
+                putBoolean("isCreated", true)
+            }
+            dialog.show(this.requireActivity().supportFragmentManager, "ActionDialog")
+        }
+
+        binding.set.setOnClickListener {
+            val hour = viewModel.startDayTime.value!!.toInt()/3600
+            val minute = (viewModel.startDayTime.value!!.toInt()-hour*3600)/60
+
+            val dialog = MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour)
+                .setMinute(minute)
+                .setTitleText("")
+                .build()
+
+            dialog.addOnPositiveButtonClickListener {
+                viewModel.startDayTime.value = (dialog.hour * 60 + dialog.minute)*60L
+
+                val editor = preferences.edit()
+                editor.putLong("startDayTime", viewModel.startDayTime.value!!).apply()
+            }
+            dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        actionViewModel.actions.observe(viewLifecycleOwner, Observer { action -> updateUI(action) })
+    /**
+     * Выполняется, когда фрагмент снова становится видимым.
+     */
+    override fun onResume() {
+        super.onResume()
+
+        // Если пользователь изменил startDayTime в расписании, то мы должны об этом знать.
+        viewModel.startDayTime.postValue(preferences.getLong("startDayTime", 6*60*60L))
+
+        (activity as AppCompatActivity).supportActionBar?.title =
+            LocalDate.ofEpochDay(viewModel.day*1L).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
     }
 
-    private fun updateUI(actions: List<Action>) {
-        actionAdapter = ActionAdapter(actions)
-        actionRecyclerView.adapter = actionAdapter
+    /**
+     * Устанавливаем видимость для виджетов связанных с действиями,
+     * которое нужно выполнить и которое выполняется.
+     */
+    private fun setMustAndDoingUIVisibility(visibility: Int){
+        binding.textView18.visibility = visibility
+        binding.colorMustActionType.visibility = visibility
+        binding.textView1.visibility = visibility
+        binding.textView17.visibility = visibility
+        binding.colorDoingActionType.visibility = visibility
+        binding.textView19.visibility = visibility
+        binding.startTime.visibility = visibility
+        binding.startStop.visibility = visibility
     }
 
-    private inner class ActionHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener {
+    /**
+     * Устанавливает видимость компонентов UI, если мы в будущем.
+     */
+    private fun setFuture(){
+        binding.clock.setFuture()
+        setMustAndDoingUIVisibility(View.INVISIBLE)
+    }
+
+    /**
+     * Устанавливает видимость компонентов UI, если мы в прошлом.
+     */
+    private fun setPast(){
+        binding.clock.setPast()
+        setMustAndDoingUIVisibility(View.INVISIBLE)
+    }
+
+    /**
+     * Устанавливает видимость компонентов UI, если мы в настощем.
+     */
+    private fun setPresent(){
+        binding.clock.setPresent()
+        setMustAndDoingUIVisibility(View.VISIBLE)
+    }
+
+    /**
+     * Устанавливает layout_empty и layout_loading невидимыми.
+     */
+    private fun setEmptyView(){
+        binding.loadingView.visibility = View.GONE
+        binding.emptyView.visibility = View.VISIBLE
+    }
+
+    /**
+     * Уставнавливает меню и заполняет его по menu.edit_delete_menu.
+     */
+    private fun setNullView(){
+        binding.loadingView.visibility = View.GONE
+        binding.emptyView.visibility = View.GONE
+    }
+
+    /**
+     * Класс Holder-а для RecyclerView. Особенностей не имеет. За исключеним того, что при нажатии
+     * на холдер, появляется диалог с его изменением.
+     */
+    private inner class Holder(private val binding: ItemRecyclerViewActionBinding):
+        RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+        /**
+         * Действие, которое показывает holder. Необходимо для передачи информации в ActionDialog.
+         */
         private lateinit var action: Action
-        private lateinit var actionType: LiveData<ActionType>
 
-        val nameTextView: TextView = itemView.findViewById(R.id.textView1)
-        val colorImageView: ImageView = itemView.findViewById(R.id.imageView)
-        val actionTimeTextView: TextView = itemView.findViewById(R.id.action_time)
-
+        /**
+         * Инициализация холдера. Установка onClickListener на сам холдер.
+         */
         init {
             itemView.setOnClickListener(this)
         }
 
-        @SuppressLint("SimpleDateFormat")
+        /**
+         * Установка содержимого holder-а.
+         */
         fun bind(action: Action) {
             this.action = action
-            this.actionType = actionViewModel.getActionType(action.idActionType)
+            binding.action = action
 
-            this.actionType.observe(viewLifecycleOwner, Observer { actionType ->
-                nameTextView.text = actionType.name
-                colorImageView.setColorFilter(actionType.color)
+            val actionType = viewModel.getActionType(action.actionTypeId)
+            actionType.observe(viewLifecycleOwner, {
+                if (it == null) {
+                    binding.actionType = ActionType(color=0, name="???")
+                    binding.invalid.visibility = View.VISIBLE
+                }
+                else {
+                    binding.invalid.visibility = View.GONE
+                    binding.actionType = it
+                }
             })
-
-            // Показываем длительность действия
-            var start = action.start
-            if (start < currentStartDayTime)
-                start = currentStartDayTime
-            var end = action.end
-            if (end > currentStartDayTime+24*60*60*1000)
-                end = currentStartDayTime+24*60*60*1000
-            this.actionTimeTextView.text = SimpleDateFormat("HH:mm").format(Date(end-start))
         }
 
+        /**
+         * Вызывается при нажатии на холдер. Создает диалог для изменения action schedule.
+         */
         override fun onClick(v: View) {
+            val dialog = ActionDialog()
+
+            val day = System.currentTimeMillis()/(1000*60*60*24)
+            action.startTime += (viewModel.day-day)*24*60*60
+            action.endTime += (viewModel.day-day)*24*60*60
+
+            dialog.arguments = Bundle().apply{
+                putSerializable("action", action)
+                putBoolean("isCreated", false)
+            }
+            dialog.show(requireActivity().supportFragmentManager, "ActionDialog")
         }
     }
 
+    /**
+     * Такой же адаптер, как и в других фрагментах.
+     */
+    private inner class Adapter(var actions: List<Action>): RecyclerView.Adapter<Holder>(){
+        /**
+         * Нужна для сохранения последней позиции holder-а, который увидил пользователь.
+         * Используется для анимации.
+         */
+        private var lastPosition = -1
 
-    private inner class ActionAdapter(var actions: List<Action>): RecyclerView.Adapter<ActionHolder>(){
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionHolder {
-            val view = layoutInflater.inflate(R.layout.list_item_action, parent, false)
-            return ActionHolder(view)
+        /**
+         * Установка новых данных для адаптера и вычисления изменений с помощью DiffUtil
+         */
+        fun setData(newData: List<Action>){
+            val diffUtilCallback = DiffUtilCallback(actions, newData)
+            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+
+            actions = newData
+            diffResult.dispatchUpdatesTo(this)
+
+            if (actions.isEmpty()) setEmptyView()
+            else setNullView()
+        }
+
+        /*  Ниже представлены стандартные функции адаптера.  См. оф. документацию. */
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+            return Holder(DataBindingUtil.inflate(layoutInflater,
+                R.layout.item_recycler_view_action,
+                parent, false))
         }
 
         override fun getItemCount() = actions.size
 
-        override fun onBindViewHolder(holder: ActionHolder, position: Int) {
-            val act = actions[position]
+        override fun onBindViewHolder(holder: Holder, position: Int) {
+            holder.bind(actions[position])
 
+            // Animation
+            if (holder.adapterPosition > lastPosition){
+                lastPosition = holder.adapterPosition
 
-            holder.bind(act)
+                val animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.anim_add_item)
+                holder.itemView.startAnimation(animation)
+            }
         }
+    }
+
+    /**
+     * Класс для объявления функций класса DiffUtil.Callback. См. оф. документацию.
+     *
+     * Возможная модификация: необходимо вынести этот класс в файл RecyclerView, так как
+     * он повторяется почти по всех RecyclerView. Но из-за того, что в каждом RecyclerView
+     * данные разных типов, это сделать проблематично. (Но ведь возможно!)
+     */
+    private class DiffUtilCallback(private val oldList: List<Action>,
+                                   private val newList: List<Action>): DiffUtil.Callback() {
+
+        override fun getOldListSize() = oldList.size
+
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(oldPosition: Int, newPosition: Int): Boolean {
+            return oldList[oldPosition].id == newList[newPosition].id
+        }
+
+        override fun areContentsTheSame(oldPosition: Int, newPosition: Int): Boolean {
+            return oldList[oldPosition] == newList[newPosition]
+        }
+    }
+
+    /**
+     * Переопределение класа CustomItemTouchCallback из файла RecyclerViewAnimation.
+     * Перемещения вверх или вниз запрещены, взмахи влево или вправо разрешены.
+     */
+    private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
+        CustomItemTouchCallback(requireContext(),
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+            ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+        /**
+         * Адаптер RecyclerView в этом фрагменте. Нужен в функции onClickNegativeButton, чтобы
+         * уведомить адаптер, что произошла отмена удаления и нужно вернуть holder на место.
+         */
+        private val mAdapter = binding.recyclerView.adapter!!
+
+        /**
+         * Выполняется при нажатии на кнопку "Yes". Удаляет выбранный элемент из базы данных
+         * со всем деревом.
+         */
+        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder) {
+            viewModel.deleteAction(viewModel.actions.value!![viewHolder.adapterPosition])
+        }
+
+        /**
+         * Выполняется при нажатии на кнопку "No". Уведомляет адаптер, что произошла отмена удаления
+         * и нужно выбранный элемент вернуть на место.
+         */
+        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder) {
+            mAdapter.notifyItemChanged(viewHolder.adapterPosition)
+        }
+
+    }
+
+        ItemTouchHelper(simpleItemTouchCallback)
+    }
+
+    /**
+     * Runnable объект для таймера.
+     */
+    private inner class RunnableTimer: Runnable{
+        override fun run() {
+            val time = (System.currentTimeMillis())/1000
+            if (idDoingActionType.value!! != "")
+                binding.doingTime = time-doingStartTime
+
+            mTimer.postDelayed(this, 1000L)
+        }
+
     }
 
 }

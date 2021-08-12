@@ -1,3 +1,8 @@
+/*
+* Дата создания: 11.08.2021
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*/
+
 package com.daiwerystudio.chronos.ui.day
 
 import android.os.Bundle
@@ -30,27 +35,39 @@ class ActionDialog : BottomSheetDialogFragment() {
      */
     private val viewModel: DialogViewModel
     by lazy { ViewModelProvider(this).get(DialogViewModel::class.java) }
+
     /**
      * Репозиторий для взаимодействия с базой данных. Данные из базы данных не извлекаются,
      * поэтому помещать его в ViewModel нет смысла.
      */
-    private val repository = ActionRepository.get()
+    private val actionRepository = ActionRepository.get()
+
+    /**
+     * Репозиторий для взаимодействия с базой данных. Нужен для работы
+     * SelectActionTypeView.
+     */
+    private val actionTypeRepository = ActionTypeRepository.get()
+
     /**
      * Привязка данных.
      */
     private lateinit var binding: DialogActionBinding
+
     /**
      * Действие, которое получает диалог из Bundle.
      */
     private lateinit var action: Action
+
     /**
      * Определяет, создается или изменяется ли диалог. Диалог получает его из Bundle.
      */
     private var isCreated: Boolean = false
+
     /**
      * Смещение времени в часовом поезде.
      */
     private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())/1000
+
 
     /**
      * Выполняет перед созданиес интефейса. Получает данные из Bundle.
@@ -79,19 +96,20 @@ class ActionDialog : BottomSheetDialogFragment() {
         // Отмена клавиатуры.
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
 
+        val actionTypes = actionTypeRepository.getAllActionType()
+        actionTypes.observe(viewLifecycleOwner, {
+            binding.selectActionType.setData(it)
+        })
 
-        if (action.actionTypeId != "")
-            binding.selectActionType.setSelectActionType(action.actionTypeId)
+        val actionType = actionTypeRepository.getActionType(action.actionTypeId)
+        actionType.observe(viewLifecycleOwner, {
+            if (it != null) binding.selectActionType.setSelectActionType(it)
+        })
 
-        binding.selectActionType.setOnSelectListener{ action.actionTypeId = it.id }
-        binding.selectActionType.setOnClickAddListener{
-            val dialog = ActionTypeDialog()
-            dialog.arguments = Bundle().apply{
-                putSerializable("actionType", ActionType(parent=it))
-                putBoolean("isCreated", true)
-            }
-            dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")
+        binding.selectActionType.setOnSelectListener{
+            action.actionTypeId = it.id
         }
+
 
         binding.startTime.setOnClickListener{
             val localTime = action.startTime+local
@@ -178,8 +196,8 @@ class ActionDialog : BottomSheetDialogFragment() {
                 permission = false
 
             if (permission){
-                if (isCreated) repository.addAction(action)
-                else repository.updateAction(action)
+                if (isCreated) actionRepository.addAction(action)
+                else actionRepository.updateAction(action)
 
                 this.dismiss()
             }

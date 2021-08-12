@@ -6,6 +6,7 @@
 package com.daiwerystudio.chronos.database
 
 import android.content.Context
+import android.icu.util.TimeZone
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import java.io.Serializable
@@ -17,7 +18,7 @@ import java.util.concurrent.Executors
  * в ClockViewGroup) перенести на плечи SQLite, а не делать это в котлине.
  *
  * Возмодная модификация: расчеты startTime и endTime в относительных расписаниях делать в
- * SQLite, а не во фрагменте.
+ * SQLite, а не в Kotlin.
  */
 
 /**
@@ -48,20 +49,17 @@ const val TYPE_SCHEDULE_ABSOLUTE = 1
  * @property isActive активно ли расписание.
  * @property type тип расписание. Абсолютный (действия задаются конкретными временами)
  * или относительный (действия задаются временем после прошлого действия и длительностью).
- * @property defaultStartDayTime стандартное время пробуждение. Нужно для отсительного расписания
- * как начало отсчета. В секундах.
  * @property isCorrupted содержится ли в расписании ошибка. Если да, то оно не будет
  * использоваться при создании расписания на день.
  */
 @Entity(tableName = "schedule_table")
 data class Schedule(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
-    var dayStart: Long = System.currentTimeMillis()/(1000*60*60*24),
+    var dayStart: Long = (System.currentTimeMillis()+TimeZone.getDefault().getOffset(System.currentTimeMillis()))/(1000*60*60*24),
     var name: String = "",
     var countDays: Int = 7,
     var isActive: Boolean = true,
     var type: Int = TYPE_SCHEDULE_RELATIVE,
-    var defaultStartDayTime: Long = 6*60*60,
     var isCorrupted: Boolean = false
 ) : Serializable
 
@@ -134,6 +132,12 @@ interface ScheduleDao {
     fun getSchedulesFromActive(isActive: Boolean): LiveData<List<Schedule>>
 
     /**
+     * Возвращает спискок активных и неиспорченных расписаний в обертке LiveData.
+     */
+    @Query("SELECT * FROM schedule_table WHERE isActive=1 AND isCorrupted=0")
+    fun getActiveAndNotCorruptSchedules(): LiveData<List<Schedule>>
+
+    /**
      * Возвращает расписание с заданным id в обертке LiveData.
      */
     @Query("SELECT * FROM schedule_table WHERE id=(:id)")
@@ -157,6 +161,16 @@ interface ScheduleDao {
             "WHERE scheduleId=(:scheduleID) AND dayIndex=(:dayIndex)" +
             "ORDER BY startTime ASC")
     fun getActionsAbsoluteScheduleFromDayIndex(scheduleID: String, dayIndex: Int): LiveData<List<ActionSchedule>>
+
+    /**
+     * Данная функция нужна как часть логики для сбора всех действий во всех активных расписаниях.
+     * См. DayViewModel для подробной информации.
+     * Сортирует по indexList, чтобы можно было определить startTime и endTime.
+     */
+    @Query("SELECT * FROM actions_schedule_table " +
+            "WHERE scheduleId=(:scheduleID) AND dayIndex=(:dayIndex)" +
+            "ORDER BY indexList ASC")
+    fun getActionsScheduleFromDayIndex(scheduleID: String, dayIndex: Int): List<ActionSchedule>
 
     /**
      * Удаляет все действия в заданном расписании.
@@ -183,6 +197,12 @@ interface ScheduleDao {
             "AND isCorrupted=1 AND scheduleID=(:scheduleID)) countCorrupted " +
             "FROM sub_table")
     fun getCorruptedDays(scheduleID: String): LiveData<List<DaySchedule>>
+
+    /**
+     * Фиктивный запрос. Нужен лишь для того, чтобы ROOM оповещал об изменении в базе данных.
+     */
+    @Query("SELECT 1 FROM actions_schedule_table")
+    fun observeDataBase(): LiveData<Int>
 
     /**
      * Обновляет расписание в базе данных.
@@ -264,11 +284,25 @@ class ScheduleRepository private constructor(context: Context) {
         mDao.getSchedulesFromActive(isActive)
 
     /**
+     * Возвращает спискок активных и неиспорченных расписаний в обертке LiveData.
+     */
+    fun getActiveAndNotCorruptSchedules(): LiveData<List<Schedule>> =
+        mDao.getActiveAndNotCorruptSchedules()
+
+    /**
      * Возвращает массив действий в обертке LiveData в зависимости от id расписания
      * и dayIndex. Используется для абсолютных расписаний, так как сортирует по startTime.
      */
     fun getActionsAbsoluteScheduleFromDayIndex(scheduleID: String, dayIndex: Int):
             LiveData<List<ActionSchedule>> = mDao.getActionsAbsoluteScheduleFromDayIndex(scheduleID, dayIndex)
+
+    /**
+     * Данная функция нужна как часть логики для сбора всех действий во всех активных расписаниях.
+     * См. DayViewModel для подробной информации.
+     * Сортирует по indexList, чтобы можно было определить startTime и endTime.
+     */
+    fun getActionsScheduleFromDayIndex(scheduleID: String, dayIndex: Int): List<ActionSchedule> =
+        mDao.getActionsScheduleFromDayIndex(scheduleID, dayIndex)
 
     /**
      * Возвращает массив actions schedule в обертке LiveData в зависимости от id расписания
@@ -294,6 +328,11 @@ class ScheduleRepository private constructor(context: Context) {
      */
     fun getCorruptedDays(scheduleID: String): LiveData<List<DaySchedule>> =
         mDao.getCorruptedDays(scheduleID)
+
+    /**
+     * Фиктивный запрос. Нужен лишь для того, чтобы ROOM оповещал об изменении в базе данных.
+     */
+    fun observeDataBase(): LiveData<Int> = mDao.observeDataBase()
 
     /**
      * Обновляет расписание в базе данных в отдельном потоке.

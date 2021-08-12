@@ -12,8 +12,6 @@ import java.lang.IllegalStateException
 
 /**
  * Является ViewModel. Логика идентична остальным ViewModel.
- * За тем исключением, что на этот класс возложена обязанность считать startTime и endTime
- * у ActionsSchedule, если расписание относительное.
  */
 class DayScheduleViewModel : ViewModel() {
     /**
@@ -37,7 +35,6 @@ class DayScheduleViewModel : ViewModel() {
         }
     }
 
-
     /**
      * Удаляет действие в базе данных.
      */
@@ -49,8 +46,15 @@ class DayScheduleViewModel : ViewModel() {
      * Обновляет все действия в списке. Используется, чтобы сохранить indexList, требуемый
      * пользователем. И заодно значения startTime и endTime.
      */
-    fun updateListActionTimetable(listActionSchedule: List<ActionSchedule>){
+    fun updateListActionSchedule(listActionSchedule: List<ActionSchedule>){
         scheduleRepository.updateListActionsSchedule(listActionSchedule)
+    }
+
+    /**
+     * Обновляет указанное действие. Используется, чтоюы обновить isCorrupted.]
+     */
+    fun updateActionSchedule(actionSchedule: ActionSchedule){
+        scheduleRepository.updateActionSchedule(actionSchedule)
     }
 
     /**

@@ -8,8 +8,8 @@
             name="actionType"
             type="com.daiwerystudio.chronos.database.ActionType" />
         <variable
-            name="actionSchedule"
-            type="com.daiwerystudio.chronos.database.ActionSchedule" />
+            name="action"
+            type="com.daiwerystudio.chronos.database.Action" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -19,11 +19,10 @@
         android:layout_marginRight="10dp"
         android:layout_marginBottom="5dp"
         android:layout_marginTop="5dp">
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="5dp">
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/imageView"
@@ -80,8 +79,9 @@
                 style="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textTime="@{actionSchedule.startTime}"
-                app:layout_constraintEnd_toStartOf="@+id/imageView2"
+                android:layout_marginEnd="8dp"
+                android:textLocalTime="@{action.startTime}"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/startTextView"
                 tools:text="14:00" />
 
@@ -90,30 +90,11 @@
                 style="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textTime="@{actionSchedule.endTime}"
+                android:textLocalTime="@{action.endTime}"
                 app:layout_constraintStart_toStartOf="@+id/start"
                 app:layout_constraintTop_toBottomOf="@+id/startTextView"
                 tools:text="15:00" />
-
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="30dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_baseline_drag_indicator_24"
-                tools:ignore="ContentDescription" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <ImageView
-            android:id="@+id/error"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:booleanVisibility="@{actionSchedule.corrupted}"
-            app:srcCompat="@drawable/drawable_error_action_schedule"
-            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/invalid"

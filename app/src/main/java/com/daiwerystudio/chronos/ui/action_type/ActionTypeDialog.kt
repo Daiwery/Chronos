@@ -93,6 +93,7 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                     })
                 .setNegativeButton(resources.getString(R.string.cancel)) { dialogInterface, _ -> dialogInterface.dismiss() }
                 .setBottomSpace(12)
+                .attachAlphaSlideBar(false)
                 .show()
         }
 

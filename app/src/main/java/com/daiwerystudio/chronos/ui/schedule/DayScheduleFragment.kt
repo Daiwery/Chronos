@@ -5,6 +5,8 @@
 
 package com.daiwerystudio.chronos.ui.schedule
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,10 +20,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
-import com.daiwerystudio.chronos.database.ActionSchedule
-import com.daiwerystudio.chronos.database.Schedule
-import com.daiwerystudio.chronos.database.TYPE_SCHEDULE_ABSOLUTE
-import com.daiwerystudio.chronos.database.TYPE_SCHEDULE_RELATIVE
+import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.FragmentDayScheduleBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionScheduleBinding
 import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
@@ -43,128 +42,162 @@ import java.util.*
   * @see DayScheduleViewModel
   */
  class DayScheduleFragment : Fragment() {
-     /**
-      * ViewModel.
-      */
-     private val viewModel: DayScheduleViewModel
-     by lazy { ViewModelProvider(this).get(DayScheduleViewModel::class.java) }
-     /**
-      * Привязка данных.
-      */
-     private lateinit var binding: FragmentDayScheduleBinding
-     /**
-      * Расписание, по которому нужно искать действия.
-      */
-     private lateinit var schedule: Schedule
-     /**
-      * Индекс дня, по которому нужно искать действия.
-      */
-     private var dayIndex: Int = 0
+    /**
+     * ViewModel.
+     */
+    private val viewModel: DayScheduleViewModel
+            by lazy { ViewModelProvider(this).get(DayScheduleViewModel::class.java) }
 
-     /**
-      * Выполняется перед созданием UI.
-      */
-     override fun onCreate(savedInstanceState: Bundle?) {
-         super.onCreate(savedInstanceState)
+    /**
+     * Привязка данных.
+     */
+    private lateinit var binding: FragmentDayScheduleBinding
 
-         schedule = arguments?.getSerializable("schedule") as Schedule
-         dayIndex = arguments?.getInt("dayIndex") as Int
+    /**
+     * Расписание, по которому нужно искать действия.
+     */
+    private lateinit var schedule: Schedule
 
-         viewModel.getActionsSchedule(schedule, dayIndex)
-     }
+    /**
+     * Индекс дня, по которому нужно искать действия.
+     */
+    private var dayIndex: Int = 0
 
-     /**
-      * Создание UI.
-      */
+
+    /**
+     * Переменная для связи с локальным файлом настроек. Нужен для хранения времени пробуждения.
+     */
+    private lateinit var preferences: SharedPreferences
+
+    /**
+     * Время пробуждения. Одно значение на всю программу.
+     */
+    private var startDayTime: Long = 6*60*60L
+
+    /**
+     * Выполняется перед созданием UI.
+     */
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        schedule = arguments?.getSerializable("schedule") as Schedule
+        dayIndex = arguments?.getInt("dayIndex") as Int
+
+        viewModel.getActionsSchedule(schedule, dayIndex)
+
+        preferences = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
+        startDayTime = preferences.getLong("startDayTime", 6*60*60L)
+    }
+
+    /**
+     * Создание UI.
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-         binding = FragmentDayScheduleBinding.inflate(inflater, container, false)
-         val view = binding.root
+        binding = FragmentDayScheduleBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-         binding.clock.setFinishedListener { binding.loadingClock.visibility = View.GONE }
-         binding.clock.setCorruptedListener(object : ScheduleClockView.CorruptedListener{
+
+        binding.clock.setFinishedListener { binding.loadingClock.visibility = View.GONE }
+        binding.clock.setCorruptedListener(object : ScheduleClockView.CorruptedListener {
             override fun addCorrupt(id: String) {
-                val position = viewModel.actionsSchedule.value!!.indexOfFirst{ it.id == id }
-                binding.recyclerView.adapter?.notifyItemChanged(position, true)
+                val position = viewModel.actionsSchedule.value!!.indexOfFirst { it.id == id }
+                // После обновления это не уходит в бесконечный цикл, так как
+                // есть DiffUtil в ScheduleView.
+                if (position != -1){
+                    viewModel.actionsSchedule.value!![position].isCorrupted = true
+                    viewModel.updateActionSchedule(viewModel.actionsSchedule.value!![position])
+                }
+
+                if (!schedule.isCorrupted) {
+                    schedule.isCorrupted = true
+                    viewModel.updateSchedule(schedule)
+                }
             }
 
-            override fun deleteCorrupt(id: String) {
-                val position = viewModel.actionsSchedule.value!!.indexOfFirst{ it.id == id }
-                binding.recyclerView.adapter?.notifyItemChanged(position, false)
+            override fun deleteCorrupt(id: String, countCorrupted: Int) {
+                val position = viewModel.actionsSchedule.value!!.indexOfFirst { it.id == id }
+                // После обновления это не уходит в бесконечный цикл, так как
+                // есть DiffUtil в ScheduleView.
+                if (position != -1){
+                    viewModel.actionsSchedule.value!![position].isCorrupted = false
+                    viewModel.updateActionSchedule(viewModel.actionsSchedule.value!![position])
+                }
+
+                if (countCorrupted == 0){
+                    schedule.isCorrupted = false
+                    viewModel.updateSchedule(schedule)
+                }
             }
-         })
-
-         binding.clock.setStartTime(schedule.defaultStartDayTime)
-         binding.set.setOnClickListener {
-             val hour = schedule.defaultStartDayTime.toInt()/3600
-             val minute =  (schedule.defaultStartDayTime.toInt()-hour*3600)/60
-
-             val dialog = MaterialTimePicker.Builder()
-                 .setTimeFormat(TimeFormat.CLOCK_24H)
-                 .setHour(hour)
-                 .setMinute(minute)
-                 .setTitleText("")
-                 .build()
-
-             dialog.addOnPositiveButtonClickListener {
-                 binding.loadingClock.visibility = View.VISIBLE
-
-                 schedule.defaultStartDayTime = (dialog.hour * 60 + dialog.minute) * 60L
-                 viewModel.updateSchedule(schedule)
-
-                 if (schedule.type == TYPE_SCHEDULE_ABSOLUTE)
-                     updateStartEndTimes(viewModel.actionsSchedule.value!!)
-                 binding.clock.setStartTime(schedule.defaultStartDayTime)
-
-                 binding.clock.setActionsSchedule(viewModel.actionsSchedule.value!!, false)
-             }
-             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
-         }
-
-
-         binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = Adapter(emptyList())
-            itemAnimator = ItemAnimator()
-         }
-         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
-
-
-         viewModel.actionsSchedule.observe(viewLifecycleOwner, {
-            updateStartEndTimes(it)
-
-            // Если данные не изменились, то заного рисовать не нужно.
-            // Это необходимо не только при перевороте устройства, а еще когда пользователь
-            // работает с соседней вкладкой в ViewPager2. Ибо при изменении базы данных
-            // об этом будут знать и соседние фрагменты.
-            if ((binding.recyclerView.adapter as Adapter).actionsSchedule != it){
-                binding.loadingClock.visibility = View.VISIBLE
-                binding.clock.setActionsSchedule(it, false)
-            }
-
-            // Нельзя создавать новый адаптер, так как используется DiffUtil
-            // для нахождения оптимизированных изменений данных.
-            (binding.recyclerView.adapter as Adapter).setData(it)
         })
 
 
-         binding.fab.setOnClickListener{
-            val actionSchedule = ActionSchedule(scheduleID=schedule.id, dayIndex=dayIndex,
-                indexList=viewModel.actionsSchedule.value?.size!!)
+        if (schedule.type != TYPE_SCHEDULE_RELATIVE) {
+            binding.clock.setStartTime(0)
+            binding.set.visibility = View.GONE
+        } else {
+            binding.clock.setStartTime(startDayTime)
+            binding.set.visibility = View.VISIBLE
+        }
 
-            when (schedule.type){
+
+        binding.set.setOnClickListener {
+            val hour = startDayTime.toInt() / 3600
+            val minute = (startDayTime.toInt() - hour * 3600) / 60
+
+            val dialog = MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour)
+                .setMinute(minute)
+                .setTitleText("")
+                .build()
+
+            dialog.addOnPositiveButtonClickListener {
+                binding.loadingClock.visibility = View.VISIBLE
+
+                startDayTime = (dialog.hour * 60 + dialog.minute)*60L
+                val editor = preferences.edit()
+                editor.putLong("startDayTime", startDayTime).apply()
+
+                binding.clock.setStartTime(startDayTime)
+                updateUI(viewModel.actionsSchedule.value!!)
+            }
+            dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
+        }
+
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = Adapter(emptyList())
+            itemAnimator = ItemAnimator()
+        }
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+
+
+        viewModel.actionsSchedule.observe(viewLifecycleOwner, {
+            updateUI(it)
+        })
+
+
+        binding.fab.setOnClickListener {
+            val actionSchedule = ActionSchedule(
+                scheduleID = schedule.id, dayIndex = dayIndex,
+                indexList = viewModel.actionsSchedule.value?.size!!
+            )
+
+            when (schedule.type) {
                 TYPE_SCHEDULE_RELATIVE -> {
-                    actionSchedule.startAfter = 30*60
-                    actionSchedule.duration = 90*60
+                    actionSchedule.startAfter = 30 * 60
+                    actionSchedule.duration = 90 * 60
                 }
                 TYPE_SCHEDULE_ABSOLUTE -> {
                     val actionsSchedule = viewModel.actionsSchedule.value!!
 
                     if (actionsSchedule.isNotEmpty()) actionSchedule.startTime =
-                        (actionsSchedule[actionsSchedule.size-1].endTime+30*60)
+                        (actionsSchedule[actionsSchedule.size - 1].endTime + 30 * 60)
                     else actionSchedule.startTime = 0
 
-                    actionSchedule.endTime = (actionSchedule.startTime+90*60)
+                    actionSchedule.endTime = (actionSchedule.startTime + 90 * 60)
                 }
                 else -> throw IllegalStateException("Invalid type")
             }
@@ -182,33 +215,47 @@ import java.util.*
         return view
     }
 
+    /**
+     * Выполняется, когда фрагмент снова становится видимымю.
+     */
+    override fun onResume() {
+        super.onResume()
+
+        startDayTime = preferences.getLong("startDayTime", 6*60*60L)
+    }
+
+    /**
+     * Обновляет UI. Была вынесена в отдельную функцию, так как повторяется дважды.
+     */
+     private fun updateUI(it: List<ActionSchedule>){
+        binding.loadingClock.visibility = View.VISIBLE
+
+        updateStartEndTimes(it)
+
+        val startDayTime = if (schedule.type == TYPE_SCHEDULE_RELATIVE) startDayTime else null
+        binding.clock.setActionsSchedule(it, startDayTime)
+
+        // Нельзя создавать новый адаптер, так как используется DiffUtil
+        // для нахождения оптимизированных изменений данных.
+        (binding.recyclerView.adapter as Adapter).setData(it)
+     }
+
      /**
       * Обновляет значения startTime и emdTime у actionsSchedule. Используется тот факт, что
       * массивы в функцию передаются с помощью ссылок. Тем самым изменяется и исходный массив.
+      * Сохранение происходит при удалении фрагмента вместе с indexList.
+      *
+      * Возможная модификация: перенести это в SQLite.
       */
      private fun updateStartEndTimes(actionsSchedule: List<ActionSchedule>){
          if (schedule.type == TYPE_SCHEDULE_RELATIVE){
              actionsSchedule.forEachIndexed { i, actionSchedule ->
                  var start = actionSchedule.startAfter
                  start += if (i != 0) actionsSchedule[i-1].endTime
-                 else schedule.defaultStartDayTime
+                 else startDayTime
 
                  actionsSchedule[i].startTime = start
                  actionsSchedule[i].endTime = start+actionSchedule.duration
-
-                 // В абсолютном расписании невозможно указать время больше, чем 24 часа.
-                 // Но в относительном можно. Но тут все по-другому. Все, что больше 24 часов,
-                 // должно находится в промежутке между 00:00 и defaultDayStartTime, так как мы
-                 // далем круг. Если не влезает, то ошибка.
-
-                 // Если все-таки перешли, то ставим специальный код,
-                 // чтобы TimeView смог обработать ошибку.
-                 if (actionsSchedule[i].startTime-24*60*60 >= schedule.defaultStartDayTime) {
-                     actionsSchedule[i].startTime = -100
-                 }
-                 if (actionsSchedule[i].endTime-24*60*60 >= schedule.defaultStartDayTime) {
-                     actionsSchedule[i].endTime = -100
-                 }
              }
          }
      }
@@ -251,19 +298,20 @@ import java.util.*
           * Установка содержимого holder-а.
           */
         fun bind(actionSchedule: ActionSchedule) {
-            this.actionSchedule = actionSchedule
+             this.actionSchedule = actionSchedule
              binding.actionSchedule = actionSchedule
 
-            val actionType = viewModel.getActionType(actionSchedule.actionTypeId)
-            actionType.observe(viewLifecycleOwner, { binding.actionType = it })
-        }
-
-         /**
-          * Устанавливает ошибку ан холдер. Вызвается в адаптере с помощью payload.
-          */
-         fun setError(error: Boolean){
-            if (error) binding.error.visibility = View.VISIBLE
-            else binding.error.visibility = View.GONE
+             val actionType = viewModel.getActionType(actionSchedule.actionTypeId)
+             actionType.observe(viewLifecycleOwner, {
+                 if (it == null) {
+                     binding.actionType = ActionType(color=0, name="???")
+                     binding.invalid.visibility = View.VISIBLE
+                 }
+                 else {
+                     binding.invalid.visibility = View.GONE
+                     binding.actionType = it
+                 }
+             })
         }
 
          /**
@@ -296,14 +344,15 @@ import java.util.*
           * Установка новых данных для адаптера и вычисления изменений с помощью DiffUtil
           */
         fun setData(newData: List<ActionSchedule>){
-            val diffUtilCallback = DiffUtilCallback(actionsSchedule, newData)
-            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+             val diffUtilCallback = DiffUtilCallback(actionsSchedule, newData)
+             val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
 
-            actionsSchedule = newData
-            diffResult.dispatchUpdatesTo(this)
+             // Copy data.
+             actionsSchedule = newData.map { it.copy() }
+             diffResult.dispatchUpdatesTo(this)
 
-            if (actionsSchedule.isEmpty())setEmptyView()
-            else setNullView()
+             if (actionsSchedule.isEmpty())setEmptyView()
+             else setNullView()
         }
 
          /*  Ниже представлены стандартные функции адаптера.  См. оф. документацию. */
@@ -314,16 +363,6 @@ import java.util.*
         }
 
          override fun getItemCount() = actionsSchedule.size
-
-         /**
-          * Старший брат onBindViewHolder. Обратывает payload, получаемую из интерфейса
-          * OnCorruptListener у виджета clock. Это используется, если нужно показать
-          * или убрать ошибку у action schedule.
-          */
-         override fun onBindViewHolder(holder: Holder, position: Int, payloads: MutableList<Any>) {
-            if (payloads.isEmpty()) onBindViewHolder(holder, position)
-            else holder.setError(payloads[payloads.size-1] as Boolean)
-        }
 
         override fun onBindViewHolder(holder: Holder, position: Int) {
             holder.bind(actionsSchedule[position])
@@ -421,7 +460,7 @@ import java.util.*
       * требуемые пользователем.
       */
      override fun onPause() {
-         viewModel.updateListActionTimetable(viewModel.actionsSchedule.value!!)
+         viewModel.updateListActionSchedule(viewModel.actionsSchedule.value!!)
 
          super.onPause()
      }
