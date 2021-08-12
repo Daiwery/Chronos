@@ -7,7 +7,7 @@
 
 
     <style name="Widget.BottomDialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/purple_700</item>
     </style>
 

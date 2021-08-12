@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chronos</string>
+    <string name="edit">Изменить</string>
+    <string name="add">Добавить</string>
+    <string name="name">Имя</string>
+    <string name="color">Цвет</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="it_s_empty">Здесь пусто</string>
+    <string name="action_types">Типы действий</string>
+    <string name="action_type_name_hint">Работа</string>
+    <string name="sub_action_types_">Подтипов:</string>
+    <string name="select">Выбрать</string>
+    <string name="cancel">Отменить</string>
+    <string name="goals">Цели</string>
+    <string name="not_achieved">"Не выполненные "</string>
+    <string name="achieved">Выполненные</string>
+    <string name="goal_name_hint">Мечта</string>
+    <string name="note">Заметка</string>
+    <string name="subgoals">Подцели</string>
+    <string name="schedule">Расписание</string>
+    <string name="active">Активные</string>
+    <string name="not_active">Не активные</string>
+    <string name="schedules">Расписания</string>
+    <string name="type">Тип</string>
+    <string name="type_">Тип:</string>
+    <string-array name="types_schedule">
+        <item>Относительное</item>
+        <item>Абсолютное</item>
+    </string-array>
+    <string-array name="week">
+        <item>Понедельник</item>
+        <item>Вторник</item>
+        <item>Среда</item>
+        <item>Четверг</item>
+        <item>Пятница</item>
+        <item>Суббота</item>
+        <item>Воскресенье</item>
+    </string-array>
+    <string name="days">Дни</string>
+    <string name="present_day_">Сегодняшний день:</string>
+    <string name="schedule_name_hint">Летнее</string>
+    <string name="present_day">Сегодняшний день</string>
+    <string name="count_of_days">Количество дней</string>
+    <string name="start_">Начало:</string>
+    <string name="end_">Конец:</string>
+    <string name="start">Начало</string>
+    <string name="end">Конец</string>
+    <string name="set">Установить</string>
+    <string name="duration">Длительность</string>
+    <string name="start_after">Начать после</string>
+    <string name="select_action_type">Выберите тип действия</string>
+    <string name="day">День</string>
+    <string name="day_">День:</string>
+    <string name="you_must_">Вы должны:</string>
+    <string name="nothing">Ничего</string>
+    <string name="error">Ошибка</string>
+    <string name="isAchieved">Выполнено</string>
+    <string name="you_doing_">Вы делаете:</string>
+</resources>

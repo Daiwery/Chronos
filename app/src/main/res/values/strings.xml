@@ -10,7 +10,7 @@
     <string name="it_s_empty">It\'s empty</string>
     <string name="action_types">Action Types</string>
     <string name="action_type_name_hint">Work</string>
-    <string name="children_">Children:</string>
+    <string name="sub_action_types_">Count:</string>
     <string name="select">Select</string>
     <string name="cancel">Cancel</string>
     <string name="goals">Goals</string>
@@ -53,10 +53,9 @@
     <string name="select_action_type">Select action type</string>
     <string name="day">Day</string>
     <string name="day_">Day:</string>
-    <string name="warnings_">Warnings:</string>
     <string name="you_must_">You must:</string>
     <string name="nothing">Nothing</string>
     <string name="error">Error</string>
     <string name="you_doing_">You doing:</string>
-    <string name="stop">Stop</string>
+    <string name="isAchieved">Achieved</string>
 </resources>

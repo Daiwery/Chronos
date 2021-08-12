@@ -45,7 +45,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:paddingBottom="0dp"
-                android:singleLine="true"
+                android:singleLine="false"
                 android:text="@{actionType.name}"
                 app:layout_constraintEnd_toStartOf="@+id/edit"
                 app:layout_constraintStart_toEndOf="@+id/imageView"
@@ -69,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="@string/children_"
+                android:text="@string/sub_action_types_"
                 android:booleanVisibility="@{countChild != 0}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView1" />

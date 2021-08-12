@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Goal
 import com.daiwerystudio.chronos.databinding.FragmentGoalBinding
-import com.daiwerystudio.chronos.databinding.ItemProgressGoalBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewAchievedGoalBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewNotAchievedGoalBinding
 import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
@@ -87,15 +86,15 @@ class GoalFragment : Fragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
 
-        binding.progressGoal.apply{
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = ProgressGoalAdapter(emptyList())
-        }
+//        binding.progressGoal.apply{
+//            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+//            adapter = ProgressGoalAdapter(emptyList())
+//        }
 
 
         viewModel.goals.observe(viewLifecycleOwner, {
             (binding.recyclerView.adapter as Adapter).setData(it)
-            (binding.progressGoal.adapter as ProgressGoalAdapter).setData(it)
+//            (binding.progressGoal.adapter as ProgressGoalAdapter).setData(it)
         })
 
 
@@ -442,11 +441,11 @@ class GoalFragment : Fragment() {
 
             mAdapter.notifyItemMoved(from, to)
 
-            // Вызывается изменение элемента, а не их перемещение. Это из-за особенностей
-            // ProgressGoal у последних элементов.
-            // Намек на создание отдельного виджета.
-            binding.progressGoal.adapter!!.notifyItemChanged(from)
-            binding.progressGoal.adapter!!.notifyItemChanged(to)
+//            // Вызывается изменение элемента, а не их перемещение. Это из-за особенностей
+//            // ProgressGoal у последних элементов.
+//            // Намек на создание отдельного виджета.
+//            binding.progressGoal.adapter!!.notifyItemChanged(from)
+//            binding.progressGoal.adapter!!.notifyItemChanged(to)
 
             return true
         }
@@ -480,113 +479,113 @@ class GoalFragment : Fragment() {
         super.onPause()
         viewModel.updateListGoals(viewModel.goals.value!!)
     }
-
-    /**
-     * Это такой же DiffUtil, как все остальные, но с той модификацией, что для последнего
-     * и предпоследнего элемента в зависимости от размером массивов выдает false. Это нужно,
-     * чтобы эти элементы обновлись, так как у последнего элемента отсутствует правый мост.
-     */
-    private class CallbackProgressBar(private val oldList: List<Goal>,
-                                   private val newList: List<Goal>): DiffUtil.Callback() {
-
-        override fun getOldListSize() = oldList.size
-
-        override fun getNewListSize() = newList.size
-
-        override fun areItemsTheSame(oldPosition: Int, newPosition: Int): Boolean {
-            return oldList[oldPosition].id == newList[newPosition].id
-        }
-
-        override fun areContentsTheSame(oldPosition: Int, newPosition: Int): Boolean {
-            return if (newListSize > oldListSize && newPosition==newListSize-2) false
-            else if (newListSize < oldListSize && newPosition==newListSize-1) false
-            else oldList[oldPosition] == newList[newPosition]
-        }
-    }
-
-    /**
-     * Holder для визуализации прогресса целей. Макет состоит из TextView и двух Drawable,
-     * которые могут менять свой цвет в зависимости от состояния.
-     */
-    private inner class ProgressGoalHolder(private val binding: ItemProgressGoalBinding):
-        RecyclerView.ViewHolder(binding.root), View.OnClickListener {
-        /**
-         * Цель, которую показывает holder. Необходима для передачи информации в GoalFragment.
-         */
-        private lateinit var goal: Goal
-
-        /**
-         * Инициализация холдера. Установка onClickListener на сам холдер.
-         */
-        init {
-            itemView.setOnClickListener(this)
-        }
-
-        /**
-         * Установка содержимого holder-а.
-         */
-        fun bind(goal: Goal, last: Boolean) {
-            this.goal = goal
-            binding.goal = goal
-
-            if (last) binding.bridge.visibility = View.GONE
-            else binding.bridge.visibility = View.VISIBLE
-        }
-
-        /**
-         * Вызывается при нажатии на холдер. Перемещает пользователя в GoalFragment.
-         */
-        override fun onClick(v: View) {
-            val bundle = Bundle().apply{
-                putString("idParent", goal.id)
-            }
-            v.findNavController().navigate(R.id.action_navigation_goal_self, bundle)
-        }
-    }
-
-    /**
-     * Адаптер для ProgressGal. Обычный адаптер, за исключением того, что анимирует появление
-     * holder-ов при их самом первом появлении на экране, и использованием DiffUtil для вычисления
-     * изменений и их последующих визуализаций (появление, перемещние или удаление).
-     */
-    private inner class ProgressGoalAdapter(var goals: List<Goal>): RecyclerView.Adapter<ProgressGoalHolder>(){
-        /**
-         * Нужна для сохранения последней позиции holder-а, который увидил пользователь.
-         * Используется для анимации.
-         */
-        private var lastPosition = -1
-
-        /**
-         * Установка новых данных для адаптера и вычисления изменений с помощью DiffUtil
-         */
-        fun setData(newData: List<Goal>){
-            val diffUtilCallback = CallbackProgressBar(goals, newData)
-            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
-
-            goals = newData
-            diffResult.dispatchUpdatesTo(this)
-        }
-
-        /*  Ниже представлены стандартные функции адаптера.  См. оф. документацию. */
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProgressGoalHolder{
-            return ProgressGoalHolder(DataBindingUtil.inflate(layoutInflater,
-                    R.layout.item_progress_goal,
-                    parent,
-                    false))
-        }
-
-        override fun getItemCount() = goals.size
-
-        override fun onBindViewHolder(holder: ProgressGoalHolder, position: Int) {
-            holder.bind(goals[position], position==itemCount-1)
-
-            // Animation
-            if (holder.adapterPosition > lastPosition){
-                lastPosition = holder.adapterPosition
-
-                val animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.fade_in)
-                holder.itemView.startAnimation(animation)
-            }
-        }
-    }
+//
+//    /**
+//     * Это такой же DiffUtil, как все остальные, но с той модификацией, что для последнего
+//     * и предпоследнего элемента в зависимости от размером массивов выдает false. Это нужно,
+//     * чтобы эти элементы обновлись, так как у последнего элемента отсутствует правый мост.
+//     */
+//    private class CallbackProgressBar(private val oldList: List<Goal>,
+//                                   private val newList: List<Goal>): DiffUtil.Callback() {
+//
+//        override fun getOldListSize() = oldList.size
+//
+//        override fun getNewListSize() = newList.size
+//
+//        override fun areItemsTheSame(oldPosition: Int, newPosition: Int): Boolean {
+//            return oldList[oldPosition].id == newList[newPosition].id
+//        }
+//
+//        override fun areContentsTheSame(oldPosition: Int, newPosition: Int): Boolean {
+//            return if (newListSize > oldListSize && newPosition==newListSize-2) false
+//            else if (newListSize < oldListSize && newPosition==newListSize-1) false
+//            else oldList[oldPosition] == newList[newPosition]
+//        }
+//    }
+//
+//    /**
+//     * Holder для визуализации прогресса целей. Макет состоит из TextView и двух Drawable,
+//     * которые могут менять свой цвет в зависимости от состояния.
+//     */
+//    private inner class ProgressGoalHolder(private val binding: ItemProgressGoalBinding):
+//        RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+//        /**
+//         * Цель, которую показывает holder. Необходима для передачи информации в GoalFragment.
+//         */
+//        private lateinit var goal: Goal
+//
+//        /**
+//         * Инициализация холдера. Установка onClickListener на сам холдер.
+//         */
+//        init {
+//            itemView.setOnClickListener(this)
+//        }
+//
+//        /**
+//         * Установка содержимого holder-а.
+//         */
+//        fun bind(goal: Goal, last: Boolean) {
+//            this.goal = goal
+//            binding.goal = goal
+//
+//            if (last) binding.bridge.visibility = View.GONE
+//            else binding.bridge.visibility = View.VISIBLE
+//        }
+//
+//        /**
+//         * Вызывается при нажатии на холдер. Перемещает пользователя в GoalFragment.
+//         */
+//        override fun onClick(v: View) {
+//            val bundle = Bundle().apply{
+//                putString("idParent", goal.id)
+//            }
+//            v.findNavController().navigate(R.id.action_navigation_goal_self, bundle)
+//        }
+//    }
+//
+//    /**
+//     * Адаптер для ProgressGal. Обычный адаптер, за исключением того, что анимирует появление
+//     * holder-ов при их самом первом появлении на экране, и использованием DiffUtil для вычисления
+//     * изменений и их последующих визуализаций (появление, перемещние или удаление).
+//     */
+//    private inner class ProgressGoalAdapter(var goals: List<Goal>): RecyclerView.Adapter<ProgressGoalHolder>(){
+//        /**
+//         * Нужна для сохранения последней позиции holder-а, который увидил пользователь.
+//         * Используется для анимации.
+//         */
+//        private var lastPosition = -1
+//
+//        /**
+//         * Установка новых данных для адаптера и вычисления изменений с помощью DiffUtil
+//         */
+//        fun setData(newData: List<Goal>){
+//            val diffUtilCallback = CallbackProgressBar(goals, newData)
+//            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+//
+//            goals = newData
+//            diffResult.dispatchUpdatesTo(this)
+//        }
+//
+//        /*  Ниже представлены стандартные функции адаптера.  См. оф. документацию. */
+//        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProgressGoalHolder{
+//            return ProgressGoalHolder(DataBindingUtil.inflate(layoutInflater,
+//                    R.layout.item_progress_goal,
+//                    parent,
+//                    false))
+//        }
+//
+//        override fun getItemCount() = goals.size
+//
+//        override fun onBindViewHolder(holder: ProgressGoalHolder, position: Int) {
+//            holder.bind(goals[position], position==itemCount-1)
+//
+//            // Animation
+//            if (holder.adapterPosition > lastPosition){
+//                lastPosition = holder.adapterPosition
+//
+//                val animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.fade_in)
+//                holder.itemView.startAnimation(animation)
+//            }
+//        }
+//    }
 }

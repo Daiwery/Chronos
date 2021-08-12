@@ -8,6 +8,8 @@ package com.daiwerystudio.chronos.ui.day
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -174,40 +176,35 @@ class DayFragment: Fragment() {
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
+        // Если мы в настоящем.
+        if (position == 0L) {
+            mustActionType.observe(viewLifecycleOwner, {
+                binding.mustActionType = it
 
-        mustActionType.observe(viewLifecycleOwner, {
-            binding.mustActionType = it
+                if (it.id == "") binding.colorMustActionType.visibility = View.INVISIBLE
+                else binding.colorMustActionType.visibility = View.VISIBLE
+            })
+            binding.clock.setMustActionTypeListener {
+                idMustActionType.value = it
+            }
 
-            if (it.id == "") {
-                binding.startStop.visibility = View.GONE
-                binding.colorMustActionType.visibility = View.INVISIBLE
-            }
-            else {
-                binding.startStop.visibility = View.VISIBLE
-                binding.colorMustActionType.visibility = View.VISIBLE
-            }
-        })
-        binding.clock.setMustActionTypeListener{
-            idMustActionType.value = it
+            doingActionType.observe(viewLifecycleOwner, {
+                binding.doingActionType = it
+
+                if (it.id == "") {
+                    binding.startStop.setImageResource(R.drawable.ic_baseline_play_circle_filled_24)
+                    binding.startTime.visibility = View.GONE
+                    binding.colorDoingActionType.visibility = View.INVISIBLE
+                } else {
+                    binding.startStop.setImageResource(R.drawable.ic_baseline_stop_circle_24)
+                    binding.startTime.visibility = View.VISIBLE
+                    binding.colorDoingActionType.visibility = View.VISIBLE
+                }
+            })
+
+            // Запускаем таймер.
+            mTimer.post(runnableTimer)
         }
-
-        doingActionType.observe(viewLifecycleOwner, {
-            binding.doingActionType = it
-
-            if (it.id == "") {
-                binding.startStop.text = resources.getString(R.string.start)
-                binding.startTime.visibility = View.GONE
-                binding.colorDoingActionType.visibility = View.INVISIBLE
-            }
-            else {
-                binding.startStop.text = resources.getString(R.string.stop)
-                binding.startTime.visibility = View.VISIBLE
-                binding.colorDoingActionType.visibility = View.VISIBLE
-            }
-        })
-
-        // Запускаем таймер.
-        mTimer.post(runnableTimer)
 
 
         binding.startStop.setOnClickListener{
@@ -348,7 +345,7 @@ class DayFragment: Fragment() {
      */
     private fun setFuture(){
         binding.clock.setFuture()
-        setMustAndDoingUIVisibility(View.INVISIBLE)
+        setMustAndDoingUIVisibility(View.GONE)
     }
 
     /**
@@ -356,7 +353,7 @@ class DayFragment: Fragment() {
      */
     private fun setPast(){
         binding.clock.setPast()
-        setMustAndDoingUIVisibility(View.INVISIBLE)
+        setMustAndDoingUIVisibility(View.GONE)
     }
 
     /**

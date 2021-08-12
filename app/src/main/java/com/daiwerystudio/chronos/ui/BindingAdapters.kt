@@ -39,6 +39,16 @@ fun setBooleanVisibility(view: View, visibility: Boolean){
 }
 
 /**
+ * Устанавливает видимость View в зависимости от булевой переменной.
+ * Если true - VISIBLE, false - INVISIBLE.
+ */
+@BindingAdapter("android:booleanVisibilityInvisible")
+fun setBooleanVisibilityInvisible(view: View, visibility: Boolean){
+    if (visibility) view.visibility = View.VISIBLE
+    else view.visibility = View.INVISIBLE
+}
+
+/**
  * Устанавливает isActivated ImageView. Используется в GoalFragment для ProgressGoal.
  * При переписывании этого виджета, данный BindingAdapter необходимо удалить.
  */
@@ -92,5 +102,5 @@ fun setTextLocalTime(textView: TextView, time: Long){
 fun setTextDate(textView: TextView, time: Long){
     val localTime = time+TimeZone.getDefault().getOffset(System.currentTimeMillis())/1000
     textView.text = LocalDate.ofEpochDay(localTime/(24*60*60))
-        .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+        .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
 }

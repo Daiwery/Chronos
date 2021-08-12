@@ -257,7 +257,7 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
                     val count = mActionTypes.count{ it.parent == actionType.id }
                     if (count != 0){
                         countChild.visibility = View.VISIBLE
-                        countChild.text = (resources.getString(R.string.children_)+" "+count.toString())
+                        countChild.text = (resources.getString(R.string.sub_action_types_)+" "+count.toString())
                     } else countChild.visibility = View.GONE
                 }
 

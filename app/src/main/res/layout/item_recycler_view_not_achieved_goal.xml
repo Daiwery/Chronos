@@ -24,15 +24,17 @@
             <TextView
                 android:id="@+id/goal_name"
                 style="@style/Text.Item"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:singleLine="true"
+                android:layout_marginEnd="8dp"
+                android:singleLine="false"
                 android:text="@{goal.name}"
+                app:layout_constraintEnd_toStartOf="@+id/edit"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Dream" />
+                tools:text="Dream gjjgf gfnfh  fghggfh fghfg gfhfkr trhih r hrthi" />
 
             <ImageView
                 android:id="@+id/edit"
