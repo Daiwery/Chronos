@@ -1124,7 +1124,7 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
             }
         }
 
-        paint.color = Color.WHITE
+        paint.color = Color.BLACK
         paint.textSize = textSize.toFloat()
         paint.isAntiAlias = true
 

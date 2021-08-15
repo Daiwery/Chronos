@@ -9,8 +9,9 @@
     <color name="purple_500">#E918FF</color>
     <color name="purple_700">#FAB8FF</color>
 
+    <color name="white_100">#3D3D3D</color>
+    <color name="white_300">#8C8B8B</color>
     <color name="white_500">#BFBFBF</color>
+    <color name="white_1000">#FBFBFB</color>
     <color name="white">#FFFFFFFF</color>
-
-    <color name="red_500">#930000</color>
 </resources>

@@ -1,33 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-
-    <style name="App.BottomDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
-        <item name="bottomSheetStyle">@style/Widget.BottomDialog.BottomSheet</item>
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowSoftInputMode">adjustResize|stateVisible</item>
-    </style>
-
-
     <style name="App.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
         <item name="materialThemeOverlay">@style/ThemeOverlay.BottomNavigationView</item>
     </style>
 
 
-    <style name="App.EditText" parent="Widget.AppCompat.EditText">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textColorHint">@color/white_500</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:inputType">textCapSentences|textAutoCorrect</item>
-        <item name="colorError">@color/red_500</item>
-        <item name="materialThemeOverlay">@style/ThemeOverlay.EditText</item>
-    </style>
-
-
-    <style name="App.ColorPickerDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.ColorPickerDialog.Button</item>
-        <item name="buttonBarNegativeButtonStyle">@style/Widget.ColorPickerDialog.Button</item>
-        <item name="android:background">@color/black_300</item>
+    <style name="App.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="android:textColorPrimary">@color/white_100</item>
     </style>
 
 
@@ -37,12 +16,30 @@
     </style>
 
 
+    <style name="App.BottomDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.BottomDialog.BottomSheet</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize|stateVisible</item>
+    </style>
+
+
+    <style name="App.ColorPickerDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.ColorPickerDialog.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.ColorPickerDialog.Button</item>
+        <item name="android:background">@color/white_1000</item>
+    </style>
+
+
+    <style name="App.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:inputType">textCapSentences|textAutoCorrect</item>
+    </style>
+
+
     <style name="App.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <item name="android:buttonBarPositiveButtonStyle">@style/Widget.AlertDialog.Button</item>
         <item name="android:buttonBarNegativeButtonStyle">@style/Widget.AlertDialog.Button</item>
-        <item name="android:background">@color/black_100</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:background">@color/white_1000</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
 
@@ -51,15 +48,8 @@
     </style>
 
 
-    <style name="App.CheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">18sp</item>
-        <item name="buttonTint">@color/purple_700</item>
-    </style>
-
-
     <style name="App.Spinner" parent="Widget.AppCompat.Spinner">
-        <item name="android:popupBackground">@color/black_300</item>
+        <item name="android:popupBackground">@color/white_1000</item>
         <item name="android:backgroundTint">@color/purple_700</item>
     </style>
 

@@ -51,7 +51,7 @@
                         custom:corner="10dp"
                         custom:spaceWidth="0dp"
                         custom:stripWidth="15dp"
-                        custom:colorColumn="@color/black_300" />
+                        custom:colorColumn="@color/white_1000" />
                 </FrameLayout>
             </HorizontalScrollView>
 

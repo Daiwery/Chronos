@@ -26,7 +26,7 @@
 
         <TextView
             android:id="@+id/endDay"
-            style="@style/Text.EditTime"
+            style="@style/Text.Item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -38,7 +38,7 @@
 
         <TextView
             android:id="@+id/startDay"
-            style="@style/Text.EditTime"
+            style="@style/Text.Item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -61,7 +61,7 @@
 
         <TextView
             android:id="@+id/endTime"
-            style="@style/Text.EditTime"
+            style="@style/Text.Item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -83,7 +83,7 @@
 
         <TextView
             android:id="@+id/startTime"
-            style="@style/Text.EditTime"
+            style="@style/Text.Item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"

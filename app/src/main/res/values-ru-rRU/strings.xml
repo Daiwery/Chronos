@@ -3,7 +3,7 @@
     <string name="app_name">Chronos</string>
     <string name="edit">Изменить</string>
     <string name="add">Добавить</string>
-    <string name="name">Имя</string>
+    <string name="name">Название</string>
     <string name="color">Цвет</string>
     <string name="are_you_sure">Вы уверены?</string>
     <string name="yes">Да</string>
@@ -59,4 +59,5 @@
     <string name="error">Ошибка</string>
     <string name="isAchieved">Выполнено</string>
     <string name="you_doing_">Вы делаете:</string>
+    <string name="isActive">Активен</string>
 </resources>

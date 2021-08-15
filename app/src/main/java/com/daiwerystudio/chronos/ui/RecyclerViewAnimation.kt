@@ -111,12 +111,12 @@ open class CustomItemTouchCallback(var context: Context, dragDirs: Int, swipeDir
     /**
      * Иконка, которая рисует onChildDraw. По умолчанию R.drawable.ic_baseline_delete_24.
      */
-    private val icon = ContextCompat.getDrawable(context, R.drawable.ic_baseline_delete_24)
+    private val icon = ContextCompat.getDrawable(context, R.drawable.ic_baseline_delete_24_white)
 
     /**
      * Задний фон, который рисует onChildDraw. Представляет из себя ColorDrawable с цветом #930000.
      */
-    private val background = ColorDrawable(Color.parseColor("#930000"))
+    private val background = ColorDrawable(Color.parseColor("#CA0000"))
 
     /**
      * Рисует иконку и фон за Holder-ом, который пользователем взмахнул влево или вправо.
