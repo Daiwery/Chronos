@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">Chronos</string>
+    <string name="title_union_preview">Life</string>
+    <string name="it_s_empty">It\'s empty</string>
+    <string name="action_type">Action type</string>
+    <string name="goal">Goal</string>
+    <string name="schedule">Schedule</string>
     <string name="edit">Edit</string>
     <string name="add">Add</string>
     <string name="name">Name</string>
@@ -7,22 +12,12 @@
     <string name="are_you_sure">Are you sure?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="it_s_empty">It\'s empty</string>
-    <string name="action_types">Action Types</string>
     <string name="action_type_name_hint">Work</string>
     <string name="sub_action_types_">Count:</string>
     <string name="select">Select</string>
     <string name="cancel">Cancel</string>
-    <string name="goals">Goals</string>
-    <string name="not_achieved">Not achieved</string>
-    <string name="achieved">Achieved</string>
     <string name="goal_name_hint">Dream</string>
     <string name="note">Note</string>
-    <string name="subgoals">Subgoals</string>
-    <string name="schedule">Schedule</string>
-    <string name="active">Active</string>
-    <string name="not_active">Not active</string>
-    <string name="schedules">Schedules</string>
     <string name="type">Type</string>
     <string name="type_">Type:</string>
     <string-array name="types_schedule">

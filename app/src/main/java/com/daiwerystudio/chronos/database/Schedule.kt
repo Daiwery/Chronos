@@ -1,6 +1,10 @@
 /*
 * Дата создания: 05.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 17.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: добавлена логика взаимодействия с union.
 */
 
 package com.daiwerystudio.chronos.database
@@ -9,6 +13,7 @@ import android.content.Context
 import android.icu.util.TimeZone
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.daiwerystudio.chronos.ui.union.ID
 import java.io.Serializable
 import java.util.*
 import java.util.concurrent.Executors
@@ -54,14 +59,14 @@ const val TYPE_SCHEDULE_ABSOLUTE = 1
  */
 @Entity(tableName = "schedule_table")
 data class Schedule(
-    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    @PrimaryKey override val id: String,
     var dayStart: Long = (System.currentTimeMillis()+TimeZone.getDefault().getOffset(System.currentTimeMillis()))/(1000*60*60*24),
     var name: String = "",
     var countDays: Int = 7,
     var isActive: Boolean = true,
     var type: Int = TYPE_SCHEDULE_RELATIVE,
     var isCorrupted: Boolean = false
-) : Serializable
+) : Serializable, ID
 
 /**
  * Класс для хранения действия в расписании.
@@ -125,11 +130,10 @@ data class DaySchedule(
 @Dao
 interface ScheduleDao {
     /**
-     * Возвращает массив расписаний в обертке LiveData в зависимости от isActive
-     * и сортируем по имени.
+     * Извлекает из базы данных schedules с заданными id в обертке LiveData.
      */
-    @Query("SELECT * FROM schedule_table WHERE isActive=(:isActive) ORDER BY name ASC")
-    fun getSchedulesFromActive(isActive: Boolean): LiveData<List<Schedule>>
+    @Query("SELECT * FROM schedule_table WHERE id IN (:ids)")
+    fun getSchedules(ids: List<String>): LiveData<List<Schedule>>
 
     /**
      * Возвращает спискок активных и неиспорченных расписаний в обертке LiveData.
@@ -173,13 +177,19 @@ interface ScheduleDao {
     fun getActionsScheduleFromDayIndex(scheduleID: String, dayIndex: Int): List<ActionSchedule>
 
     /**
-     * Удаляет все действия в заданном расписании.
+     * Удаляет заданные расписания из базы данных.
      */
-    @Query("DELETE FROM actions_schedule_table WHERE scheduleID=(:scheduleID)")
-    fun deleteActionsScheduleFromTimetableId(scheduleID: String)
+    @Query("DELETE FROM schedule_table WHERE id IN (:ids)")
+    fun deleteSchedules(ids: List<String>)
 
     /**
-     * Получает количество активных и испорченных расписаний в обертке LiveData.
+     * Удаляет все действия в заданных расписаниях.
+     */
+    @Query("DELETE FROM actions_schedule_table WHERE scheduleID IN (:scheduleIDs)")
+    fun deleteActionsScheduleFromSchedulesID(scheduleIDs: List<String>)
+
+    /**
+     * Получает количество одновременно активных и испорченных расписаний в обертке LiveData.
      * Нужен для UI.
      */
     @Query("SELECT COUNT(*) FROM schedule_table WHERE isActive=1 AND isCorrupted=1")
@@ -215,12 +225,6 @@ interface ScheduleDao {
      */
     @Insert
     fun addSchedule(schedule: Schedule)
-
-    /**
-     * Удаляет расписание из базы данных.
-     */
-    @Delete
-    fun deleteSchedule(schedule: Schedule)
 
     /**
      * Обновляет действие в базе данных.
@@ -277,11 +281,9 @@ class ScheduleRepository private constructor(context: Context) {
     private val mExecutor = Executors.newSingleThreadExecutor()
 
     /**
-     * Возвращает массив расписаний в обертке LiveData в зависимости от isActive
-     * и сортируем по имени.
+     * Извлекает из базы данных schedules с заданными id в обертке LiveData.
      */
-    fun getSchedulesFromActive(isActive: Boolean): LiveData<List<Schedule>> =
-        mDao.getSchedulesFromActive(isActive)
+    fun getSchedules(ids: List<String>): LiveData<List<Schedule>> = mDao.getSchedules(ids)
 
     /**
      * Возвращает спискок активных и неиспорченных расписаний в обертке LiveData.
@@ -353,12 +355,12 @@ class ScheduleRepository private constructor(context: Context) {
     }
 
     /**
-     * Удаляет расписание со всеми действиями в отдельном потоке.
+     * Удаляет расписания со всеми действиями в отдельном потоке.
      */
-    fun deleteScheduleWithActions(schedule: Schedule){
+    fun deleteSchedulesWithActions(ids: List<String>){
         mExecutor.execute {
-            mDao.deleteSchedule(schedule)
-            mDao.deleteActionsScheduleFromTimetableId(schedule.id)
+            mDao.deleteSchedules(ids)
+            mDao.deleteActionsScheduleFromSchedulesID(ids)
         }
     }
 

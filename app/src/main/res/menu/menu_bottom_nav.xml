@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_union_preview"
+        android:icon="@drawable/ic_baseline_article_24"
+        android:title="@string/title_union_preview" />
+
+    <item
+        android:id="@+id/navigation_day_container"
+        android:icon="@drawable/ic_baseline_home_24"
+        android:title="@string/day" />
+</menu>

@@ -405,7 +405,7 @@ class DayFragment: Fragment() {
             val actionType = viewModel.getActionType(action.actionTypeId)
             actionType.observe(viewLifecycleOwner, {
                 if (it == null) {
-                    binding.actionType = ActionType(color=0, name="???")
+                    binding.actionType = ActionType(id=UUID.randomUUID().toString(), color=0, name="???")
                     binding.invalid.visibility = View.VISIBLE
                 }
                 else {

@@ -1,6 +1,10 @@
 /*
 * Дата создания: 07.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 17.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: добавлена логика взаимодействия с union.
 */
 
 package com.daiwerystudio.chronos.ui.schedule
@@ -17,52 +21,30 @@ import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Schedule
 import com.daiwerystudio.chronos.database.ScheduleRepository
+import com.daiwerystudio.chronos.database.Union
+import com.daiwerystudio.chronos.database.UnionRepository
 import com.daiwerystudio.chronos.databinding.DialogScheduleBinding
 import com.daiwerystudio.chronos.ui.DialogViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-
-/** Представляет из себя диалог в виде нижней панели. По логике абсолютно такое же, как и
- * ActionTypeDialog. За тем исключение, что работает с Schedule.
- *
- * Возможная модификация: вместо встроенного spinner-а использовать spinner из материального
- * дизайна.
- *
- * Возможная модификация: вместо InputText использовать компоненты материального дизайна, чтобы
- * вместо ручного создания иконки "error" делать это лаконичнее и легче. Не использование встроенного
- * setError обусловлено тем, что оно некрасивое.
+/**
+ * Ключевой особенностью является тот факт, что диалог всегда получает расписание.
+ * Изменения или создание регулируется параметром isCreated. Это необходимо, чтобы
+ * разделить UI и функционально необходимые данные, которые будут регулироваться внешне.
  */
 class ScheduleDialog : BottomSheetDialogFragment() {
-    /**
-     * ViewModel.
-     */
     private val viewModel: DialogViewModel
-    by lazy { ViewModelProvider(this).get(DialogViewModel::class.java) }
-    /**
-     * Репозиторий для взаимодействия с базой данных. Данные из базы данных не извлекаются,
-     * поэтому помещать его в ViewModel нет смысла.
-     */
-    private val repository = ScheduleRepository.get()
-    /**
-     * Привязка данных.
-     */
+        by lazy { ViewModelProvider(this).get(DialogViewModel::class.java) }
+    private val mScheduleRepository = ScheduleRepository.get()
+    private val mUnionRepository = UnionRepository.get()
     private lateinit var binding: DialogScheduleBinding
-    /**
-     * Расписание, которое получает диалог из Bundle.
-     */
+    private var union: Union? = null
+
     private lateinit var schedule : Schedule
-    /**
-     * Определяет, создается или изменяется ли диалог. Диалог получает его из Bundle.
-     */
     private var isCreated: Boolean = true
-    /**
-     * Смещение времени в часовом поезде.
-     */
     private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
-    /**
-     * Выполняет перед созданиес интефейса. Получает данные из Bundle.
-     */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -72,12 +54,13 @@ class ScheduleDialog : BottomSheetDialogFragment() {
         // Это нужно, чтобы RecyclerView смог засечь изменение данных и перерисовал holder.
         schedule = schedule.copy()
 
+        // Значение равно null только при isCreated = false.
+        union = arguments?.getSerializable("union") as Union?
+
+        // Восстанавливаем значение, если оно есть.
         if (viewModel.data != null) schedule = viewModel.data as  Schedule
     }
 
-    /**
-     * Создание UI и его настройка.
-     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DialogScheduleBinding.inflate(inflater, container, false)
@@ -93,31 +76,6 @@ class ScheduleDialog : BottomSheetDialogFragment() {
         }
         binding.type.setSelection(schedule.type)
 
-
-        binding.name.addTextChangedListener{
-            schedule.name = binding.name.text.toString()
-
-            if (binding.name.text.toString() != "") binding.errorName.visibility = View.INVISIBLE
-            else binding.errorName.visibility = View.VISIBLE
-        }
-
-
-        binding.countDays.addTextChangedListener{
-            if (binding.countDays.text.toString() != ""){
-                schedule.countDays = binding.countDays.text.toString().toInt()
-                binding.errorCountDays.visibility = View.INVISIBLE
-            } else binding.errorCountDays.visibility = View.VISIBLE
-        }
-
-
-        binding.currentDay.addTextChangedListener{
-            if (binding.currentDay.text.toString() != ""){
-                schedule.dayStart = (System.currentTimeMillis()+local)/(1000*60*60*24)-binding.currentDay.text.toString().toInt()+1
-                binding.errorCurrentDay.visibility = View.INVISIBLE
-            } else binding.errorCurrentDay.visibility = View.VISIBLE
-        }
-
-
         binding.type.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(parent: AdapterView<*>?, view: View?,
                                         position: Int, id: Long) {
@@ -127,11 +85,29 @@ class ScheduleDialog : BottomSheetDialogFragment() {
             }
         }
 
+        binding.name.addTextChangedListener{
+            schedule.name = binding.name.text.toString()
+
+            if (binding.name.text.toString() != "") binding.errorName.visibility = View.INVISIBLE
+            else binding.errorName.visibility = View.VISIBLE
+        }
+
+        binding.countDays.addTextChangedListener{
+            if (binding.countDays.text.toString() != ""){
+                schedule.countDays = binding.countDays.text.toString().toInt()
+                binding.errorCountDays.visibility = View.INVISIBLE
+            } else binding.errorCountDays.visibility = View.VISIBLE
+        }
+
+        binding.currentDay.addTextChangedListener{
+            if (binding.currentDay.text.toString() != ""){
+                schedule.dayStart = (System.currentTimeMillis()+local)/(1000*60*60*24)-binding.currentDay.text.toString().toInt()+1
+                binding.errorCurrentDay.visibility = View.INVISIBLE
+            } else binding.errorCurrentDay.visibility = View.VISIBLE
+        }
 
         if (isCreated) binding.button.text = resources.getString(R.string.add)
         else binding.button.text = resources.getString(R.string.edit)
-
-
         binding.button.setOnClickListener {
             var permission = true
             if (binding.name.text.toString() == ""){
@@ -149,8 +125,11 @@ class ScheduleDialog : BottomSheetDialogFragment() {
 
 
             if (permission){
-                if (isCreated) repository.addSchedule(schedule)
-                else repository.updateSchedule(schedule)
+                if (isCreated) {
+                    mScheduleRepository.addSchedule(schedule)
+                    mUnionRepository.addUnion(union!!)
+                }
+                else mScheduleRepository.updateSchedule(schedule)
 
                 this.dismiss()
             }
@@ -159,12 +138,10 @@ class ScheduleDialog : BottomSheetDialogFragment() {
         return view
     }
 
-    /**
-     * Выполняется при уничтожении диалога. Нужно, чтобы сохранить данные, если уничтожение
-     * произошло при перевороте устройства.
-     */
     override fun onDestroy() {
         super.onDestroy()
+
+        // Сохраняем значение.
         viewModel.data = schedule
     }
 }

@@ -99,10 +99,10 @@ class DoingActionDialog : BottomSheetDialogFragment() {
             if (it != null) binding.selectActionType.setData(it)
         })
 
-        val actionType = actionTypeRepository.getActionType(actionTypeID)
-        actionType.observe(viewLifecycleOwner, {
-            binding.selectActionType.setSelectActionType(it)
-        })
+        //val actionType = actionTypeRepository.getActionType(actionTypeID)
+//        actionType.observe(viewLifecycleOwner, {
+//            binding.selectActionType.setSelectActionType(it)
+//        })
         binding.selectActionType.setOnSelectListener{
             actionTypeID = it.id
         }

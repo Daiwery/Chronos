@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/create_action_type"
+        android:title="@string/action_type"/>
+
+    <item
+        android:id="@+id/create_goal"
+        android:title="@string/goal" />
+
+    <item
+        android:id="@+id/create_schedule"
+        android:title="@string/schedule" />
+</menu>

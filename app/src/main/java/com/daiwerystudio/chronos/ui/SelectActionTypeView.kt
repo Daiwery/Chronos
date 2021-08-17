@@ -158,9 +158,9 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
                 itemAnimator = ItemAnimator()
             }
 
-            var actionTypes = mActionTypes.filter { it.parent == id }
-            actionTypes = actionTypes.sortedBy { it.name }
-            (this.recyclerView.adapter as ActionTypeAdapter).setData(actionTypes)
+//            var actionTypes = mActionTypes.filter { it.parent == id }
+//            actionTypes = actionTypes.sortedBy { it.name }
+//            (this.recyclerView.adapter as ActionTypeAdapter).setData(actionTypes)
         }
 
         /**
@@ -254,11 +254,11 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
                     color.setColorFilter(actionType.color)
                     name.text = actionType.name
 
-                    val count = mActionTypes.count{ it.parent == actionType.id }
-                    if (count != 0){
-                        countChild.visibility = View.VISIBLE
-                        countChild.text = (resources.getString(R.string.sub_action_types_)+" "+count.toString())
-                    } else countChild.visibility = View.GONE
+//                    val count = mActionTypes.count{ it.parent == actionType.id }
+//                    if (count != 0){
+//                        countChild.visibility = View.VISIBLE
+//                        countChild.text = (resources.getString(R.string.sub_action_types_)+" "+count.toString())
+//                    } else countChild.visibility = View.GONE
                 }
 
                 /**
