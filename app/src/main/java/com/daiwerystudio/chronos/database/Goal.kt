@@ -2,20 +2,20 @@
 * Дата создания: 05.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 *
-* Дата изменения: 17.08.2021.
+* Дата изменения: 19.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
-* Изменения: добавлена логика взаимодействия с union.
+* Изменения: добавлена логика взаимодействия с union. Вместо отдельного потока добавлен отдельный looper.
 */
 
 package com.daiwerystudio.chronos.database
 
 import android.content.Context
+import android.os.Handler
+import android.os.HandlerThread
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.daiwerystudio.chronos.ui.union.ID
 import java.io.Serializable
-import java.util.*
-import java.util.concurrent.Executors
 
 private const val GOAL_DATABASE_NAME = "goal-database"
 
@@ -70,7 +70,13 @@ class GoalRepository private constructor(context: Context) {
         GoalDatabase::class.java,
         GOAL_DATABASE_NAME).build()
     private val mDao = mDatabase.dao()
-    private val mExecutor = Executors.newSingleThreadExecutor()
+    private val mHandlerThread = HandlerThread("GoalRepository")
+    private var mHandler: Handler
+
+    init {
+        mHandlerThread.start()
+        mHandler = Handler(mHandlerThread.looper)
+    }
 
 
     fun getGoals(ids: List<String>): LiveData<List<Goal>> = mDao.getGoals(ids)
@@ -83,21 +89,15 @@ class GoalRepository private constructor(context: Context) {
     }
 
     fun deleteGoals(ids: List<String>){
-        mExecutor.execute{
-            mDao.deleteGoals(ids)
-        }
+        mHandler.post { mDao.deleteGoals(ids) }
     }
 
     fun updateGoal(goal: Goal) {
-        mExecutor.execute {
-            mDao.updateGoal(goal)
-        }
+        mHandler.post { mDao.updateGoal(goal) }
     }
 
     fun addGoal(goal: Goal) {
-        mExecutor.execute {
-            mDao.addGoal(goal)
-        }
+        mHandler.post { mDao.addGoal(goal) }
     }
 
 

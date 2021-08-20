@@ -155,7 +155,7 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
             this.recyclerView.apply {
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
                 adapter = ActionTypeAdapter(emptyList())
-                itemAnimator = ItemAnimator()
+                // itemAnimator = ItemAnimator()
             }
 
 //            var actionTypes = mActionTypes.filter { it.parent == id }

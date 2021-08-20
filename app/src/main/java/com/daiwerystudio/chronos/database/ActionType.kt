@@ -2,20 +2,21 @@
 * Дата создания: 05.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 *
-* Дата изменения: 17.08.2021.
+* Дата изменения: 19.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
-* Изменения: добавлена логика взаимодействия с union.
+* Изменения: добавлена логика взаимодействия с union. Вместо отдельного потока добавлен отдельный looper.
 */
 
 package com.daiwerystudio.chronos.database
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Handler
+import android.os.HandlerThread
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.daiwerystudio.chronos.ui.union.ID
 import java.io.Serializable
-import java.util.concurrent.Executors
 
 private const val ACTION_TYPE_DATABASE_NAME = "action_type-database"
 
@@ -71,7 +72,13 @@ class ActionTypeRepository private constructor(context: Context) {
         ActionTypeDatabase::class.java,
         ACTION_TYPE_DATABASE_NAME).build()
     private val mDao = mDatabase.dao()
-    private val mExecutor = Executors.newSingleThreadExecutor()
+    private val mHandlerThread = HandlerThread("ActionTypeRepository")
+    private var mHandler: Handler
+
+    init {
+        mHandlerThread.start()
+        mHandler = Handler(mHandlerThread.looper)
+    }
 
 
     fun getActionTypes(ids: List<String>): LiveData<List<ActionType>> = mDao.getActionTypes(ids)
@@ -83,21 +90,15 @@ class ActionTypeRepository private constructor(context: Context) {
     fun getColor(id: String): Int = mDao.getColor(id)
 
     fun deleteActionTypes(ids: List<String>){
-        mExecutor.execute{
-            mDao.deleteActionTypes(ids)
-        }
+        mHandler.post { mDao.deleteActionTypes(ids) }
     }
 
     fun updateActionType(actionType: ActionType) {
-        mExecutor.execute {
-            mDao.updateActionType(actionType)
-        }
+        mHandler.post { mDao.updateActionType(actionType) }
     }
 
     fun addActionType(actionType: ActionType) {
-        mExecutor.execute {
-            mDao.addActionType(actionType)
-        }
+        mHandler.post { mDao.addActionType(actionType) }
     }
 
 

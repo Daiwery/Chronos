@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@string/count_of_days"
+            android:text="@string/days"
             app:layout_constraintBottom_toBottomOf="@+id/countDays"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/countDays" />
@@ -69,21 +69,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@string/present_day"
-            app:layout_constraintBottom_toBottomOf="@+id/currentDay"
+            android:text="@string/start"
+            app:layout_constraintBottom_toBottomOf="@+id/startDay"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/currentDay" />
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/currentDay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:ems="2"
-            android:inputType="numberDecimal"
-            android:singleLine="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/countDays" />
+            app:layout_constraintTop_toTopOf="@+id/startDay" />
 
         <Button
             android:id="@+id/button"
@@ -100,9 +89,9 @@
             android:id="@+id/type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/currentDay" />
+            app:layout_constraintTop_toBottomOf="@+id/startDay" />
 
         <TextView
             android:id="@+id/textView13"
@@ -137,16 +126,17 @@
             app:srcCompat="@drawable/ic_baseline_error_24"
             tools:ignore="ContentDescription" />
 
-        <ImageView
-            android:id="@+id/error_current_day"
+        <TextView
+            android:id="@+id/startDay"
+            style="@style/Text.Item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/currentDay"
-            app:layout_constraintEnd_toEndOf="@+id/currentDay"
-            app:layout_constraintTop_toTopOf="@+id/currentDay"
-            app:srcCompat="@drawable/ic_baseline_error_24"
-            tools:ignore="ContentDescription" />
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:textDate="@{schedule.start}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/countDays"
+            tools:text="19.08.2021" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

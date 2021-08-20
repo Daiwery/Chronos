@@ -9,7 +9,6 @@
 
 package com.daiwerystudio.chronos.ui.schedule
 
-import android.icu.util.TimeZone
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,14 +17,16 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Schedule
 import com.daiwerystudio.chronos.database.ScheduleRepository
 import com.daiwerystudio.chronos.database.Union
 import com.daiwerystudio.chronos.database.UnionRepository
 import com.daiwerystudio.chronos.databinding.DialogScheduleBinding
-import com.daiwerystudio.chronos.ui.DialogViewModel
+import com.daiwerystudio.chronos.ui.DataViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.datepicker.MaterialDatePicker
 
 /**
  * Ключевой особенностью является тот факт, что диалог всегда получает расписание.
@@ -33,8 +34,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
  * разделить UI и функционально необходимые данные, которые будут регулироваться внешне.
  */
 class ScheduleDialog : BottomSheetDialogFragment() {
-    private val viewModel: DialogViewModel
-        by lazy { ViewModelProvider(this).get(DialogViewModel::class.java) }
+    private val viewModel: DataViewModel
+        by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
     private val mScheduleRepository = ScheduleRepository.get()
     private val mUnionRepository = UnionRepository.get()
     private lateinit var binding: DialogScheduleBinding
@@ -42,7 +43,7 @@ class ScheduleDialog : BottomSheetDialogFragment() {
 
     private lateinit var schedule : Schedule
     private var isCreated: Boolean = true
-    private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
+    private val local = java.util.TimeZone.getDefault().getOffset(System.currentTimeMillis())/1000
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,8 +68,6 @@ class ScheduleDialog : BottomSheetDialogFragment() {
         val view = binding.root
         binding.schedule = schedule
 
-        binding.currentDay.setText((((System.currentTimeMillis()+local)/(1000*60*60*24)-schedule.dayStart)%schedule.countDays+1).toString())
-
         ArrayAdapter.createFromResource(requireContext(), R.array.types_schedule,
             R.layout.item_spinner).also { adapter ->
             adapter.setDropDownViewResource(R.layout.item_spinner)
@@ -92,18 +91,27 @@ class ScheduleDialog : BottomSheetDialogFragment() {
             else binding.errorName.visibility = View.VISIBLE
         }
 
-        binding.countDays.addTextChangedListener{
-            if (binding.countDays.text.toString() != ""){
-                schedule.countDays = binding.countDays.text.toString().toInt()
-                binding.errorCountDays.visibility = View.INVISIBLE
-            } else binding.errorCountDays.visibility = View.VISIBLE
+        if (isCreated) {
+            binding.countDays.addTextChangedListener {
+                if (binding.countDays.text.toString() != "") {
+                    schedule.countDays = binding.countDays.text.toString().toInt()
+                    binding.errorCountDays.visibility = View.INVISIBLE
+                } else binding.errorCountDays.visibility = View.VISIBLE
+            }
+        } else {
+            binding.countDays.visibility = View.GONE
+            binding.textView8.visibility = View.GONE
         }
 
-        binding.currentDay.addTextChangedListener{
-            if (binding.currentDay.text.toString() != ""){
-                schedule.dayStart = (System.currentTimeMillis()+local)/(1000*60*60*24)-binding.currentDay.text.toString().toInt()+1
-                binding.errorCurrentDay.visibility = View.INVISIBLE
-            } else binding.errorCurrentDay.visibility = View.VISIBLE
+        binding.startDay.setOnClickListener {
+            val dialog = MaterialDatePicker.Builder.datePicker()
+                .setSelection((schedule.start+local)*1000)
+                .build()
+            dialog.addOnPositiveButtonClickListener {
+                schedule.start = it/1000-local
+                binding.schedule = schedule
+            }
+            dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")
         }
 
         if (isCreated) binding.button.text = resources.getString(R.string.add)
@@ -114,24 +122,29 @@ class ScheduleDialog : BottomSheetDialogFragment() {
                 permission = false
                 binding.errorName.visibility = View.VISIBLE
             }
-            if (binding.countDays.text.toString() == ""){
-                permission = false
-                binding.errorCountDays.visibility = View.VISIBLE
-            }
-            if (binding.currentDay.text.toString() == ""){
-                permission = false
-                binding.errorCurrentDay.visibility = View.VISIBLE
-            }
+            if (isCreated)
+                if (binding.countDays.text.toString() == ""){
+                    permission = false
+                    binding.errorCountDays.visibility = View.VISIBLE
+                }
 
 
             if (permission){
                 if (isCreated) {
-                    mScheduleRepository.addSchedule(schedule)
+                    mScheduleRepository.createSchedule(schedule)
                     mUnionRepository.addUnion(union!!)
-                }
-                else mScheduleRepository.updateSchedule(schedule)
 
-                this.dismiss()
+                    this.dismiss()
+                    // Если расписание создается, то перемещаем пользователя в редактирование.
+                    val bundle = Bundle().apply {
+                        putString("scheduleID", schedule.id)
+                    }
+                    this.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
+                }
+                else {
+                    mScheduleRepository.updateSchedule(schedule)
+                    this.dismiss()
+                }
             }
         }
 

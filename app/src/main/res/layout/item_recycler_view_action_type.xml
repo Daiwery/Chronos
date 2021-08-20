@@ -26,19 +26,19 @@
             android:paddingBottom="5dp">
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/color"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:layout_marginStart="8dp"
                 android:colorFilter="@{actionType.color}"
-                app:layout_constraintBottom_toBottomOf="@+id/textView1"
+                app:layout_constraintBottom_toBottomOf="@+id/name"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textView1"
+                app:layout_constraintTop_toTopOf="@+id/name"
                 app:srcCompat="@drawable/oval"
                 tools:ignore="ContentDescription" />
 
             <TextView
-                android:id="@+id/textView1"
+                android:id="@+id/name"
                 style="@style/Text.Item"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
                 android:singleLine="false"
                 android:text="@{actionType.name}"
                 app:layout_constraintEnd_toStartOf="@+id/edit"
-                app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintStart_toEndOf="@+id/color"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="5645645555555555555555555555" />
 

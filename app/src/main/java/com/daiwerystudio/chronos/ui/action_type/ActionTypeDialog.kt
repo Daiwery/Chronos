@@ -21,7 +21,7 @@ import com.daiwerystudio.chronos.database.ActionTypeRepository
 import com.daiwerystudio.chronos.database.Union
 import com.daiwerystudio.chronos.database.UnionRepository
 import com.daiwerystudio.chronos.databinding.DialogActionTypeBinding
-import com.daiwerystudio.chronos.ui.DialogViewModel
+import com.daiwerystudio.chronos.ui.DataViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.skydoves.colorpickerview.ColorEnvelope
 import com.skydoves.colorpickerview.ColorPickerDialog
@@ -33,8 +33,8 @@ import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
  * разделить UI и функционально необходимые данные, которые будут регулироваться внешне.
  */
 class ActionTypeDialog : BottomSheetDialogFragment() {
-    private val viewModel: DialogViewModel
-        by lazy { ViewModelProvider(this).get(DialogViewModel::class.java) }
+    private val viewModel: DataViewModel
+        by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
     private val mActionTypeRepository = ActionTypeRepository.get()
     private val mUnionRepository = UnionRepository.get()
     private lateinit var binding: DialogActionTypeBinding

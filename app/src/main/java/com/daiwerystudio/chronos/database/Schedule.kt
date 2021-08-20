@@ -2,55 +2,41 @@
 * Дата создания: 05.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 *
-* Дата изменения: 17.08.2021.
+* Дата изменения: 19.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
-* Изменения: добавлена логика взаимодействия с union.
+* Изменения: добавлена логика взаимодействия с union. Добавлена таблица "day_schedule_table"
+* и логика взаимодействия с ней. Вместо отдельного потока добавлен отдельный looper.
 */
 
 package com.daiwerystudio.chronos.database
 
 import android.content.Context
-import android.icu.util.TimeZone
+import android.os.Handler
+import android.os.HandlerThread
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.daiwerystudio.chronos.ui.union.ID
 import java.io.Serializable
 import java.util.*
-import java.util.concurrent.Executors
 
-/**
- * Возможная модификация: всю логику обрабатки actions schedule в расписании (см. TimeView
- * в ClockViewGroup) перенести на плечи SQLite, а не делать это в котлине.
- *
- * Возмодная модификация: расчеты startTime и endTime в относительных расписаниях делать в
- * SQLite, а не в Kotlin.
- */
-
-/**
- * Константа для хранения имени базы данных.
- * */
 private const val SCHEDULE_DATABASE_NAME = "schedule-database"
 
-/**
- * Константы типов расписания.
- *
- * Предупреждение: эти константы не используются в Data Binding (ActionScheduleDialog).
- * При смене значений, не забудь поменять и там.
- */
+/*
+* Предупреждение: эти константы не используются в Data Binding (ActionScheduleDialog).
+* При смене значений, необходимо поменять и там.
+*/
 const val TYPE_SCHEDULE_RELATIVE = 0
 const val TYPE_SCHEDULE_ABSOLUTE = 1
 
+
 /**
- * Класс для хранения расписания и его параметров в базе данных.
- *
- * Интерфейс Serializable необходим для передачи объекта класса в пакете Bundle.
- *
  * @property id уникальный идентификатор.
- * @property dayStart день, с которого начинает работать данное расписание. Это значение
- * само по себе фиктивное. Но оно необходимо для определения номера дня расписания по
- * текущему дню.
+ * @property start время, с которого начинает работать данное расписание. На работу оасписания не
+ * влияет точное время, только день. Знание точного времени необходимо для учета локального времени.
  * @property name имя. UI.
  * @property countDays количество дней в расписании. То есть через сколько дней оно повторяется.
+ * Нужно помнить, что при обновении расписания, количество дней не должно меняться,
+ * так как база данных "day_schedule_table" при этом никак не меняется.
  * @property isActive активно ли расписание.
  * @property type тип расписание. Абсолютный (действия задаются конкретными временами)
  * или относительный (действия задаются временем после прошлого действия и длительностью).
@@ -60,7 +46,7 @@ const val TYPE_SCHEDULE_ABSOLUTE = 1
 @Entity(tableName = "schedule_table")
 data class Schedule(
     @PrimaryKey override val id: String,
-    var dayStart: Long = (System.currentTimeMillis()+TimeZone.getDefault().getOffset(System.currentTimeMillis()))/(1000*60*60*24),
+    var start: Long = System.currentTimeMillis()/1000,
     var name: String = "",
     var countDays: Int = 7,
     var isActive: Boolean = true,
@@ -68,40 +54,50 @@ data class Schedule(
     var isCorrupted: Boolean = false
 ) : Serializable, ID
 
+
 /**
- * Класс для хранения действия в расписании.
- *
- * Интерфейс Serializable необходим для передачи объекта класса в пакете Bundle.
- *
  * @property id уникальный идентификатор.
  * @property scheduleID id расписания, к которому относится данное действие.
- * @property dayIndex номер дня, к которому относится данное действие.
- * @property indexList индекс действия в массиве. По нему сортируются действия, чтобы сохранить
- * порядок требуемый пользователем. Необходим только для относительного расписания. Также требуется,
- * чтобы indexList был индексом в массиве (т.е. все соседние отличались на 1).
- * Это нужно для расчета startTime и endTime. См. getActionsRelativeScheduleFromDayIndex
- * @property actionTypeId id типа действия, к которому относится данное действие в расписании.
- * @property startTime фактическое время начала действия. В абсолютном расписании изменяется
- * напрямую пользователем, в относительном считается отдельно по двум последним свойствам.
- * Оно необходимо для всех алгоритмов обработки действий расписаний. В секундах. В относительном
- * расписании может быть больше 24 часов по той причине, что начало дня идет с defaultStartDayTime.
- * В этом случае время находится в окне с 00:00 до defaultStartDayTime в СЛЕДУЮЩЕМ дне.
- * @property endTime фактическое время конца действия. А обсолютном расписании изменяется
- * напрямую пользователем, в отнсительном считается отдельно по двум последним свойствам.
- * Оно необходимо для всех алгоритмов обработки действий расписаний. В секундах. В относительном
- * расписании может быть больше 24 часов по той причине, что начало дня идет с defaultStartDayTime.
- * В этом случае время находится в окне с 00:00 до defaultStartDayTime в СЛЕДУЮЩЕМ  дне.
- * @property startAfter время начала действия после окончания прошлого. В отсительном расписании
- * изменяется напрямую пользователем, в абсолютном фиктивно. В секундах.
- * @property duration длительность действия. В отсительном расписании изменяется
- * напрямую пользователем, в абсолютном фиктивно. В секундах.
- * @property isCorrupted содержится ли в действии ошибка.
+ * @property dayIndex номер дня.
+ * @property startDayTime время начала дня. Используется для относительного расписания.
  */
-@Entity(tableName = "actions_schedule_table")
-data class ActionSchedule(
+@Entity(tableName = "day_schedule_table")
+data class DaySchedule(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     var scheduleID: String,
     var dayIndex: Int,
+    val startDayTime: Long = 6*60*60
+) : Serializable
+
+
+
+/**
+ * @property id уникальный идентификатор.
+ * @property dayID id дня, к которому относится данное действие.
+ * @property indexList индекс действия в массиве. По нему сортируются действия, чтобы сохранить
+ * порядок требуемый пользователем. Необходим только для относительного расписания.
+ * @property actionTypeId id типа действия, к которому относится данное действие в расписании.
+ * @property startTime фактическое время начала действия. В абсолютном расписании изменяется
+ * напрямую пользователем, в относительном считается отдельно по двум последним свойствам.
+ * Оно необходимо для всех алгоритмов обработки действий в расписании. Измеряется в секундах.
+ * В относительном расписании может быть больше 24 часов по той причине, что начало дня идет с startDayTime.
+ * В этом случае время находится в окне с 00:00 до startDayTime в СЛЕДУЮЩЕМ дне.
+ * @property endTime фактическое время конца действия. А обсолютном расписании изменяется
+ * напрямую пользователем, в отнсительном считается отдельно по двум последним свойствам.
+ * Оно необходимо для всех алгоритмов обработки действий расписаний. Измеряется в секундах.
+ * В относительном расписании может быть больше 24 часов по той причине, что начало дня идет с startDayTime.
+ * В этом случае время находится в окне с 00:00 до startDayTime в СЛЕДУЮЩЕМ  дне.
+ * @property startAfter время начала действия после окончания прошлого. В отсительном расписании
+ * изменяется напрямую пользователем, в абсолютном фиктивно. Измеряется в секундах.
+ * @property duration длительность действия. В отсительном расписании изменяется
+ * напрямую пользователем, в абсолютном фиктивно. Измеряется в секундах.
+ * @property isCorrupted испорченно ли действие. Действие становится таковым, если пересекается
+ * с другим действием.
+ */
+@Entity(tableName = "action_schedule_table")
+data class ActionSchedule(
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    var dayID: String,
     var indexList: Int,
     var actionTypeId: String = "",
     var startTime: Long = 0,
@@ -111,150 +107,66 @@ data class ActionSchedule(
     var isCorrupted: Boolean = false
 ) : Serializable
 
-/**
- * Вспомогательный класс. Нужен только для UI. Ctrl+B.
- * @property dayIndex индекс дня в расписании.
- * @property countCorrupted количество испорченных действий
- */
-data class DaySchedule(
-    var dayIndex: Int,
-    var countCorrupted: Int
-)
 
-
-/**
- * С помощью этого интерфейса выплоняются запросы к базе данных.
- *
- * Запросы написаны на SQLite.
- */
 @Dao
 interface ScheduleDao {
-    /**
-     * Извлекает из базы данных schedules с заданными id в обертке LiveData.
-     */
-    @Query("SELECT * FROM schedule_table WHERE id IN (:ids)")
-    fun getSchedules(ids: List<String>): LiveData<List<Schedule>>
-
-    /**
-     * Возвращает спискок активных и неиспорченных расписаний в обертке LiveData.
-     */
-    @Query("SELECT * FROM schedule_table WHERE isActive=1 AND isCorrupted=0")
-    fun getActiveAndNotCorruptSchedules(): LiveData<List<Schedule>>
-
-    /**
-     * Возвращает расписание с заданным id в обертке LiveData.
-     */
     @Query("SELECT * FROM schedule_table WHERE id=(:id)")
     fun getSchedule(id: String): LiveData<Schedule>
 
-    /**
-     * Возвращает массив actions schedule в обертке LiveData в зависимости от id расписания
-     * и dayIndex. Используется для относительных расписаний, так как сортирует по indexList.
-     * Дополнительно расчитывает startTime и endTime, так как это нужно для алгоритма обработки.
-     */
-    @Query("SELECT * FROM actions_schedule_table " +
-            "WHERE scheduleId=(:scheduleID) AND dayIndex=(:dayIndex)" +
-            "ORDER BY indexList ASC")
-    fun getActionsRelativeScheduleFromDayIndex(scheduleID: String, dayIndex: Int): LiveData<List<ActionSchedule>>
+    @Query("SELECT * FROM schedule_table WHERE id IN (:ids)")
+    fun getSchedules(ids: List<String>): LiveData<List<Schedule>>
 
-    /**
-     * Возвращает массив действий в обертке LiveData в зависимости от id расписания
-     * и dayIndex. Используется для абсолютных расписаний, так как сортирует по startTime.
-     */
-    @Query("SELECT * FROM actions_schedule_table " +
-            "WHERE scheduleId=(:scheduleID) AND dayIndex=(:dayIndex)" +
-            "ORDER BY startTime ASC")
-    fun getActionsAbsoluteScheduleFromDayIndex(scheduleID: String, dayIndex: Int): LiveData<List<ActionSchedule>>
+    @Query("SELECT * FROM schedule_table WHERE isActive=1 AND isCorrupted=0")
+    fun getActiveAndNotCorruptSchedules(): LiveData<List<Schedule>>
 
-    /**
-     * Данная функция нужна как часть логики для сбора всех действий во всех активных расписаниях.
-     * См. DayViewModel для подробной информации.
-     * Сортирует по indexList, чтобы можно было определить startTime и endTime.
-     */
-    @Query("SELECT * FROM actions_schedule_table " +
-            "WHERE scheduleId=(:scheduleID) AND dayIndex=(:dayIndex)" +
-            "ORDER BY indexList ASC")
-    fun getActionsScheduleFromDayIndex(scheduleID: String, dayIndex: Int): List<ActionSchedule>
+    @Query("SELECT * FROM action_schedule_table " +
+            "WHERE dayID=(:dayID) ORDER BY indexList ASC")
+    fun getActionsRelativeScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>>
 
-    /**
-     * Удаляет заданные расписания из базы данных.
-     */
+    @Query("SELECT * FROM action_schedule_table " +
+            "WHERE dayID=(:dayID) ORDER BY startTime ASC")
+    fun getActionsAbsoluteScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>>
+
+    @Query("SELECT * FROM day_schedule_table WHERE scheduleID=(:scheduleID)")
+    fun getDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<DaySchedule>>
+
     @Query("DELETE FROM schedule_table WHERE id IN (:ids)")
     fun deleteSchedules(ids: List<String>)
 
-    /**
-     * Удаляет все действия в заданных расписаниях.
-     */
-    @Query("DELETE FROM actions_schedule_table WHERE scheduleID IN (:scheduleIDs)")
+    @Query("DELETE FROM day_schedule_table WHERE scheduleID IN (:scheduleIDs)")
+    fun deleteDaysScheduleFromSchedulesID(scheduleIDs: List<String>)
+
+    @Query("DELETE FROM action_schedule_table WHERE dayID IN " +
+            "(SELECT id FROM day_schedule_table WHERE scheduleID IN (:scheduleIDs))")
     fun deleteActionsScheduleFromSchedulesID(scheduleIDs: List<String>)
 
-    /**
-     * Получает количество одновременно активных и испорченных расписаний в обертке LiveData.
-     * Нужен для UI.
-     */
-    @Query("SELECT COUNT(*) FROM schedule_table WHERE isActive=1 AND isCorrupted=1")
-    fun getCountActiveCorruptedSchedules(): LiveData<Int>
-
-    /**
-     * Получает масив из вспомогательного класса. Нужен для UI.
-     */
-    @Query("WITH RECURSIVE sub_table(dayIndex) " +
-            "AS ( SELECT 0 UNION ALL SELECT dayIndex+1 FROM sub_table " +
-            "WHERE dayIndex+1<(SELECT countDays FROM schedule_table WHERE id=(:scheduleID))) " +
-            "SELECT dayIndex, " +
-            "(SELECT COUNT(*) from actions_schedule_table " +
-            "WHERE actions_schedule_table.dayIndex=sub_table.dayIndex " +
-            "AND isCorrupted=1 AND scheduleID=(:scheduleID)) countCorrupted " +
-            "FROM sub_table")
-    fun getCorruptedDays(scheduleID: String): LiveData<List<DaySchedule>>
-
-    /**
-     * Фиктивный запрос. Нужен лишь для того, чтобы ROOM оповещал об изменении в базе данных.
-     */
-    @Query("SELECT 1 FROM actions_schedule_table")
-    fun observeDataBase(): LiveData<Int>
-
-    /**
-     * Обновляет расписание в базе данных.
-     */
     @Update
     fun updateSchedule(schedule: Schedule)
 
-    /**
-     * Добавляет новое расписание в базу данных.
-     */
     @Insert
     fun addSchedule(schedule: Schedule)
 
-    /**
-     * Обновляет действие в базе данных.
-     */
+    @Update
+    fun updateDaySchedule(daySchedule: DaySchedule)
+
+    @Insert
+    fun addDaySchedule(daySchedule: DaySchedule)
+
     @Update
     fun updateActionSchedule(actionSchedule: ActionSchedule)
 
-    /**
-     * Обновляет список действий в базе данных. Используется для установки indexList.
-     */
     @Update
     fun updateListActionsSchedule(listActionsSchedule: List<ActionSchedule>)
 
-    /**
-     * Добавляет новое действие в базу данных.
-     */
     @Insert
     fun addActionSchedule(actionSchedule: ActionSchedule)
 
-    /**
-     * Удаляет действие из базы данных.
-     */
     @Delete
     fun deleteActionSchedule(actionSchedule: ActionSchedule)
 }
 
-/**
- * Класс базы данных с указанием, что нужно хранить и какой номер версии.
- */
-@Database(entities = [Schedule::class, ActionSchedule::class], version=1, exportSchema=false)
+
+@Database(entities = [Schedule::class, DaySchedule::class, ActionSchedule::class], version=1, exportSchema=false)
 abstract class ScheduleDatabase : RoomDatabase() {
     abstract fun dao(): ScheduleDao
 }
@@ -265,145 +177,80 @@ abstract class ScheduleDatabase : RoomDatabase() {
  * @see DataBaseApplication
  */
 class ScheduleRepository private constructor(context: Context) {
-    /**
-     * Объект класса базы данных.
-     */
     private val mDatabase: ScheduleDatabase = Room.databaseBuilder(context.applicationContext,
         ScheduleDatabase::class.java,
         SCHEDULE_DATABASE_NAME).build()
-    /**
-     * Интрейфс DAO для взаимодействия с базой данных.
-     */
     private val mDao = mDatabase.dao()
-    /**
-     * Отдельный поток для обновления, добавления и удаления.
-     */
-    private val mExecutor = Executors.newSingleThreadExecutor()
+    private val mHandlerThread = HandlerThread("ScheduleRepository")
+    private var mHandler: Handler
 
-    /**
-     * Извлекает из базы данных schedules с заданными id в обертке LiveData.
-     */
+    init {
+        mHandlerThread.start()
+        mHandler = Handler(mHandlerThread.looper)
+    }
+
+
+    fun getSchedule(id: String): LiveData<Schedule> = mDao.getSchedule(id)
+
     fun getSchedules(ids: List<String>): LiveData<List<Schedule>> = mDao.getSchedules(ids)
 
-    /**
-     * Возвращает спискок активных и неиспорченных расписаний в обертке LiveData.
-     */
     fun getActiveAndNotCorruptSchedules(): LiveData<List<Schedule>> =
         mDao.getActiveAndNotCorruptSchedules()
 
-    /**
-     * Возвращает массив действий в обертке LiveData в зависимости от id расписания
-     * и dayIndex. Используется для абсолютных расписаний, так как сортирует по startTime.
-     */
-    fun getActionsAbsoluteScheduleFromDayIndex(scheduleID: String, dayIndex: Int):
-            LiveData<List<ActionSchedule>> = mDao.getActionsAbsoluteScheduleFromDayIndex(scheduleID, dayIndex)
+    fun getActionsRelativeScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>> =
+        mDao.getActionsRelativeScheduleFromDayID(dayID)
 
-    /**
-     * Данная функция нужна как часть логики для сбора всех действий во всех активных расписаниях.
-     * См. DayViewModel для подробной информации.
-     * Сортирует по indexList, чтобы можно было определить startTime и endTime.
-     */
-    fun getActionsScheduleFromDayIndex(scheduleID: String, dayIndex: Int): List<ActionSchedule> =
-        mDao.getActionsScheduleFromDayIndex(scheduleID, dayIndex)
+    fun getActionsAbsoluteScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>> =
+        mDao.getActionsAbsoluteScheduleFromDayID(dayID)
 
-    /**
-     * Возвращает массив actions schedule в обертке LiveData в зависимости от id расписания
-     * и dayIndex. Используется для относительных расписаний, так как сортирует по indexList.
-     */
-    fun getActionsRelativeScheduleFromDayIndex(scheduleID: String, dayIndex: Int):
-            LiveData<List<ActionSchedule>> = mDao.getActionsRelativeScheduleFromDayIndex(scheduleID, dayIndex)
+    fun getDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<DaySchedule>> =
+        mDao.getDaysScheduleFromScheduleID(scheduleID)
 
-    /**
-     * Возвращает расписание с заданным id в обертке LiveData.
-     */
-    fun getSchedule(id: String): LiveData<Schedule> = mDao.getSchedule(id)
-
-    /**
-     * Получает количеств активных и испорченных расписаний в обертке LiveData.
-     * Нужен в MainActivity для установки бейджа.
-     */
-    fun getCountActiveCorruptedSchedules(): LiveData<Int> = mDao.getCountActiveCorruptedSchedules()
-
-    /**
-     * Извлекает из таблицы словарь вида: индекс дня - количество испорченных действий.
-     * Нужен для UI.
-     */
-    fun getCorruptedDays(scheduleID: String): LiveData<List<DaySchedule>> =
-        mDao.getCorruptedDays(scheduleID)
-
-    /**
-     * Фиктивный запрос. Нужен лишь для того, чтобы ROOM оповещал об изменении в базе данных.
-     */
-    fun observeDataBase(): LiveData<Int> = mDao.observeDataBase()
-
-    /**
-     * Обновляет расписание в базе данных в отдельном потоке.
-     */
-    fun updateSchedule(schedule: Schedule){
-        mExecutor.execute {
-            mDao.updateSchedule(schedule)
-        }
-    }
-
-    /**
-     * Добавляет новое расписание в базу данных в отдельном потоке.
-     */
-    fun addSchedule(schedule: Schedule){
-        mExecutor.execute {
-            mDao.addSchedule(schedule)
-        }
-    }
-
-    /**
-     * Удаляет расписания со всеми действиями в отдельном потоке.
-     */
-    fun deleteSchedulesWithActions(ids: List<String>){
-        mExecutor.execute {
-            mDao.deleteSchedules(ids)
+    fun deleteCompletelySchedules(ids: List<String>){
+        mHandler.post {
             mDao.deleteActionsScheduleFromSchedulesID(ids)
+            mDao.deleteDaysScheduleFromSchedulesID(ids)
+            mDao.deleteSchedules(ids)
         }
     }
 
-    /**
-     * Обновляет список действий в базе данных в отдельном потоке.
-     * Используется для установки indexList.
-     */
+    fun createSchedule(schedule: Schedule){
+        mHandler.post {
+            mDao.addSchedule(schedule)
+            for (i in 0 until schedule.countDays)
+                mDao.addDaySchedule(DaySchedule(scheduleID=schedule.id, dayIndex=i))
+        }
+    }
+
+    fun updateSchedule(schedule: Schedule){
+        mHandler.post { mDao.updateSchedule(schedule) }
+    }
+
+    fun updateDaySchedule(daySchedule: DaySchedule){
+        mHandler.post { mDao.updateDaySchedule(daySchedule) }
+    }
+
+    fun addDaySchedule(daySchedule: DaySchedule){
+        mHandler.post { mDao.addDaySchedule(daySchedule) }
+    }
+
     fun updateListActionsSchedule(listActionSchedule: List<ActionSchedule>){
-        mExecutor.execute {
-            mDao.updateListActionsSchedule(listActionSchedule)
-        }
+        mHandler.post { mDao.updateListActionsSchedule(listActionSchedule) }
     }
 
-    /**
-     * Обновляет действие в базе данных в отдельном потоке.
-     */
     fun updateActionSchedule(actionSchedule: ActionSchedule){
-        mExecutor.execute {
-            mDao.updateActionSchedule(actionSchedule)
-        }
+        mHandler.post { mDao.updateActionSchedule(actionSchedule) }
     }
 
-    /**
-     * Добавляет новое действие в базу данных в отдельном потоке.
-     */
     fun addActionSchedule(actionSchedule: ActionSchedule){
-        mExecutor.execute {
-            mDao.addActionSchedule(actionSchedule)
-        }
+        mHandler.post { mDao.addActionSchedule(actionSchedule) }
     }
 
-    /**
-     * Удаляет действие из базы данных в отдельном потоке.
-     */
     fun deleteActionSchedule(actionSchedule: ActionSchedule){
-        mExecutor.execute {
-            mDao.deleteActionSchedule(actionSchedule)
-        }
+        mHandler.post { mDao.deleteActionSchedule(actionSchedule) }
     }
 
-    /**
-     * Создаение экземпляра синглтона.
-     */
+
     companion object {
         private var INSTANCE: ScheduleRepository? = null
         fun initialize(context: Context) {

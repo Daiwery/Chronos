@@ -112,6 +112,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:booleanVisibility="@{actionSchedule.corrupted}"
+            android:visibility="gone"
             app:srcCompat="@drawable/drawable_error_action_schedule"
             tools:ignore="ContentDescription" />
 

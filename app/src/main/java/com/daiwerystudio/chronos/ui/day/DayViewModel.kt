@@ -61,7 +61,7 @@ class DayViewModel: ViewModel() {
 
                 mActiveSchedules.value!!.forEach {
                     if (it.type == TYPE_SCHEDULE_RELATIVE) {
-                        actionsRelativeSchedule.addAll(getActionsRelativeSchedule(it))
+                        // actionsRelativeSchedule.addAll(getActionsRelativeSchedule(it))
                     }
                 }
 
@@ -98,7 +98,7 @@ class DayViewModel: ViewModel() {
      * Значение в этой переменной фиктивно. Переменная нужна лишь для того, чтобы
      * ROOM сообщал об изменении в базе данных actions_schedule_table
      */
-    private var observeDataBase: LiveData<Int> = mScheduleRepository.observeDataBase()
+    // private var observeDataBase: LiveData<Int> = mScheduleRepository.observeDataBase()
 
     /**
      * То, что необходимо выполнить при изменении базе данных actions_schedule_table.
@@ -110,11 +110,11 @@ class DayViewModel: ViewModel() {
                 val actionsAbsoluteSchedule = mutableListOf<ActionSchedule>()
                 val actionsRelativeSchedule = mutableListOf<ActionSchedule>()
                 mActiveSchedules.value!!.forEach {
-                    when (it.type) {
-                        TYPE_SCHEDULE_ABSOLUTE -> actionsAbsoluteSchedule.addAll(getActionsAbsoluteSchedule(it))
-                        TYPE_SCHEDULE_RELATIVE -> actionsRelativeSchedule.addAll(getActionsRelativeSchedule(it))
-                        else -> throw IllegalArgumentException("Invalid type")
-                    }
+//                    when (it.type) {
+//                        TYPE_SCHEDULE_ABSOLUTE -> actionsAbsoluteSchedule.addAll(getActionsAbsoluteSchedule(it))
+//                        TYPE_SCHEDULE_RELATIVE -> actionsRelativeSchedule.addAll(getActionsRelativeSchedule(it))
+//                        else -> throw IllegalArgumentException("Invalid type")
+//                    }
                 }
 
                 this.mActionsAbsoluteSchedule = actionsAbsoluteSchedule
@@ -140,11 +140,11 @@ class DayViewModel: ViewModel() {
             val actionsAbsoluteSchedule = mutableListOf<ActionSchedule>()
             val actionsRelativeSchedule = mutableListOf<ActionSchedule>()
             it.forEach {
-                when (it.type) {
-                    TYPE_SCHEDULE_ABSOLUTE -> actionsAbsoluteSchedule.addAll(getActionsAbsoluteSchedule(it))
-                    TYPE_SCHEDULE_RELATIVE -> actionsRelativeSchedule.addAll(getActionsRelativeSchedule(it))
-                    else -> throw IllegalArgumentException("Invalid type")
-                }
+//                when (it.type) {
+//                    TYPE_SCHEDULE_ABSOLUTE -> actionsAbsoluteSchedule.addAll(getActionsAbsoluteSchedule(it))
+//                    TYPE_SCHEDULE_RELATIVE -> actionsRelativeSchedule.addAll(getActionsRelativeSchedule(it))
+//                    else -> throw IllegalArgumentException("Invalid type")
+//                }
             }
 
             this.mActionsAbsoluteSchedule = actionsAbsoluteSchedule
@@ -156,41 +156,41 @@ class DayViewModel: ViewModel() {
     /**
      * Извлекает из базы данных действия у абсолютного расписания.
      */
-    private fun getActionsAbsoluteSchedule(schedule: Schedule): List<ActionSchedule>{
-        val actionsAbsoluteSchedule = mutableListOf<ActionSchedule>()
-
-        val dayIndex = (day-schedule.dayStart).toInt()%schedule.countDays
-        actionsAbsoluteSchedule.addAll(mScheduleRepository.getActionsScheduleFromDayIndex(schedule.id, dayIndex))
-        // Получаем действия из следующего дня, так как они могут быть ночью.
-        val nextDay = mScheduleRepository.getActionsScheduleFromDayIndex(schedule.id, (dayIndex+1)%schedule.countDays)
-        nextDay.forEach {
-            it.startTime += 24*60*60L
-            it.endTime += 24*60*60L
-        }
-        actionsAbsoluteSchedule.addAll(nextDay)
-
-        return actionsAbsoluteSchedule
-    }
+//    private fun getActionsAbsoluteSchedule(schedule: Schedule): List<ActionSchedule>{
+//        val actionsAbsoluteSchedule = mutableListOf<ActionSchedule>()
+//
+//        val dayIndex = (day-schedule.dayStart).toInt()%schedule.countDays
+//        actionsAbsoluteSchedule.addAll(mScheduleRepository.getActionsScheduleFromDayIndex(schedule.id, dayIndex))
+//        // Получаем действия из следующего дня, так как они могут быть ночью.
+//        val nextDay = mScheduleRepository.getActionsScheduleFromDayIndex(schedule.id, (dayIndex+1)%schedule.countDays)
+//        nextDay.forEach {
+//            it.startTime += 24*60*60L
+//            it.endTime += 24*60*60L
+//        }
+//        actionsAbsoluteSchedule.addAll(nextDay)
+//
+//        return actionsAbsoluteSchedule
+//    }
 
     /**
      * Извлекает из базы данных действия у относительного расписания
      * и заного расчитывает startTime и endTime.
      */
-    private fun getActionsRelativeSchedule(schedule: Schedule): List<ActionSchedule>{
-        val dayIndex = (day-schedule.dayStart).toInt()%schedule.countDays
-        val actionsRelativeSchedule = mScheduleRepository.getActionsScheduleFromDayIndex(schedule.id, dayIndex)
-
-        actionsRelativeSchedule.forEachIndexed { i, actionSchedule ->
-            var start = actionSchedule.startAfter
-            start += if (i != 0) actionsRelativeSchedule[i-1].endTime
-            else startDayTime.value ?: 6*60*60L
-
-            actionsRelativeSchedule[i].startTime = start
-            actionsRelativeSchedule[i].endTime = start+actionSchedule.duration
-        }
-
-        return actionsRelativeSchedule
-    }
+//    private fun getActionsRelativeSchedule(schedule: Schedule): List<ActionSchedule>{
+//        val dayIndex = (day-schedule.dayStart).toInt()%schedule.countDays
+//        val actionsRelativeSchedule = mScheduleRepository.getActionsScheduleFromDayIndex(schedule.id, dayIndex)
+//
+//        actionsRelativeSchedule.forEachIndexed { i, actionSchedule ->
+//            var start = actionSchedule.startAfter
+//            start += if (i != 0) actionsRelativeSchedule[i-1].endTime
+//            else startDayTime.value ?: 6*60*60L
+//
+//            actionsRelativeSchedule[i].startTime = start
+//            actionsRelativeSchedule[i].endTime = start+actionSchedule.duration
+//        }
+//
+//        return actionsRelativeSchedule
+//    }
 
     /**
      * Выполняется при инициализации. Устанавливаем наблюдателей.
@@ -198,7 +198,7 @@ class DayViewModel: ViewModel() {
     init {
         mActiveSchedules.observeForever(mObserverActiveSchedules)
         startDayTime.observeForever(mObserverStartDayTime)
-        observeDataBase.observeForever(mObserverDataBase)
+        // observeDataBase.observeForever(mObserverDataBase)
     }
 
     /**
@@ -261,6 +261,6 @@ class DayViewModel: ViewModel() {
 
         mActiveSchedules.removeObserver(mObserverActiveSchedules)
         startDayTime.removeObserver(mObserverStartDayTime)
-        observeDataBase.removeObserver(mObserverDataBase)
+        // observeDataBase.removeObserver(mObserverDataBase)
     }
 }

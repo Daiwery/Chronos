@@ -1,15 +1,16 @@
 /*
-* Дата создания: 17.08.2021.
+* Дата создания: 19.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 */
 
 package com.daiwerystudio.chronos.database
 
 import android.content.Context
+import android.os.Handler
+import android.os.HandlerThread
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import java.io.Serializable
-import java.util.concurrent.Executors
 
 private const val UNION_DATABASE_NAME = "union-database"
 
@@ -82,10 +83,16 @@ class UnionRepository private constructor(context: Context) {
         UnionDatabase::class.java,
         UNION_DATABASE_NAME).build()
     private val mDao = mDatabase.dao()
-    private val mExecutor = Executors.newSingleThreadExecutor()
     private val mActionTypeRepository = ActionTypeRepository.get()
     private val mGoalRepository = GoalRepository.get()
     private val mScheduleRepository = ScheduleRepository.get()
+    private val mHandlerThread = HandlerThread("UnionRepository")
+    private var mHandler: Handler
+
+    init {
+        mHandlerThread.start()
+        mHandler = Handler(mHandlerThread.looper)
+    }
 
     fun getUnionsFromParent(parent: String): LiveData<List<Union>> = mDao.getUnionsFromParent(parent)
 
@@ -99,33 +106,29 @@ class UnionRepository private constructor(context: Context) {
         mScheduleRepository.getSchedules(union.filter { it.type == TYPE_SCHEDULE }.map { it.id })
 
     fun deleteUnionWithChild(id: String){
-        mExecutor.execute {
+        mHandler.post {
             val unions = mDao.getUnionWithChild(id)
 
             mDao.deleteUnions(unions)
             mActionTypeRepository.deleteActionTypes(unions.filter { it.type == TYPE_ACTION_TYPE }.map { it.id })
             mGoalRepository.deleteGoals(unions.filter { it.type == TYPE_GOAL }.map { it.id })
-            mScheduleRepository.deleteSchedulesWithActions(unions.filter { it.type == TYPE_SCHEDULE }.map { it.id })
+            mScheduleRepository.deleteCompletelySchedules(unions.filter { it.type == TYPE_SCHEDULE }.map { it.id })
         }
     }
 
     fun setAchievedGoalWithChild(id: String, isAchieved: Boolean){
-        mExecutor.execute {
+        mHandler.post {
             val ids = mDao.getGoalWithChild(id)
             mGoalRepository.setAchievedGoal(ids, isAchieved)
         }
     }
 
     fun updateUnions(unions: List<Union>){
-        mExecutor.execute {
-            mDao.updateUnions(unions)
-        }
+        mHandler.post { mDao.updateUnions(unions) }
     }
 
     fun addUnion(union: Union){
-        mExecutor.execute{
-            mDao.addUnion(union)
-        }
+        mHandler.post { mDao.addUnion(union) }
     }
 
     fun updateSchedule(schedule: Schedule) {

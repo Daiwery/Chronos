@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.goal.UnionGoalFragment">
+    tools:context=".ui.goal.GoalFragment">
 
     <data>
         <variable
@@ -15,6 +15,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/appBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:menu="@menu/menu_edit_delete"
+                app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
         <CheckBox
             android:id="@+id/isAchieved"
             android:layout_width="wrap_content"
@@ -22,7 +40,7 @@
             android:checked="@{goal.isAchieved}"
             android:text="@string/isAchieved"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
         <TextView
             android:id="@+id/textView6"
@@ -37,39 +55,20 @@
             app:layout_constraintTop_toBottomOf="@+id/isAchieved" />
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/goal_note"
+            android:id="@+id/note"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:ems="10"
             android:gravity="start|top"
             android:hint="@string/note"
             android:inputType="textMultiLine|textAutoCorrect|textCapSentences"
-            android:maxLines="5"
             android:text="@{goal.note}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView6" />
-
-        <include
-            android:id="@+id/loading_view"
-            layout="@layout/layout_loading"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="gone" />
-
-        <include
-            android:id="@+id/empty_view"
-            layout="@layout/layout_empty"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone" />
+            app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

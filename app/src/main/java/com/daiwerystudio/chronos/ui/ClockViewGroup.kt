@@ -235,7 +235,7 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
 
                 rawPoints.add(Point(it.id, true, start, color))
                 rawPoints.add(Point(it.id,false, end, color))
-                intervals[it.id] = Interval(color, start, end, it.scheduleID)
+                intervals[it.id] = Interval(color, start, end, it.dayID)
             }
             val points = rawPoints.sortedBy { it.coordinate }
 
@@ -618,7 +618,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
 
                 rawPoints.add(Point(it.id, true, start, color))
                 rawPoints.add(Point(it.id,false, end, color))
-                intervals[it.id] = Interval(color, it.actionTypeId, start, end, it.scheduleID)
+                intervals[it.id] = Interval(color, it.actionTypeId, start, end, it.dayID)
             }
             val points = rawPoints.sortedBy { it.coordinate }
 

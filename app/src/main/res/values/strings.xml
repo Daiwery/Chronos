@@ -18,6 +18,9 @@
     <string name="cancel">Cancel</string>
     <string name="goal_name_hint">Dream</string>
     <string name="note">Note</string>
+    <string name="schedule_name_hint">Summer</string>
+    <string name="days">Days</string>
+    <string name="days_">Days:</string>
     <string name="type">Type</string>
     <string name="type_">Type:</string>
     <string-array name="types_schedule">
@@ -33,11 +36,6 @@
         <item>Saturday</item>
         <item>Sunday</item>
     </string-array>
-    <string name="days">Days:</string>
-    <string name="present_day_">Present day:</string>
-    <string name="schedule_name_hint">Summer</string>
-    <string name="present_day">Present day</string>
-    <string name="count_of_days">Count of days</string>
     <string name="start_">Start:</string>
     <string name="end_">End:</string>
     <string name="start">Start</string>

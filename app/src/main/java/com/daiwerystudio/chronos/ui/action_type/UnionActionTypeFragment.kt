@@ -9,7 +9,6 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
 import android.widget.PopupMenu
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -23,10 +22,10 @@ import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionTypeBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewGoalBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewScheduleBinding
 import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
-import com.daiwerystudio.chronos.ui.ItemAnimator
 import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.daiwerystudio.chronos.ui.schedule.ScheduleDialog
 import com.daiwerystudio.chronos.ui.union.*
+import java.lang.IllegalArgumentException
 import java.util.*
 
 class UnionActionTypeFragment: Fragment() {
@@ -37,8 +36,6 @@ class UnionActionTypeFragment: Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Это необходимо для созданию меню по макету.
-        setHasOptionsMenu(true)
 
         viewModel.parentID.value = arguments?.getString("parentID")!!
     }
@@ -56,7 +53,7 @@ class UnionActionTypeFragment: Fragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         viewModel.parent.observe(viewLifecycleOwner, {
-            (activity as AppCompatActivity).supportActionBar?.title = it.name
+            binding.appBar.title = it.name
         })
 
         viewModel.data.observe(viewLifecycleOwner, {
@@ -64,64 +61,44 @@ class UnionActionTypeFragment: Fragment() {
         })
 
         binding.fab.setOnClickListener{
-            val popup = PopupMenu(requireContext(), it)
-            popup.menuInflater.inflate(R.menu.menu_create_union_item, popup.menu)
-            popup.setOnMenuItemClickListener (object : PopupMenu.OnMenuItemClickListener {
-                override fun onMenuItemClick(item: MenuItem?): Boolean {
-                    when (item?.itemId){
-                        R.id.create_action_type -> {
-                            val id = UUID.randomUUID().toString()
-                            val actionType = ActionType(id=id)
-                            val union = Union(id=id, parent=viewModel.parentID.value!!,
-                                type=TYPE_ACTION_TYPE, indexList=viewModel.data.value!!.size)
-
-                            val dialog = ActionTypeDialog()
-                            dialog.arguments = Bundle().apply{
-                                putSerializable("actionType", actionType)
-                                putSerializable("union", union)
-                                putBoolean("isCreated", true)
-                            }
-                            dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")
-
-                            return true
-                        }
-                        R.id.create_goal -> {
-                            val id = UUID.randomUUID().toString()
-                            val goal = Goal(id=id)
-                            val union = Union(id=id, parent=viewModel.parentID.value!!,
-                                type= TYPE_GOAL, indexList=viewModel.data.value!!.size)
-
-                            val dialog = GoalDialog()
-                            dialog.arguments = Bundle().apply{
-                                putSerializable("goal", goal)
-                                putSerializable("union", union)
-                                putBoolean("isCreated", true)
-                            }
-                            dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
-
-                            return true
-                        }
-                        R.id.create_schedule -> {
-                            val id = UUID.randomUUID().toString()
-                            val schedule = Schedule(id=id)
-                            val union = Union(id=id, parent=viewModel.parentID.value!!,
-                                type= TYPE_SCHEDULE, indexList=viewModel.data.value!!.size)
-
-                            val dialog = ScheduleDialog()
-                            dialog.arguments = Bundle().apply{
-                                putSerializable("schedule", schedule)
-                                putSerializable("union", union)
-                                putBoolean("isCreated", true)
-                            }
-                            dialog.show(requireActivity().supportFragmentManager, "ScheduleDialog")
-
-                            return true
-                        }
-                        else -> return false
-                    }
-                }
+            val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
+            popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
+                override fun getParent(): String = viewModel.parentID.value!!
+                override fun getIndexList(): Int = viewModel.data.value!!.size
             })
             popup.show()
+        }
+
+        binding.appBar.setNavigationOnClickListener {
+            it.findNavController().navigateUp()
+        }
+        binding.appBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.edit -> {
+                    viewModel.updateUnions()
+                    val dialog = ActionTypeDialog()
+                    dialog.arguments = Bundle().apply{
+                        putSerializable("actionType", viewModel.parent.value!!)
+                        putBoolean("isCreated", false)
+                    }
+                    dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")
+                    true
+                }
+                R.id.delete -> {
+                    AlertDialog.Builder(context, R.style.App_AlertDialog)
+                        .setTitle(resources.getString(R.string.are_you_sure))
+                        .setPositiveButton(R.string.yes) { _, _ ->
+                            viewModel.deleteUnionWithChild(viewModel.parentID.value!!)
+                            requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+                        }
+                        .setNegativeButton(R.string.no){ _, _ -> }
+                        .setCancelable(false)
+                        .create()
+                        .show()
+                    true
+                }
+                else -> false
+            }
         }
 
         return view
@@ -137,101 +114,19 @@ class UnionActionTypeFragment: Fragment() {
         binding.emptyView.visibility = View.GONE
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_edit_delete, menu)
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.edit -> {
-                viewModel.updateUnions()
+    private inner class ActionTypeHolder(binding: ItemRecyclerViewActionTypeBinding):
+        ActionTypeRawHolder(binding, requireActivity().supportFragmentManager)
 
-                val dialog = ActionTypeDialog()
-                dialog.arguments = Bundle().apply{
-                    putSerializable("actionType", viewModel.parent.value!!)
-                    putBoolean("isCreated", false)
-                }
-                dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")
-
-                return true
-            }
-            R.id.delete -> {
-                AlertDialog.Builder(context, R.style.App_AlertDialog)
-                    .setTitle(resources.getString(R.string.are_you_sure))
-                    .setPositiveButton(R.string.yes) { _, _ ->
-                        viewModel.deleteUnionWithChild(viewModel.parentID.value!!)
-                        requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
-                    }
-                    .setNegativeButton(R.string.no){ _, _ -> }
-                    .setCancelable(false)
-                    .create()
-                    .show()
-
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
-    }
-
-
-    private inner class ActionTypeHolder(binding: ItemRecyclerViewActionTypeBinding): ActionTypeRawHolder(binding){
-        override fun onClick() {
-            val bundle = Bundle().apply {
-                putString("parentID", actionType.id)
-            }
-            itemView.findNavController().navigate(R.id.action_navigation_union_action_type_self, bundle)
-        }
-
-        override fun onEdit() {
-            val dialog = ActionTypeDialog()
-            dialog.arguments = Bundle().apply{
-                putSerializable("actionType", actionType)
-                putBoolean("isCreated", false)
-            }
-            dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")
-        }
-    }
-
-    private inner class GoalHolder(binding: ItemRecyclerViewGoalBinding) : GoalRawHolder(binding){
-        override fun onClick() {
-            val bundle = Bundle().apply {
-                putString("parentID", goal.id)
-            }
-            itemView.findNavController().navigate(R.id.action_navigation_union_action_type_to_navigation_union_goal, bundle)
-        }
-
-        override fun onEdit() {
-            val dialog = GoalDialog()
-            dialog.arguments = Bundle().apply{
-                putSerializable("goal", goal)
-                putBoolean("isCreated", false)
-            }
-            dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
-        }
-
+    private inner class GoalHolder(binding: ItemRecyclerViewGoalBinding) :
+        GoalRawHolder(binding, requireActivity().supportFragmentManager){
         override fun onAchieved() {
             viewModel.setAchievedGoalWithChild(goal.id, !goal.isAchieved)
         }
     }
 
-    private inner class ScheduleHolder(binding: ItemRecyclerViewScheduleBinding): ScheduleRawHolder(binding) {
-        override fun onClick() {
-            val bundle = Bundle().apply {
-                putString("parentID", schedule.id)
-            }
-            itemView.findNavController().navigate(R.id.action_navigation_union_action_type_to_navigation_union_schedule, bundle)
-        }
-
-        override fun onEdit() {
-            val dialog = ScheduleDialog()
-            dialog.arguments = Bundle().apply{
-                putSerializable("schedule", schedule)
-                putBoolean("isCreated", false)
-            }
-            dialog.show(requireActivity().supportFragmentManager, "ScheduleDialog")
-        }
-
+    private inner class ScheduleHolder(binding: ItemRecyclerViewScheduleBinding):
+        ScheduleRawHolder(binding, requireActivity().supportFragmentManager) {
         override fun onActive() {
             schedule.isActive = !schedule.isActive
             viewModel.updateSchedule(schedule)
@@ -246,28 +141,16 @@ class UnionActionTypeFragment: Fragment() {
             else setNullView()
         }
 
-        override fun createActionTypeHolder(binding: ItemRecyclerViewActionTypeBinding): RecyclerView.ViewHolder {
+        override fun createActionTypeHolder(binding: ItemRecyclerViewActionTypeBinding): RawHolder {
             return ActionTypeHolder(binding)
         }
 
-        override fun createGoalHolder(binding: ItemRecyclerViewGoalBinding): RecyclerView.ViewHolder {
+        override fun createGoalHolder(binding: ItemRecyclerViewGoalBinding): RawHolder {
             return GoalHolder(binding)
         }
 
-        override fun createScheduleHolder(binding: ItemRecyclerViewScheduleBinding): RecyclerView.ViewHolder {
+        override fun createScheduleHolder(binding: ItemRecyclerViewScheduleBinding): RawHolder {
             return ScheduleHolder(binding)
-        }
-
-        override fun bindActionTypeHolder(holder: RecyclerView.ViewHolder, actionType: ActionType) {
-            (holder as ActionTypeHolder).bind(actionType)
-        }
-
-        override fun bindGoalHolder(holder: RecyclerView.ViewHolder, goal: Goal) {
-            (holder as GoalHolder).bind(goal)
-        }
-
-        override fun bindScheduleHolder(holder: RecyclerView.ViewHolder, schedule: Schedule) {
-            (holder as ScheduleHolder).bind(schedule)
         }
     }
 

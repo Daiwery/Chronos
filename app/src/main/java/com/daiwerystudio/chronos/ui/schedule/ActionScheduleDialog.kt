@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.DialogActionScheduleBinding
-import com.daiwerystudio.chronos.ui.DialogViewModel
+import com.daiwerystudio.chronos.ui.DataViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -33,8 +33,8 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
     /**
      * ViewModel.
      */
-    private val viewModel: DialogViewModel
-    by lazy { ViewModelProvider(this).get(DialogViewModel::class.java) }
+    private val viewModel: DataViewModel
+    by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
 
     /**
      * Репозиторий для взаимодействия с базой данных. Данные из базы данных не извлекаются,

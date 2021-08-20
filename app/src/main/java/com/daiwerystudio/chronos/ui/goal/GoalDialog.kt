@@ -15,13 +15,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavDirections
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Goal
 import com.daiwerystudio.chronos.database.GoalRepository
 import com.daiwerystudio.chronos.database.Union
 import com.daiwerystudio.chronos.database.UnionRepository
 import com.daiwerystudio.chronos.databinding.DialogGoalBinding
-import com.daiwerystudio.chronos.ui.DialogViewModel
+import com.daiwerystudio.chronos.ui.DataViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 /**
@@ -30,8 +33,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
  * разделить UI и функционально необходимые данные, которые будут регулироваться внешне.
  */
 class GoalDialog : BottomSheetDialogFragment() {
-    private val viewModel: DialogViewModel
-        by lazy { ViewModelProvider(this).get(DialogViewModel::class.java) }
+    private val viewModel: DataViewModel
+        by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
     private val mGoalRepository = GoalRepository.get()
     private val mUnionRepository = UnionRepository.get()
     private lateinit var binding: DialogGoalBinding
@@ -76,10 +79,18 @@ class GoalDialog : BottomSheetDialogFragment() {
                 if (isCreated) {
                     mGoalRepository.addGoal(goal)
                     mUnionRepository.addUnion(union!!)
-                }
-                else mGoalRepository.updateGoal(goal)
 
-                this.dismiss()
+                    this.dismiss()
+                    // Если цель создается, то перемещаем пользователя в редактирование.
+                    val bundle = Bundle().apply {
+                        putString("goalID", goal.id)
+                    }
+                    this.findNavController().navigate(R.id.action_global_navigation_goal, bundle)
+                }
+                else {
+                    mGoalRepository.updateGoal(goal)
+                    this.dismiss()
+                }
             } else {
                 // Это нужно для того, чтоюы при первом появлении пустого TextInput ошибки не было,
                 // а после нажатия кнопки, без изменения TextInput, появлялась ошибка.

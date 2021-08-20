@@ -10,6 +10,6 @@ import androidx.lifecycle.ViewModel
 /**
  * Используется как хранилище для активного значения в диалоге.
  */
-class DialogViewModel: ViewModel() {
+class DataViewModel: ViewModel() {
     var data: Any? = null
 }

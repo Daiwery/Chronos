@@ -31,7 +31,6 @@ import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.databinding.FragmentDayBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
 import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
-import com.daiwerystudio.chronos.ui.ItemAnimator
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import java.time.LocalDate
@@ -169,7 +168,7 @@ class DayFragment: Fragment() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = Adapter(emptyList())
-            itemAnimator = ItemAnimator()
+            // itemAnimator = ItemAnimator()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
