@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
@@ -31,7 +32,7 @@
                 android:layout_marginTop="8dp"
                 android:singleLine="false"
                 android:text="@{schedule.name}"
-                app:layout_constraintEnd_toStartOf="@+id/edit"
+                app:layout_constraintEnd_toStartOf="@+id/active_switch"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="423546eruyjhvghjghjghjgjnchgsdtfjcgh" />
@@ -41,7 +42,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toStartOf="@+id/active_switch"
+                app:layout_constraintEnd_toStartOf="@+id/imageView5"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_baseline_edit_24"
                 tools:ignore="ContentDescription" />
@@ -61,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toStartOf="@+id/imageView5"
+                app:layout_constraintEnd_toStartOf="@+id/edit"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />
 
@@ -117,14 +118,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
-            <TextView
+            <com.daiwerystudio.chronos.ui.TimeTextView
                 android:id="@+id/start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:textDate="@{schedule.start}"
+                android:textTime="@{schedule.start}"
                 app:layout_constraintStart_toEndOf="@+id/textView20"
                 app:layout_constraintTop_toTopOf="@+id/textView20"
+                custom:timeLocal="local"
+                custom:timeStyle="longFormat"
+                custom:timeType="date"
                 tools:text="19.08.2021"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,10 +11,12 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.findNavController
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.ui.action_type.ActionTypeDialog
 import com.daiwerystudio.chronos.ui.goal.GoalDialog
+import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.schedule.ScheduleDialog
 import java.util.*
 
@@ -43,6 +45,7 @@ class UnionPopupMenu(val fragmentManager: FragmentManager,
 
                         return true
                     }
+
                     R.id.create_goal -> {
                         val id = UUID.randomUUID().toString()
                         val goal = Goal(id=id)
@@ -59,6 +62,7 @@ class UnionPopupMenu(val fragmentManager: FragmentManager,
 
                         return true
                     }
+
                     R.id.create_schedule -> {
                         val id = UUID.randomUUID().toString()
                         val schedule = Schedule(id=id)
@@ -72,6 +76,38 @@ class UnionPopupMenu(val fragmentManager: FragmentManager,
                             putBoolean("isCreated", true)
                         }
                         dialog.show(fragmentManager, "ScheduleDialog")
+
+                        return true
+                    }
+
+                    R.id.create_note -> {
+                        val id = UUID.randomUUID().toString()
+                        val note = Note(id=id)
+                        val union = Union(id=id, parent=mUnionBuilder?.getParent() ?: "",
+                            type=TYPE_NOTE, indexList=mUnionBuilder?.getIndexList() ?: 0)
+
+                        val bundle = Bundle().apply{
+                            putSerializable("note", note)
+                            putSerializable("union", union)
+                        }
+                        view.findNavController().navigate(R.id.action_global_navigation_note, bundle)
+
+                        return true
+                    }
+
+                    R.id.create_reminder -> {
+                        val id = UUID.randomUUID().toString()
+                        val reminder = Reminder(id=id)
+                        val union = Union(id=id, parent=mUnionBuilder?.getParent() ?: "",
+                            type=TYPE_REMINDER, indexList=mUnionBuilder?.getIndexList() ?: 0)
+
+                        val dialog = ReminderDialog()
+                        dialog.arguments = Bundle().apply{
+                            putSerializable("reminder", reminder)
+                            putSerializable("union", union)
+                            putBoolean("isCreated", true)
+                        }
+                        dialog.show(fragmentManager, "ReminderDialog")
 
                         return true
                     }

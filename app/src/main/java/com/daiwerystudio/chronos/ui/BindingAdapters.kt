@@ -7,7 +7,6 @@ package com.daiwerystudio.chronos.ui
 
 import android.view.View
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import java.time.LocalDate
 import java.time.LocalTime
@@ -19,88 +18,53 @@ import java.util.*
  * В данном файле написаны все кастомные Binding Adapter, использующиеся в приложении.
  */
 
-/**
- * Ставит цветовой фильтр на Image View. Цветовой фильтр обычный, поэтому
- * все пиксели картинки (кроме прозрачных) красятся в заданный увет.
- */
+
 @BindingAdapter("android:colorFilter")
 fun setColorFilter(imageView: ImageView, color: Int) {
     imageView.setColorFilter(color)
 }
 
-/**
- * Устанавливает видимость View в зависимости от булевой переменной.
- * Если true - VISIBLE, false - GONE.
- */
+
 @BindingAdapter("android:booleanVisibility")
 fun setBooleanVisibility(view: View, visibility: Boolean){
     if (visibility) view.visibility = View.VISIBLE
     else view.visibility = View.GONE
 }
 
-/**
- * Устанавливает видимость View в зависимости от булевой переменной.
- * Если true - VISIBLE, false - INVISIBLE.
- */
+
 @BindingAdapter("android:booleanVisibilityInvisible")
 fun setBooleanVisibilityInvisible(view: View, visibility: Boolean){
     if (visibility) view.visibility = View.VISIBLE
     else view.visibility = View.INVISIBLE
 }
 
-/**
- * Устанавливает isActivated ImageView. Используется в GoalFragment для ProgressGoal.
- * При переписывании этого виджета, данный BindingAdapter необходимо удалить.
- */
+
 @BindingAdapter("android:activated")
 fun setActivated(image: ImageView, activated: Boolean){
     image.isActivated = activated
 }
 
 /**
- * Устанавливает время в TextView.
+ * Устанавливает кастомному виджету текст, показывающий время.
  */
 @BindingAdapter("android:textTime")
-fun setTextTime(textView: TextView, time: Long){
-    // Подробности в updateStartEndTimes в DayScheduleFragment
-    if (time < 0)  textView.text = "???"
-    else {
-        val localTime = time+TimeZone.getDefault().getOffset(System.currentTimeMillis())
-        textView.text = LocalTime.ofSecondOfDay(localTime%(24*60*60))
-            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+fun setTextTime(timeTextView: TimeTextView, millis: Long){
+    var time = millis
+    if (timeTextView.timeLocal == 1) time += TimeZone.getDefault().getOffset(System.currentTimeMillis())
+
+    val formatStyle = when (timeTextView.timeStyle){
+        0 -> FormatStyle.FULL
+        1 -> FormatStyle.LONG
+        2 -> FormatStyle.MEDIUM
+        3 -> FormatStyle.SHORT
+        else -> throw IllegalArgumentException("Invalid style")
     }
-}
 
-/**
- * Устанавливает время в TextView с секундами.
- */
-@BindingAdapter("android:textTimeWithSeconds")
-fun setTextTimeWithSeconds(textView: TextView, time: Long){
-    // Подробности в updateStartEndTimes в DayScheduleFragment
-    if (time < 0)  textView.text = "???"
-    else {
-        val localTime = time+TimeZone.getDefault().getOffset(System.currentTimeMillis())
-        textView.text = LocalTime.ofSecondOfDay(localTime%(24*60*60))
-            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM))
+    val text = when (timeTextView.timeType){
+        0 -> LocalTime.ofSecondOfDay((time/1000)%(60*60*24)).format(DateTimeFormatter.ofLocalizedTime(formatStyle))
+        1 -> LocalDate.ofEpochDay(time/(1000*60*60*24)).format(DateTimeFormatter.ofLocalizedDate(formatStyle))
+        else -> throw IllegalArgumentException("Invalid type")
     }
-}
 
-/**
- * Устанавливает локальное время в TextView.
- */
-@BindingAdapter("android:textLocalTime")
-fun setTextLocalTime(textView: TextView, time: Long){
-    val localTime = time+TimeZone.getDefault().getOffset(System.currentTimeMillis())/1000
-    textView.text = LocalTime.ofSecondOfDay(localTime%(24*60*60))
-        .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
-}
-
-/**
- * Устанавливает локальную дату в TextView.
- */
-@BindingAdapter("android:textDate")
-fun setTextDate(textView: TextView, time: Long){
-    val localTime = time+TimeZone.getDefault().getOffset(System.currentTimeMillis())/1000
-    textView.text = LocalDate.ofEpochDay(localTime/(24*60*60))
-        .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+    timeTextView.text = text
 }

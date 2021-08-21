@@ -34,7 +34,8 @@
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_baseline_play_circle_filled_24"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textView1" />
+                app:layout_constraintTop_toTopOf="@+id/textView1"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/textView19"
@@ -58,7 +59,6 @@
                 style="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="19dp"
-                android:textTimeWithSeconds="@{doingTime}"
                 android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="@+id/start_stop"
                 app:layout_constraintStart_toStartOf="@+id/start_stop"

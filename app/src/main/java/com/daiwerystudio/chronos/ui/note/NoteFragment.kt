@@ -1,9 +1,9 @@
 /*
-* Дата создания: 19.08.2021
+* Дата создания: 21.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 */
 
-package com.daiwerystudio.chronos.ui.goal
+package com.daiwerystudio.chronos.ui.note
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -15,36 +15,34 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.daiwerystudio.chronos.R
-import com.daiwerystudio.chronos.databinding.FragmentGoalBinding
+import com.daiwerystudio.chronos.database.Note
+import com.daiwerystudio.chronos.database.Union
+import com.daiwerystudio.chronos.databinding.FragmentNoteBinding
 
-class GoalFragment : Fragment()  {
-    private val viewModel: GoalViewModel
-            by lazy { ViewModelProvider(this).get(GoalViewModel::class.java) }
-    private lateinit var binding: FragmentGoalBinding
+class NoteFragment : Fragment()  {
+    private val viewModel: NoteViewModel
+            by lazy { ViewModelProvider(this).get(NoteViewModel::class.java) }
+    private lateinit var binding: FragmentNoteBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.goalID.value = arguments?.getString("goalID")
+        viewModel.note = arguments?.getSerializable("note") as Note
+        viewModel.union = arguments?.getSerializable("union") as Union?
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        binding = FragmentGoalBinding.inflate(inflater, container, false)
-        val view = binding.root
+        binding = FragmentNoteBinding.inflate(inflater, container, false)
+        binding.note = viewModel.note
 
-        viewModel.goal.observe(viewLifecycleOwner, {
-            binding.goal = it
-            binding.appBar.title = it.name
-        })
-
-        binding.isAchieved.setOnClickListener {
-            viewModel.goal.value?.isAchieved = binding.isAchieved.isChecked
+        binding.nameEditTextView.addTextChangedListener {
+            viewModel.note.name = it.toString()
         }
 
-        binding.note.addTextChangedListener {
-            viewModel.goal.value?.note = it.toString()
+        binding.noteEditTextView.addTextChangedListener {
+            viewModel.note.note = it.toString()
         }
 
         binding.appBar.setNavigationOnClickListener {
@@ -52,21 +50,11 @@ class GoalFragment : Fragment()  {
         }
         binding.appBar.setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.edit -> {
-                    viewModel.updateGoal()
-                    val dialog = GoalDialog()
-                    dialog.arguments = Bundle().apply{
-                        putSerializable("goal", viewModel.goal.value!!)
-                        putBoolean("isCreated", false)
-                    }
-                    dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
-                    true
-                }
                 R.id.delete -> {
                     AlertDialog.Builder(context, R.style.App_AlertDialog)
                         .setTitle(resources.getString(R.string.are_you_sure))
                         .setPositiveButton(R.string.yes) { _, _ ->
-                            viewModel.deleteUnionWithChild(viewModel.goalID.value!!)
+                            viewModel.deleteUnionWithChild()
                             requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
                         }
                         .setNegativeButton(R.string.no){ _, _ -> }
@@ -79,12 +67,12 @@ class GoalFragment : Fragment()  {
             }
         }
 
-        return view
+        return binding.root
     }
 
     override fun onPause() {
         super.onPause()
 
-        viewModel.updateGoal()
+        viewModel.saveNote()
     }
 }

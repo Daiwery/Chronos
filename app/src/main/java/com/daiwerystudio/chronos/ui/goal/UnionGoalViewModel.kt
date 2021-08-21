@@ -7,7 +7,6 @@ package com.daiwerystudio.chronos.ui.goal
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
-import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.database.Goal
 import com.daiwerystudio.chronos.database.GoalRepository
 import com.daiwerystudio.chronos.ui.union.UnionViewModel

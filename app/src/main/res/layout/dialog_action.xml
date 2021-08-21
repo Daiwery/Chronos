@@ -31,7 +31,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:textDate="@{action.endTime}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/startDay"
             tools:text="8 августа" />
@@ -43,7 +42,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:textDate="@{action.startTime}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="8 августа" />
@@ -65,7 +63,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textLocalTime="@{action.endTime}"
             app:layout_constraintStart_toStartOf="@+id/startTime"
             app:layout_constraintTop_toBottomOf="@+id/startTime"
             tools:text="0:10" />
@@ -88,7 +85,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:textLocalTime="@{action.startTime}"
             app:layout_constraintStart_toEndOf="@+id/textView"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="0:10" />

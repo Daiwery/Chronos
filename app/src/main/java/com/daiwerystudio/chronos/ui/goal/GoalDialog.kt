@@ -15,9 +15,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavDirections
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Goal
 import com.daiwerystudio.chronos.database.GoalRepository
@@ -67,7 +64,7 @@ class GoalDialog : BottomSheetDialogFragment() {
         binding.goal = goal
 
         binding.goalName.addTextChangedListener{
-            goal.name = binding.goalName.text.toString()
+            goal.name = it.toString()
             if (goal.name != "") binding.error.visibility = View.INVISIBLE
             else binding.error.visibility = View.VISIBLE
         }
@@ -79,18 +76,10 @@ class GoalDialog : BottomSheetDialogFragment() {
                 if (isCreated) {
                     mGoalRepository.addGoal(goal)
                     mUnionRepository.addUnion(union!!)
+                }
+                else mGoalRepository.updateGoal(goal)
 
-                    this.dismiss()
-                    // Если цель создается, то перемещаем пользователя в редактирование.
-                    val bundle = Bundle().apply {
-                        putString("goalID", goal.id)
-                    }
-                    this.findNavController().navigate(R.id.action_global_navigation_goal, bundle)
-                }
-                else {
-                    mGoalRepository.updateGoal(goal)
-                    this.dismiss()
-                }
+                this.dismiss()
             } else {
                 // Это нужно для того, чтоюы при первом появлении пустого TextInput ошибки не было,
                 // а после нажатия кнопки, без изменения TextInput, появлялась ошибка.

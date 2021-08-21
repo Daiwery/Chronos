@@ -57,6 +57,7 @@
             layout="@layout/layout_loading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:visibility="visible"
             tools:visibility="gone" />
 
@@ -65,6 +66,7 @@
             layout="@layout/layout_empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:visibility="gone"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

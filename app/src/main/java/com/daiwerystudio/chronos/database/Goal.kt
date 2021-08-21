@@ -22,7 +22,6 @@ private const val GOAL_DATABASE_NAME = "goal-database"
 /**
  * @property id уникальный идентификатор
  * @property name название цели.
- * @property note заметка в цели.
  * @property isAchieved выполнена ли цель или нет.
  */
 @Entity(tableName = "goal_table")

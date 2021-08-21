@@ -19,11 +19,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
-import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionTypeBinding
-import com.daiwerystudio.chronos.databinding.ItemRecyclerViewGoalBinding
-import com.daiwerystudio.chronos.databinding.ItemRecyclerViewScheduleBinding
+import com.daiwerystudio.chronos.databinding.*
 import com.daiwerystudio.chronos.ui.action_type.ActionTypeDialog
 import com.daiwerystudio.chronos.ui.goal.GoalDialog
+import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.schedule.ScheduleDialog
 
 /**
@@ -90,8 +89,8 @@ open class RawHolder(view: View) : RecyclerView.ViewHolder(view) {
 /**
  * Абстрактный класс для холдера ActionType с инициализацией UI и слушателей.
  */
-abstract class ActionTypeRawHolder(private val binding: ItemRecyclerViewActionTypeBinding,
-                                   private val fragmentManager: FragmentManager):
+abstract class ActionTypeAbstractHolder(private val binding: ItemRecyclerViewActionTypeBinding,
+                                        private val fragmentManager: FragmentManager):
     RawHolder(binding.root) {
     lateinit var actionType: ActionType
 
@@ -129,8 +128,8 @@ abstract class ActionTypeRawHolder(private val binding: ItemRecyclerViewActionTy
 /**
  * Абстрактный класс для холдера Goal с инициализацией UI и слушателей.
  */
-abstract class GoalRawHolder(private val binding: ItemRecyclerViewGoalBinding,
-                             private val fragmentManager: FragmentManager):
+abstract class GoalAbstractHolder(private val binding: ItemRecyclerViewGoalBinding,
+                                  private val fragmentManager: FragmentManager):
     RawHolder(binding.root) {
     lateinit var goal: Goal
 
@@ -174,8 +173,8 @@ abstract class GoalRawHolder(private val binding: ItemRecyclerViewGoalBinding,
 /**
  * Абстрактный класс для холдера Schedule с инициализацией UI и слушателей.
  */
-abstract class ScheduleRawHolder(private val binding: ItemRecyclerViewScheduleBinding,
-                                 private val fragmentManager: FragmentManager):
+abstract class ScheduleAbstractHolder(private val binding: ItemRecyclerViewScheduleBinding,
+                                      private val fragmentManager: FragmentManager):
     RawHolder(binding.root) {
     lateinit var schedule: Schedule
 
@@ -221,7 +220,69 @@ abstract class ScheduleRawHolder(private val binding: ItemRecyclerViewScheduleBi
     }
 
     abstract fun onActive()
+}
 
+/**
+ * Абстрактный класс для холдера Note с инициализацией UI и слушателей.
+ */
+abstract class NoteAbstractHolder(private val binding: ItemRecyclerViewNoteBinding):
+    RawHolder(binding.root) {
+    lateinit var note: Note
+
+    init {
+        itemView.setOnClickListener{
+            val bundle = Bundle().apply {
+                putString("parentID", note.id)
+            }
+            itemView.findNavController().navigate(R.id.action_global_navigation_union_note, bundle)
+        }
+        binding.edit.setOnClickListener{
+            val bundle = Bundle().apply{
+                putSerializable("note", note)
+            }
+            itemView.findNavController().navigate(R.id.action_global_navigation_note, bundle)
+        }
+    }
+
+    override fun bind(item: ID) {
+        this.note = item as Note
+        binding.note = note
+    }
+
+    override fun updateUI(old: ID, new: ID) {
+        this.note = new as Note
+        binding.note = note
+    }
+}
+
+/**
+ * Абстрактный класс для холдера Reminder с инициализацией UI и слушателей.
+ */
+abstract class ReminderAbstractHolder(private val binding: ItemRecyclerViewReminderBinding,
+                                      private val fragmentManager: FragmentManager):
+    RawHolder(binding.root) {
+    lateinit var reminder: Reminder
+
+    init {
+        itemView.setOnClickListener{
+            val dialog = ReminderDialog()
+            dialog.arguments = Bundle().apply{
+                putSerializable("reminder", reminder)
+                putBoolean("isCreated", false)
+            }
+            dialog.show(fragmentManager, "ReminderDialog")
+        }
+    }
+
+    override fun bind(item: ID) {
+        this.reminder = item as Reminder
+        binding.reminder = reminder
+    }
+
+    override fun updateUI(old: ID, new: ID) {
+        this.reminder = new as Reminder
+        binding.reminder = reminder
+    }
 }
 
 /**
@@ -229,8 +290,8 @@ abstract class ScheduleRawHolder(private val binding: ItemRecyclerViewScheduleBi
  * создать и чем его заполнить. Но обертка каким классом холдера решается в реализации
  * этого класса в конкретных методах.
  */
-abstract class UnionAdapter(var data: List<Pair<Int, ID>>,
-                            private val layoutInflater: LayoutInflater): RecyclerView.Adapter<RawHolder>() {
+abstract class UnionAbstractAdapter(var data: List<Pair<Int, ID>>,
+                                    private val layoutInflater: LayoutInflater): RecyclerView.Adapter<RawHolder>() {
     open fun updateData(newData: List<Pair<Int, ID>>) {
         val diffUtilCallback = CustomDiffUtil(data.map { it.second }, newData.map { it.second })
         val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
@@ -257,33 +318,33 @@ abstract class UnionAdapter(var data: List<Pair<Int, ID>>,
                 DataBindingUtil.inflate(layoutInflater,
                     R.layout.item_recycler_view_schedule,
                     parent, false))
+            TYPE_NOTE -> createNoteHolder(
+                DataBindingUtil.inflate(layoutInflater,
+                    R.layout.item_recycler_view_note,
+                    parent, false))
+            TYPE_REMINDER -> createReminderHolder(
+                DataBindingUtil.inflate(layoutInflater,
+                    R.layout.item_recycler_view_reminder,
+                    parent, false))
             else -> throw IllegalArgumentException("Invalid type")
         }
     }
     abstract fun createActionTypeHolder(binding: ItemRecyclerViewActionTypeBinding): RawHolder
     abstract fun createGoalHolder(binding: ItemRecyclerViewGoalBinding): RawHolder
     abstract fun createScheduleHolder(binding: ItemRecyclerViewScheduleBinding): RawHolder
+    abstract fun createNoteHolder(binding: ItemRecyclerViewNoteBinding): RawHolder
+    abstract fun createReminderHolder(binding: ItemRecyclerViewReminderBinding): RawHolder
 
     override fun onBindViewHolder(holder: RawHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty()) onBindViewHolder(holder, position)
         else {
             val pair = payloads.last() as Pair<*, *>
-            when (getItemViewType(position)) {
-                TYPE_ACTION_TYPE -> holder.updateUI(pair.first as ID, pair.second as ID)
-                TYPE_GOAL -> holder.updateUI(pair.first as ID, pair.second as ID)
-                TYPE_SCHEDULE -> holder.updateUI(pair.first as ID, pair.second as ID)
-                else -> throw IllegalArgumentException("Invalid type")
-            }
+            holder.updateUI(pair.first as ID, pair.second as ID)
         }
     }
 
     override fun onBindViewHolder(holder: RawHolder, position: Int) {
-        when (getItemViewType(position)) {
-            TYPE_ACTION_TYPE -> holder.bind(data[position].second as ActionType)
-            TYPE_GOAL -> holder.bind(data[position].second as Goal)
-            TYPE_SCHEDULE -> holder.bind(data[position].second as Schedule)
-            else -> throw IllegalArgumentException("Invalid type")
-        }
+        holder.bind(data[position].second)
     }
 }
 

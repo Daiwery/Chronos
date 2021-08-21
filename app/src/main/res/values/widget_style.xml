@@ -24,9 +24,4 @@
     </style>
 
 
-    <style name="Widget.Button" parent="Widget.MaterialComponents.Button">
-        <item name="android:textSize">14sp</item>
-        <item name="android:padding">2dp</item>
-    </style>
-
 </resources>

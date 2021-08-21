@@ -43,7 +43,7 @@ class ScheduleDialog : BottomSheetDialogFragment() {
 
     private lateinit var schedule : Schedule
     private var isCreated: Boolean = true
-    private val local = java.util.TimeZone.getDefault().getOffset(System.currentTimeMillis())/1000
+    private val local = java.util.TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,10 +105,10 @@ class ScheduleDialog : BottomSheetDialogFragment() {
 
         binding.startDay.setOnClickListener {
             val dialog = MaterialDatePicker.Builder.datePicker()
-                .setSelection((schedule.start+local)*1000)
+                .setSelection(schedule.start+local)
                 .build()
             dialog.addOnPositiveButtonClickListener {
-                schedule.start = it/1000-local
+                schedule.start = it-local
                 binding.schedule = schedule
             }
             dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")

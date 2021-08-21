@@ -18,9 +18,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.DaySchedule
 import com.daiwerystudio.chronos.database.Schedule
-import com.daiwerystudio.chronos.database.TYPE_SCHEDULE_RELATIVE
 import com.daiwerystudio.chronos.databinding.FragmentScheduleBinding
-import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.google.android.material.tabs.TabLayoutMediator
 
 class ScheduleFragment : Fragment() {

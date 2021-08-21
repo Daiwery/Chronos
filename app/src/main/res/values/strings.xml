@@ -13,7 +13,6 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="action_type_name_hint">Work</string>
-    <string name="sub_action_types_">Count:</string>
     <string name="select">Select</string>
     <string name="cancel">Cancel</string>
     <string name="goal_name_hint">Dream</string>
@@ -40,7 +39,6 @@
     <string name="end_">End:</string>
     <string name="start">Start</string>
     <string name="end">End</string>
-    <string name="set">Set</string>
     <string name="duration">Duration</string>
     <string name="start_after">Start after</string>
     <string name="select_action_type">Select action type</string>
@@ -50,6 +48,7 @@
     <string name="nothing">Nothing</string>
     <string name="error">Error</string>
     <string name="you_doing_">You doing:</string>
-    <string name="isAchieved">Achieved</string>
-    <string name="isActive">Active</string>
+    <string name="text">Text</string>
+    <string name="time_">Time:</string>
+    <string name="reminder">Reminder</string>
 </resources>

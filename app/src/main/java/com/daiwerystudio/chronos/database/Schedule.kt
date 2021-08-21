@@ -46,7 +46,7 @@ const val TYPE_SCHEDULE_ABSOLUTE = 1
 @Entity(tableName = "schedule_table")
 data class Schedule(
     @PrimaryKey override val id: String,
-    var start: Long = System.currentTimeMillis()/1000,
+    var start: Long = System.currentTimeMillis(),
     var name: String = "",
     var countDays: Int = 7,
     var isActive: Boolean = true,

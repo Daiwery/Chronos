@@ -12,7 +12,6 @@ package com.daiwerystudio.chronos.ui.schedule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.daiwerystudio.chronos.database.*
-import java.lang.IllegalStateException
 
 class DayScheduleViewModel : ViewModel() {
     private val scheduleRepository = ScheduleRepository.get()

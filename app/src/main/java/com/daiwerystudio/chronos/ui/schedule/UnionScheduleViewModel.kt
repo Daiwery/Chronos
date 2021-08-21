@@ -8,7 +8,6 @@ package com.daiwerystudio.chronos.ui.schedule
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
-import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.database.Schedule
 import com.daiwerystudio.chronos.database.ScheduleRepository
 import com.daiwerystudio.chronos.ui.union.UnionViewModel

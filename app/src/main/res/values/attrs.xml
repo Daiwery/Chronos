@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <declare-styleable name="TimeTextView">
+        <attr name="timeLocal" format="enum">
+            <enum name="absolute" value="0"/>
+            <enum name="local" value="1"/>
+        </attr>
+        <attr name="timeStyle" format="enum">
+            <enum name="fullFormat" value="0"/>
+            <enum name="longFormat" value="1"/>
+            <enum name="mediumFormat" value="2"/>
+            <enum name="shortFormat" value="3"/>
+        </attr>
+        <attr name="timeType" format="enum">
+            <enum name="time" value="0"/>
+            <enum name="date" value="1"/>
+        </attr>
+    </declare-styleable>
+
+
     <attr name="stripWidth" format="dimension" />
     <attr name="spaceWidth" format="dimension" />
     <attr name="corner" format="dimension" />

@@ -45,6 +45,14 @@ open class UnionViewModel : ViewModel() {
         Transformations.switchMap(mUnions) { mRepository.getSchedules(it) }
     private var mSchedules: List<Schedule> = emptyList()
 
+    private var mNotesLiveData: LiveData<List<Note>> =
+        Transformations.switchMap(mUnions) { mRepository.getNotes(it) }
+    private var mNotes: List<Note> = emptyList()
+
+    private var mRemindersLiveData: LiveData<List<Reminder>> =
+        Transformations.switchMap(mUnions) { mRepository.getReminders(it) }
+    private var mReminders: List<Reminder> = emptyList()
+
 
     /*                        Третий этап наблюдения                        */
     var data: MediatorLiveData<List<Pair<Int, ID>>> = MediatorLiveData()
@@ -63,6 +71,14 @@ open class UnionViewModel : ViewModel() {
             mSchedules = it
             mExecutor.execute { data.postValue(updateData()) }
         }
+        data.addSource(mNotesLiveData){
+            mNotes = it
+            mExecutor.execute { data.postValue(updateData()) }
+        }
+        data.addSource(mRemindersLiveData){
+            mReminders = it
+            mExecutor.execute { data.postValue(updateData()) }
+        }
     }
     private fun updateData(): List<Pair<Int, ID>>{
         val newData = mutableListOf<Pair<Int, ID>>()
@@ -70,6 +86,8 @@ open class UnionViewModel : ViewModel() {
         newData.addAll(mActionTypes.map { Pair(TYPE_ACTION_TYPE, it) })
         newData.addAll(mGoals.map { Pair(TYPE_GOAL, it) })
         newData.addAll(mSchedules.map { Pair(TYPE_SCHEDULE, it) })
+        newData.addAll(mNotes.map { Pair(TYPE_NOTE, it) })
+        newData.addAll(mReminders.map { Pair(TYPE_REMINDER, it) })
 
         return newData.sortedBy { mUnions.value!!.indexOfFirst { union -> union.id == it.second.id } }
     }

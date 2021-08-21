@@ -5,11 +5,8 @@
 
     <data>
         <variable
-            name="goal"
-            type="com.daiwerystudio.chronos.database.Goal" />
-        <variable
-            name="isAchieved"
-            type="Boolean" />
+            name="note"
+            type="com.daiwerystudio.chronos.database.Note" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -31,9 +28,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
                 android:singleLine="false"
-                android:text="@{goal.name}"
-                app:layout_constraintEnd_toStartOf="@+id/checkBox"
+                android:text="@{note.name}"
+                app:layout_constraintEnd_toStartOf="@+id/edit"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Dream gjjgf gfnfh  fghggfh fghfg gfhfkr trhih r hrthi" />
@@ -42,40 +40,34 @@
                 android:id="@+id/edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:booleanVisibility="@{!isAchieved}"
-                app:layout_constraintBottom_toBottomOf="@+id/checkBox"
+                android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toStartOf="@+id/imageView5"
-                app:layout_constraintTop_toTopOf="@+id/checkBox"
+                app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_baseline_edit_24"
                 tools:ignore="ContentDescription" />
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/noteTextView"
+                style="@style/Text.Caption"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:booleanVisibility="@{!isAchieved}"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginStart="8dp"
+                android:booleanVisibility="@{!note.note.equals(``)}"
+                android:singleLine="true"
+                android:text="@{note.note}"
+                app:layout_constraintEnd_toStartOf="@+id/imageView5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/name" />
-
-            <CheckBox
-                android:id="@+id/checkBox"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="8dp"
-                android:checked="@{goal.achieved}"
-                app:layout_constraintEnd_toStartOf="@+id/edit"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/name"
+                tools:text="gfhklfgkljhg\nijgifghi\ngffgh34534534535666666666664\n56546456" />
 
             <ImageView
                 android:id="@+id/imageView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/checkBox"
+                app:layout_constraintBottom_toBottomOf="@+id/edit"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/checkBox"
+                app:layout_constraintTop_toTopOf="@+id/edit"
                 app:srcCompat="@drawable/ic_baseline_drag_indicator_24"
                 tools:ignore="ContentDescription" />
 

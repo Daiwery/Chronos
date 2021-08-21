@@ -14,9 +14,12 @@ import java.io.Serializable
 
 private const val UNION_DATABASE_NAME = "union-database"
 
+/* Предупреждение: getGoalWithChild не используется константу TYPE_GOAL */
 const val TYPE_ACTION_TYPE = 0
 const val TYPE_GOAL = 1
 const val TYPE_SCHEDULE = 2
+const val TYPE_NOTE = 3
+const val TYPE_REMINDER = 4
 
 /**
  * Данный класс представляет из себя соединение ActionType, Goal и др. в древовидную структуру.
@@ -86,6 +89,8 @@ class UnionRepository private constructor(context: Context) {
     private val mActionTypeRepository = ActionTypeRepository.get()
     private val mGoalRepository = GoalRepository.get()
     private val mScheduleRepository = ScheduleRepository.get()
+    private val mNoteRepository = NoteRepository.get()
+    private val mReminderRepository = ReminderRepository.get()
     private val mHandlerThread = HandlerThread("UnionRepository")
     private var mHandler: Handler
 
@@ -105,6 +110,12 @@ class UnionRepository private constructor(context: Context) {
     fun getSchedules(union: List<Union>): LiveData<List<Schedule>> =
         mScheduleRepository.getSchedules(union.filter { it.type == TYPE_SCHEDULE }.map { it.id })
 
+    fun getNotes(union: List<Union>): LiveData<List<Note>> =
+        mNoteRepository.getNotes(union.filter { it.type == TYPE_NOTE }.map { it.id })
+
+    fun getReminders(union: List<Union>): LiveData<List<Reminder>> =
+        mReminderRepository.getReminders(union.filter { it.type == TYPE_REMINDER }.map { it.id })
+
     fun deleteUnionWithChild(id: String){
         mHandler.post {
             val unions = mDao.getUnionWithChild(id)
@@ -113,6 +124,8 @@ class UnionRepository private constructor(context: Context) {
             mActionTypeRepository.deleteActionTypes(unions.filter { it.type == TYPE_ACTION_TYPE }.map { it.id })
             mGoalRepository.deleteGoals(unions.filter { it.type == TYPE_GOAL }.map { it.id })
             mScheduleRepository.deleteCompletelySchedules(unions.filter { it.type == TYPE_SCHEDULE }.map { it.id })
+            mNoteRepository.deleteNotes(unions.filter { it.type == TYPE_NOTE }.map { it.id })
+            mReminderRepository.deleteReminders(unions.filter { it.type == TYPE_REMINDER }.map { it.id })
         }
     }
 

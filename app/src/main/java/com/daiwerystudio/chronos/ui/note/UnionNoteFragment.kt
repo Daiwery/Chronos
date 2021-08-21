@@ -1,9 +1,9 @@
 /*
-* Дата создания: 17.08.2021.
+* Дата создания: 21.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 */
 
-package com.daiwerystudio.chronos.ui.action_type
+package com.daiwerystudio.chronos.ui.note
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
-import com.daiwerystudio.chronos.databinding.FragmentUnionActionTypeBinding
+import com.daiwerystudio.chronos.databinding.FragmentUnionNoteBinding
 import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
 import com.daiwerystudio.chronos.ui.union.ID
 import com.daiwerystudio.chronos.ui.union.ItemAnimator
@@ -24,15 +24,19 @@ import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
 import com.daiwerystudio.chronos.ui.union.UnionPopupMenu
 import java.util.*
 
-class UnionActionTypeFragment: UnionAbstractFragment() {
-    override val viewModel: UnionActionTypeViewModel
-        by lazy { ViewModelProvider(this).get(UnionActionTypeViewModel::class.java) }
-    private lateinit var binding: FragmentUnionActionTypeBinding
+class UnionNoteFragment : UnionAbstractFragment() {
+    override val viewModel: UnionNoteViewModel
+        by lazy { ViewModelProvider(this).get(UnionNoteViewModel::class.java) }
+    private lateinit var binding: FragmentUnionNoteBinding
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        binding = FragmentUnionActionTypeBinding.inflate(inflater, container, false)
-        val view = binding.root
+        binding = FragmentUnionNoteBinding.inflate(inflater, container, false)
+
+        viewModel.parent.observe(viewLifecycleOwner, {
+            binding.appBar.title = it.name
+        })
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -49,6 +53,13 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
             (binding.recyclerView.adapter as Adapter).updateData(it)
         })
 
+        binding.editMore.setOnClickListener {
+            val bundle = Bundle().apply{
+                putSerializable("note", viewModel.parent.value!!)
+            }
+            it.findNavController().navigate(R.id.action_global_navigation_note, bundle)
+        }
+
         binding.fab.setOnClickListener{
             val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
             popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
@@ -63,16 +74,6 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
         }
         binding.appBar.setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.edit -> {
-                    viewModel.updateUnions()
-                    val dialog = ActionTypeDialog()
-                    dialog.arguments = Bundle().apply{
-                        putSerializable("actionType", viewModel.parent.value!!)
-                        putBoolean("isCreated", false)
-                    }
-                    dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")
-                    true
-                }
                 R.id.delete -> {
                     AlertDialog.Builder(context, R.style.App_AlertDialog)
                         .setTitle(resources.getString(R.string.are_you_sure))
@@ -90,7 +91,7 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
             }
         }
 
-        return view
+        return binding.root
     }
 
     private fun setEmptyView(){
@@ -145,4 +146,3 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
         ItemTouchHelper(simpleItemTouchCallback)
     }
 }
-

@@ -32,8 +32,4 @@ class ScheduleViewModel : ViewModel() {
         mUnionRepository.deleteUnionWithChild(id)
     }
 
-    fun addDaySchedule(daySchedule: DaySchedule){
-        mScheduleRepository.addDaySchedule(daySchedule)
-    }
-
 }
