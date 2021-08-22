@@ -89,7 +89,7 @@ open class RawHolder(view: View) : RecyclerView.ViewHolder(view) {
 /**
  * Абстрактный класс для холдера ActionType с инициализацией UI и слушателей.
  */
-abstract class ActionTypeAbstractHolder(private val binding: ItemRecyclerViewActionTypeBinding,
+abstract class ActionTypeAbstractHolder(val binding: ItemRecyclerViewActionTypeBinding,
                                         private val fragmentManager: FragmentManager):
     RawHolder(binding.root) {
     lateinit var actionType: ActionType
@@ -128,7 +128,7 @@ abstract class ActionTypeAbstractHolder(private val binding: ItemRecyclerViewAct
 /**
  * Абстрактный класс для холдера Goal с инициализацией UI и слушателей.
  */
-abstract class GoalAbstractHolder(private val binding: ItemRecyclerViewGoalBinding,
+abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
                                   private val fragmentManager: FragmentManager):
     RawHolder(binding.root) {
     lateinit var goal: Goal
@@ -160,6 +160,9 @@ abstract class GoalAbstractHolder(private val binding: ItemRecyclerViewGoalBindi
         this.goal = goal
         binding.goal = goal
         binding.isAchieved = goal.isAchieved
+
+        // Percent удаляется, так как это не RoomLiveData.
+        setPercentAchieved()
     }
 
     override fun updateUI(old: ID, new: ID) {
@@ -168,6 +171,7 @@ abstract class GoalAbstractHolder(private val binding: ItemRecyclerViewGoalBindi
     }
 
     abstract fun onAchieved()
+    abstract fun setPercentAchieved()
 }
 
 /**

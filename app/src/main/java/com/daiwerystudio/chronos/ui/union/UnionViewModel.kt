@@ -116,4 +116,6 @@ open class UnionViewModel : ViewModel() {
     fun updateSchedule(schedule: Schedule) {
         mRepository.updateSchedule(schedule)
     }
+
+    fun getPercentAchieved(id: String): LiveData<Int> = mRepository.getPercentAchieved(id)
 }

@@ -9,6 +9,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.HandlerThread
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 import java.io.Serializable
 
@@ -134,6 +135,16 @@ class UnionRepository private constructor(context: Context) {
             val ids = mDao.getGoalWithChild(id)
             mGoalRepository.setAchievedGoal(ids, isAchieved)
         }
+    }
+
+    fun getPercentAchieved(id: String): LiveData<Int>{
+        // Percent удаляется, так как это не RoomLiveData.
+        val percent = MutableLiveData<Int>()
+        mHandler.post {
+            val ids = mDao.getGoalWithChild(id)
+            percent.postValue(mGoalRepository.getPercentAchieved(ids))
+        }
+        return percent
     }
 
     fun updateUnions(unions: List<Union>){

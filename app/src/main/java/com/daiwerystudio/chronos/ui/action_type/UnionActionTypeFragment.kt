@@ -42,7 +42,7 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         viewModel.parent.observe(viewLifecycleOwner, {
-            binding.appBar.title = it.name
+            binding.actionType = it
         })
 
         viewModel.data.observe(viewLifecycleOwner, {

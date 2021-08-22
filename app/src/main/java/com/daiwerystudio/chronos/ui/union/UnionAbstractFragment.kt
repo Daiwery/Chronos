@@ -7,6 +7,7 @@ package com.daiwerystudio.chronos.ui.union
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import com.daiwerystudio.chronos.databinding.*
 
 /**
@@ -28,8 +29,17 @@ abstract class UnionAbstractFragment : Fragment() {
 
     open inner class GoalHolder(binding: ItemRecyclerViewGoalBinding) :
         GoalAbstractHolder(binding, requireActivity().supportFragmentManager){
+
         override fun onAchieved() {
             viewModel.setAchievedGoalWithChild(goal.id, !goal.isAchieved)
+        }
+
+        override fun setPercentAchieved() {
+            // Percent удаляется, так как это не RoomLiveData.
+            val percent = viewModel.getPercentAchieved(goal.id)
+            percent.observe(viewLifecycleOwner, {
+                binding.progressBar.progress = it
+            })
         }
     }
 

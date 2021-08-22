@@ -35,7 +35,7 @@ class UnionNoteFragment : UnionAbstractFragment() {
         binding = FragmentUnionNoteBinding.inflate(inflater, container, false)
 
         viewModel.parent.observe(viewLifecycleOwner, {
-            binding.appBar.title = it.name
+            binding.note = it
         })
 
         binding.recyclerView.apply {
@@ -44,10 +44,6 @@ class UnionNoteFragment : UnionAbstractFragment() {
             itemAnimator = ItemAnimator()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
-
-        viewModel.parent.observe(viewLifecycleOwner, {
-            binding.appBar.title = it.name
-        })
 
         viewModel.data.observe(viewLifecycleOwner, {
             (binding.recyclerView.adapter as Adapter).updateData(it)

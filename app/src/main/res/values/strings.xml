@@ -51,4 +51,5 @@
     <string name="text">Text</string>
     <string name="time_">Time:</string>
     <string name="reminder">Reminder</string>
+    <string name="progress_">Progress:</string>
 </resources>

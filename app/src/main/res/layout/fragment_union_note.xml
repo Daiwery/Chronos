@@ -5,34 +5,74 @@
     tools:context=".ui.note.UnionNoteFragment">
 
     <data>
+        <variable
+            name="note"
+            type="com.daiwerystudio.chronos.database.Note" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
-            android:layout_height="128dp">
+            android:layout_height="200dp">
 
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:id="@+id/collapsingToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:expandedTitleMarginStart="72dp"
-                app:expandedTitleMarginBottom="28dp"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+                app:expandedTitleGravity="top|center_horizontal"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+                app:title="@{note.name}">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/appBar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
+                    app:layout_collapseMode="pin"
                     app:menu="@menu/menu_delete"
-                    app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24"
-                    app:layout_collapseMode="pin"/>
+                    app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24" />
+
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            app:behavior_startHeight="120dp"
+            app:behavior_minHeightAppBar="?attr/actionBarSize"
+            app:layout_anchor="@+id/appBarLayout"
+            app:layout_anchorGravity="center_horizontal"
+            app:layout_behavior="com.daiwerystudio.chronos.ui.FadeViewAppBarBehavior">
+
+            <TextView
+                style="@style/Text.Caption"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/background_note_text_view"
+                android:text="@{note.note}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/editMore"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="kfgdjiokjpi;mksp'[thin;mdkpf['gfmo" />
+
+            <ImageView
+                android:id="@+id/editMore"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:src="@drawable/ic_baseline_more_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -52,25 +92,13 @@
             app:layout_anchorGravity="bottom|end"
             tools:ignore="ContentDescription" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/editMore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:src="@drawable/ic_baseline_more_24"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            app:layout_anchor="@+id/appBarLayout"
-            app:layout_anchorGravity="bottom|end"
-            tools:ignore="ContentDescription" />
-
         <include
             android:id="@+id/loading_view"
             layout="@layout/layout_loading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:visibility="visible"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:visibility="gone" />
 
         <include
@@ -78,8 +106,8 @@
             layout="@layout/layout_empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

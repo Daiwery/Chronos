@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chronos</string>
+    <string name="title_union_preview">Жизнь</string>
+    <string name="it_s_empty">Здесь пусто</string>
+    <string name="action_type">Тип действия</string>
+    <string name="goal">Цель</string>
+    <string name="schedule">Расписание</string>
+    <string name="edit">Изменить</string>
+    <string name="add">Добавить</string>
+    <string name="name">Название</string>
+    <string name="color">Цвет</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="action_type_name_hint">Работа</string>
+    <string name="select">Выбрать</string>
+    <string name="cancel">Отменить</string>
+    <string name="goal_name_hint">Мечта</string>
+    <string name="note">Заметка</string>
+    <string name="schedule_name_hint">Летнее</string>
+    <string name="days">Дней</string>
+    <string name="days_">Дней:</string>
+    <string name="type">Тип</string>
+    <string name="type_">Тип:</string>
+    <string name="start_">Начало:</string>
+    <string name="end_">Конец:</string>
+    <string name="start">Начало</string>
+    <string name="end">Конец</string>
+    <string name="duration">Длительность</string>
+    <string name="start_after">Начать после</string>
+    <string name="select_action_type">Выберите тип действия</string>
+    <string name="day">День</string>
+    <string name="day_">День:</string>
+    <string name="you_must_">Вы должны</string>
+    <string name="nothing">Ничего</string>
+    <string name="you_doing_">Вы делаете</string>
+    <string name="error">Ошибка</string>
+    <string name="text">Текст</string>
+    <string name="time_">Время:</string>
+    <string name="reminder">Напоминание</string>
+    <string name="progress_">Прогресс:</string>
+</resources>

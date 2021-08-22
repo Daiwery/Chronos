@@ -42,20 +42,20 @@ class UnionGoalFragment : UnionAbstractFragment() {
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
-        viewModel.parent.observe(viewLifecycleOwner, {
-            binding.appBar.title = it.name
+        viewModel.parent.observe(viewLifecycleOwner, { goal ->
+            binding.appBar.title = goal.name
+
+            // Percent удаляется, так как это не RoomLiveData.
+            val percent = viewModel.getPercentAchieved(goal.id)
+            percent.observe(viewLifecycleOwner, {
+                binding.progressBar.progress = it
+                binding.progressTextView.text = ("$it%")
+            })
         })
 
         viewModel.data.observe(viewLifecycleOwner, {
             (binding.recyclerView.adapter as Adapter).updateData(it)
         })
-
-        binding.editMore.setOnClickListener {
-            val bundle = Bundle().apply {
-                putString("goalID", viewModel.parentID.value!!)
-            }
-            it.findNavController().navigate(R.id.action_global_navigation_note, bundle)
-        }
 
         binding.fab.setOnClickListener{
             val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)

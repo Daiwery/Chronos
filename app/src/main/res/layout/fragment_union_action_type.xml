@@ -5,7 +5,9 @@
     tools:context=".ui.action_type.UnionActionTypeFragment">
 
     <data>
-
+        <variable
+            name="actionType"
+            type="com.daiwerystudio.chronos.database.ActionType" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -13,6 +15,7 @@
         android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
             android:layout_height="128dp">
 
@@ -20,19 +23,32 @@
                 android:id="@+id/collapsingToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:expandedTitleMarginStart="72dp"
-                app:expandedTitleMarginBottom="28dp"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+                app:expandedTitleGravity="top|center_horizontal"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+                app:title="@{actionType.name}">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/appBar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
+                    app:layout_collapseMode="pin"
                     app:menu="@menu/menu_edit_delete"
-                    app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24"
-                    app:layout_collapseMode="pin"/>
+                    app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24" />
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/oval"
+            android:colorFilter="@{actionType.color}"
+            app:behavior_startHeight="50dp"
+            app:behavior_minHeightAppBar="?attr/actionBarSize"
+            app:layout_anchor="@+id/appBarLayout"
+            app:layout_anchorGravity="center_horizontal"
+            app:layout_behavior="com.daiwerystudio.chronos.ui.FadeViewAppBarBehavior"
+            tools:ignore="ContentDescription" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"

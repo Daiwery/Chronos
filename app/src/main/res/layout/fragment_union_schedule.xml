@@ -20,8 +20,7 @@
                 android:id="@+id/collapsingToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:expandedTitleMarginStart="72dp"
-                app:expandedTitleMarginBottom="28dp"
+                app:expandedTitleGravity="top|center_horizontal"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
                 <com.google.android.material.appbar.MaterialToolbar

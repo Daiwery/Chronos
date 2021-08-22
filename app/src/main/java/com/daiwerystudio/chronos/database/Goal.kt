@@ -41,6 +41,9 @@ interface GoalTypeDao {
     @Query("SELECT * FROM goal_table WHERE id=(:id)")
     fun getGoal(id: String): LiveData<Goal>
 
+    @Query("SELECT AVG(isAchieved=1)*100 FROM goal_table WHERE id IN (:ids)")
+    fun getPercentAchieved(ids: List<String>): Int
+
     @Query("UPDATE goal_table SET isAchieved=(:isAchieved) WHERE id IN (:ids)")
     fun setAchievedGoal(ids: List<String>, isAchieved: Boolean)
 
@@ -82,6 +85,7 @@ class GoalRepository private constructor(context: Context) {
 
     fun getGoal(id: String): LiveData<Goal> = mDao.getGoal(id)
 
+    fun getPercentAchieved(ids: List<String>): Int = mDao.getPercentAchieved(ids)
 
     fun setAchievedGoal(ids: List<String>, isAchieved: Boolean){
         mDao.setAchievedGoal(ids, isAchieved)
