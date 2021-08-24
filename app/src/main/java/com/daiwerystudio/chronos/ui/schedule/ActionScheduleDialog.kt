@@ -189,11 +189,11 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
 
 
         when (type) {
-            TYPE_SCHEDULE_RELATIVE -> {
+            TYPE_DAY_SCHEDULE_RELATIVE -> {
                 binding.textView7.text = resources.getString(R.string.start_after)
                 binding.textView8.text = resources.getString(R.string.duration)
             }
-            TYPE_SCHEDULE_ABSOLUTE -> {
+            TYPE_DAY_SCHEDULE_ABSOLUTE -> {
                 binding.textView7.text = resources.getString(R.string.start)
                 binding.textView8.text = resources.getString(R.string.end)
             }
@@ -207,7 +207,7 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
         binding.button.setOnClickListener {
             var permission = true
             if (actionSchedule.actionTypeId == "") permission = false
-            if (type == TYPE_SCHEDULE_ABSOLUTE && actionSchedule.startTime > actionSchedule.endTime)
+            if (type == TYPE_DAY_SCHEDULE_ABSOLUTE && actionSchedule.startTime > actionSchedule.endTime)
                 permission = false
 
             if (permission){

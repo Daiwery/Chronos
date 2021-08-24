@@ -1,30 +1,29 @@
 /*
-* Дата создания: 20.08.2021
+* Дата создания: 23.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 */
 
 package com.daiwerystudio.chronos.ui.schedule
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.daiwerystudio.chronos.R
-import com.daiwerystudio.chronos.database.DaySchedule
-import com.daiwerystudio.chronos.database.Schedule
-import com.daiwerystudio.chronos.databinding.FragmentScheduleBinding
-import com.google.android.material.tabs.TabLayoutMediator
+import com.daiwerystudio.chronos.databinding.FragmentOnceScheduleBinding
 
-class ScheduleFragment : Fragment() {
+
+class OnceScheduleFragment : Fragment() {
     private val viewModel: ScheduleViewModel
-        by lazy { ViewModelProvider(this).get(ScheduleViewModel::class.java) }
-    private lateinit var binding: FragmentScheduleBinding
+            by lazy { ViewModelProvider(this).get(ScheduleViewModel::class.java) }
+    private lateinit var binding: FragmentOnceScheduleBinding
+
+    // Если true, то можно создать фрагмент дня, если нет, то нельзя.
+    private var permission: Boolean = true
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,19 +34,23 @@ class ScheduleFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        binding = FragmentScheduleBinding.inflate(inflater, container, false)
-        val view = binding.root
-
-        binding.viewPager2.adapter = PagerAdapter(this)
-        TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
-            if (binding.viewPager2.adapter?.itemCount == 7) tab.text = resources.getStringArray(R.array.week)[position]
-            else tab.text = resources.getString(R.string.day)+" "+position.toString()
-        }.attach()
-
+        binding = FragmentOnceScheduleBinding.inflate(inflater, container, false)
 
         viewModel.schedule.observe(viewLifecycleOwner, {
             binding.appBar.title = it.name
-            (binding.viewPager2.adapter as PagerAdapter).setSchedule(it)
+        })
+        viewModel.daysScheduleIDs.observe(viewLifecycleOwner, { // Длина массива равна 1.
+            if (permission) {
+                val fragment = DayScheduleFragment()
+                fragment.arguments = Bundle().apply {
+                    putString("dayScheduleID", it.first())
+                }
+
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .add(R.id.fragmentContainerView, fragment).commit()
+
+                permission = false
+            }
         })
 
 
@@ -82,34 +85,6 @@ class ScheduleFragment : Fragment() {
             }
         }
 
-        return view
-    }
-
-
-    inner class PagerAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
-        private var daysSchedule: List<DaySchedule> = emptyList()
-
-        @SuppressLint("NotifyDataSetChanged")
-        fun setSchedule(schedule: Schedule){
-            if (schedule.countDays != daysSchedule.size){
-                val days = viewModel.getDaysScheduleFromScheduleID(schedule.id)
-                days.observe(viewLifecycleOwner, {
-                    daysSchedule = it
-                    // С учетом того, что schedule.countDays нельзя изменить.
-                    notifyDataSetChanged()
-                })
-            }
-        }
-
-        override fun getItemCount(): Int = daysSchedule.size
-
-        override fun createFragment(position: Int): Fragment {
-            val bundle = Bundle().apply {
-                putSerializable("daySchedule", daysSchedule[position])
-            }
-            return DayScheduleFragment().apply {
-                arguments = bundle
-            }
-        }
+        return binding.root
     }
 }

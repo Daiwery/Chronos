@@ -22,10 +22,6 @@
     <string name="days_">Days:</string>
     <string name="type">Type</string>
     <string name="type_">Type:</string>
-    <string-array name="types_schedule">
-        <item>Relative</item>
-        <item>Absolute</item>
-    </string-array>
     <string-array name="week">
         <item>Monday</item>
         <item>Tuesday</item>
@@ -52,4 +48,6 @@
     <string name="time_">Time:</string>
     <string name="reminder">Reminder</string>
     <string name="progress_">Progress:</string>
+    <string name="periodic_schedule">Periodic</string>
+    <string name="once_schedule">For one day</string>
 </resources>

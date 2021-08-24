@@ -1,6 +1,10 @@
 /*
 * Дата создания: 17.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 24.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: добавлена логика взаимодействия с типом расписания.
 */
 
 package com.daiwerystudio.chronos.ui.schedule
@@ -17,12 +21,15 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
+import com.daiwerystudio.chronos.database.TYPE_SCHEDULE_ONCE
+import com.daiwerystudio.chronos.database.TYPE_SCHEDULE_PERIODIC
 import com.daiwerystudio.chronos.databinding.FragmentUnionScheduleBinding
 import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
 import com.daiwerystudio.chronos.ui.union.ID
 import com.daiwerystudio.chronos.ui.union.ItemAnimator
 import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
 import com.daiwerystudio.chronos.ui.union.UnionPopupMenu
+import java.lang.IllegalArgumentException
 import java.util.*
 
 class UnionScheduleFragment : UnionAbstractFragment() {
@@ -55,7 +62,11 @@ class UnionScheduleFragment : UnionAbstractFragment() {
             val bundle = Bundle().apply {
                 putString("scheduleID", viewModel.parentID.value!!)
             }
-            this.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
+            when (viewModel.parent.value!!.type){
+                TYPE_SCHEDULE_PERIODIC -> this.findNavController().navigate(R.id.action_global_navigation_periodic_schedule, bundle)
+                TYPE_SCHEDULE_ONCE -> this.findNavController().navigate(R.id.action_global_navigation_once_schedule, bundle)
+                else -> throw IllegalArgumentException("Invalid type")
+            }
         }
 
         binding.fab.setOnClickListener{

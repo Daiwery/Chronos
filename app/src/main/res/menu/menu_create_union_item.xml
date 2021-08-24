@@ -14,7 +14,16 @@
 
     <item
         android:id="@+id/create_schedule"
-        android:title="@string/schedule" />
+        android:title="@string/schedule">
+        <menu>
+            <item
+                android:id="@+id/create_periodic_schedule"
+                android:title="@string/periodic_schedule"/>
+            <item
+                android:id="@+id/create_once_schedule"
+                android:title="@string/once_schedule"/>
+        </menu>
+    </item>
 
     <item
         android:id="@+id/create_action_type"

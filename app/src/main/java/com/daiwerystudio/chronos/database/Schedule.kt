@@ -6,6 +6,10 @@
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 * Изменения: добавлена логика взаимодействия с union. Добавлена таблица "day_schedule_table"
 * и логика взаимодействия с ней. Вместо отдельного потока добавлен отдельный looper.
+*
+* Дата изменения: 23.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: добавлен тип расписания: периодический или на конкретный день.
 */
 
 package com.daiwerystudio.chronos.database
@@ -21,12 +25,12 @@ import java.util.*
 
 private const val SCHEDULE_DATABASE_NAME = "schedule-database"
 
-/*
-* Предупреждение: эти константы не используются в Data Binding (ActionScheduleDialog).
-* При смене значений, необходимо поменять и там.
-*/
-const val TYPE_SCHEDULE_RELATIVE = 0
-const val TYPE_SCHEDULE_ABSOLUTE = 1
+/* Предупреждение: данные константы не используются в Data Binding в item_recycler_view_schedule */
+const val TYPE_SCHEDULE_PERIODIC = 0
+const val TYPE_SCHEDULE_ONCE = 1
+
+const val TYPE_DAY_SCHEDULE_RELATIVE = 0
+const val TYPE_DAY_SCHEDULE_ABSOLUTE = 1
 
 
 /**
@@ -34,12 +38,11 @@ const val TYPE_SCHEDULE_ABSOLUTE = 1
  * @property start время, с которого начинает работать данное расписание. На работу оасписания не
  * влияет точное время, только день. Знание точного времени необходимо для учета локального времени.
  * @property name имя. UI.
+ * @property type тип расписания. Периодический или на конкретный день.
  * @property countDays количество дней в расписании. То есть через сколько дней оно повторяется.
  * Нужно помнить, что при обновении расписания, количество дней не должно меняться,
- * так как база данных "day_schedule_table" при этом никак не меняется.
+ * так как база данных "day_schedule_table" при этом никак не меняется. В once_schedules фиктивно.
  * @property isActive активно ли расписание.
- * @property type тип расписание. Абсолютный (действия задаются конкретными временами)
- * или относительный (действия задаются временем после прошлого действия и длительностью).
  * @property isCorrupted содержится ли в расписании ошибка. Если да, то оно не будет
  * использоваться при создании расписания на день.
  */
@@ -48,9 +51,9 @@ data class Schedule(
     @PrimaryKey override val id: String,
     var start: Long = System.currentTimeMillis(),
     var name: String = "",
+    var type: Int,
     var countDays: Int = 7,
     var isActive: Boolean = true,
-    var type: Int = TYPE_SCHEDULE_RELATIVE,
     var isCorrupted: Boolean = false
 ) : Serializable, ID
 
@@ -58,7 +61,9 @@ data class Schedule(
 /**
  * @property id уникальный идентификатор.
  * @property scheduleID id расписания, к которому относится данное действие.
- * @property dayIndex номер дня.
+ * @property dayIndex номер дня. В once_schedules фиктивно.
+ * @property type тип дня. Абсолютный (действия задаются конкретными временами)
+ * или относительный (действия задаются временем после прошлого действия и длительностью).
  * @property startDayTime время начала дня. Используется для относительного расписания.
  */
 @Entity(tableName = "day_schedule_table")
@@ -66,7 +71,8 @@ data class DaySchedule(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     var scheduleID: String,
     var dayIndex: Int,
-    val startDayTime: Long = 6*60*60
+    var type: Int = TYPE_DAY_SCHEDULE_RELATIVE,
+    var startDayTime: Long = 6*60*60*1000
 ) : Serializable
 
 
@@ -84,11 +90,11 @@ data class DaySchedule(
  * В этом случае время находится в окне с 00:00 до startDayTime в СЛЕДУЮЩЕМ дне.
  * @property endTime фактическое время конца действия. А обсолютном расписании изменяется
  * напрямую пользователем, в отнсительном считается отдельно по двум последним свойствам.
- * Оно необходимо для всех алгоритмов обработки действий расписаний. Измеряется в секундах.
+ * Оно необходимо для всех алгоритмов обработки действий расписаний.
  * В относительном расписании может быть больше 24 часов по той причине, что начало дня идет с startDayTime.
  * В этом случае время находится в окне с 00:00 до startDayTime в СЛЕДУЮЩЕМ  дне.
  * @property startAfter время начала действия после окончания прошлого. В отсительном расписании
- * изменяется напрямую пользователем, в абсолютном фиктивно. Измеряется в секундах.
+ * изменяется напрямую пользователем, в абсолютном фиктивно.
  * @property duration длительность действия. В отсительном расписании изменяется
  * напрямую пользователем, в абсолютном фиктивно. Измеряется в секундах.
  * @property isCorrupted испорченно ли действие. Действие становится таковым, если пересекается
@@ -96,7 +102,7 @@ data class DaySchedule(
  */
 @Entity(tableName = "action_schedule_table")
 data class ActionSchedule(
-    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    @PrimaryKey override val id: String = UUID.randomUUID().toString(),
     var dayID: String,
     var indexList: Int,
     var actionTypeId: String = "",
@@ -105,7 +111,7 @@ data class ActionSchedule(
     var startAfter: Long = 0,
     var duration: Long = 0,
     var isCorrupted: Boolean = false
-) : Serializable
+) : Serializable, ID
 
 
 @Dao
@@ -127,8 +133,11 @@ interface ScheduleDao {
             "WHERE dayID=(:dayID) ORDER BY startTime ASC")
     fun getActionsAbsoluteScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>>
 
-    @Query("SELECT * FROM day_schedule_table WHERE scheduleID=(:scheduleID)")
-    fun getDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<DaySchedule>>
+    @Query("SELECT id FROM day_schedule_table WHERE scheduleID=(:scheduleID)")
+    fun getIDsDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<String>>
+
+    @Query("SELECT * FROM day_schedule_table WHERE id=(:id)")
+    fun getDaySchedule(id: String): LiveData<DaySchedule>
 
     @Query("DELETE FROM schedule_table WHERE id IN (:ids)")
     fun deleteSchedules(ids: List<String>)
@@ -154,9 +163,6 @@ interface ScheduleDao {
 
     @Update
     fun updateActionSchedule(actionSchedule: ActionSchedule)
-
-    @Update
-    fun updateListActionsSchedule(listActionsSchedule: List<ActionSchedule>)
 
     @Insert
     fun addActionSchedule(actionSchedule: ActionSchedule)
@@ -203,8 +209,11 @@ class ScheduleRepository private constructor(context: Context) {
     fun getActionsAbsoluteScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>> =
         mDao.getActionsAbsoluteScheduleFromDayID(dayID)
 
-    fun getDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<DaySchedule>> =
-        mDao.getDaysScheduleFromScheduleID(scheduleID)
+    fun getIDsDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<String>> =
+        mDao.getIDsDaysScheduleFromScheduleID(scheduleID)
+
+    fun getDaySchedule(id: String): LiveData<DaySchedule> = mDao.getDaySchedule(id)
+
 
     fun deleteCompletelySchedules(ids: List<String>){
         mHandler.post {
@@ -214,11 +223,18 @@ class ScheduleRepository private constructor(context: Context) {
         }
     }
 
-    fun createSchedule(schedule: Schedule){
+    fun createPeriodicSchedule(schedule: Schedule){
         mHandler.post {
             mDao.addSchedule(schedule)
             for (i in 0 until schedule.countDays)
                 mDao.addDaySchedule(DaySchedule(scheduleID=schedule.id, dayIndex=i))
+        }
+    }
+
+    fun createOnceSchedule(schedule: Schedule){
+        mHandler.post {
+            mDao.addSchedule(schedule)
+            mDao.addDaySchedule(DaySchedule(scheduleID=schedule.id, dayIndex=0))
         }
     }
 
@@ -228,14 +244,6 @@ class ScheduleRepository private constructor(context: Context) {
 
     fun updateDaySchedule(daySchedule: DaySchedule){
         mHandler.post { mDao.updateDaySchedule(daySchedule) }
-    }
-
-    fun addDaySchedule(daySchedule: DaySchedule){
-        mHandler.post { mDao.addDaySchedule(daySchedule) }
-    }
-
-    fun updateListActionsSchedule(listActionSchedule: List<ActionSchedule>){
-        mHandler.post { mDao.updateListActionsSchedule(listActionSchedule) }
     }
 
     fun updateActionSchedule(actionSchedule: ActionSchedule){

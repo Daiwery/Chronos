@@ -9,7 +9,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.daiwerystudio.chronos.database.DaySchedule
 import com.daiwerystudio.chronos.database.Schedule
 import com.daiwerystudio.chronos.database.ScheduleRepository
 import com.daiwerystudio.chronos.database.UnionRepository
@@ -18,15 +17,15 @@ class ScheduleViewModel : ViewModel() {
     private val mScheduleRepository = ScheduleRepository.get()
     private val mUnionRepository = UnionRepository.get()
 
-    var scheduleID: MutableLiveData<String> = MutableLiveData()
-        private set
+    val scheduleID: MutableLiveData<String> = MutableLiveData()
 
-    var schedule: LiveData<Schedule> =
+    val schedule: LiveData<Schedule> =
         Transformations.switchMap(scheduleID) { mScheduleRepository.getSchedule(it) }
-        private set
 
-    fun getDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<DaySchedule>> =
-        mScheduleRepository.getDaysScheduleFromScheduleID(scheduleID)
+    // В once_schedule длина массива равна 1.
+    val daysScheduleIDs: LiveData<List<String>> =
+        Transformations.switchMap(scheduleID) { mScheduleRepository.getIDsDaysScheduleFromScheduleID(it) }
+
 
     fun deleteUnionWithChild(id: String){
         mUnionRepository.deleteUnionWithChild(id)

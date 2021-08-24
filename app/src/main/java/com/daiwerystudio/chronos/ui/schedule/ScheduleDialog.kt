@@ -5,6 +5,10 @@
 * Дата изменения: 17.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 * Изменения: добавлена логика взаимодействия с union.
+*
+* Дата изменения: 24.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: добавлена логика взаимодействия с типом расписания.
 */
 
 package com.daiwerystudio.chronos.ui.schedule
@@ -13,25 +17,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.daiwerystudio.chronos.R
-import com.daiwerystudio.chronos.database.Schedule
-import com.daiwerystudio.chronos.database.ScheduleRepository
-import com.daiwerystudio.chronos.database.Union
-import com.daiwerystudio.chronos.database.UnionRepository
+import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.DialogScheduleBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
+import java.lang.IllegalArgumentException
 
 /**
  * Ключевой особенностью является тот факт, что диалог всегда получает расписание.
  * Изменения или создание регулируется параметром isCreated. Это необходимо, чтобы
  * разделить UI и функционально необходимые данные, которые будут регулироваться внешне.
+ * Этот диалог используется для создания как periodic, так и once расписаний.
  */
 class ScheduleDialog : BottomSheetDialogFragment() {
     private val viewModel: DataViewModel
@@ -68,22 +69,6 @@ class ScheduleDialog : BottomSheetDialogFragment() {
         val view = binding.root
         binding.schedule = schedule
 
-        ArrayAdapter.createFromResource(requireContext(), R.array.types_schedule,
-            R.layout.item_spinner).also { adapter ->
-            adapter.setDropDownViewResource(R.layout.item_spinner)
-            binding.type.adapter = adapter
-        }
-        binding.type.setSelection(schedule.type)
-
-        binding.type.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?,
-                                        position: Int, id: Long) {
-                schedule.type = position
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-            }
-        }
-
         binding.name.addTextChangedListener{
             schedule.name = binding.name.text.toString()
 
@@ -91,7 +76,7 @@ class ScheduleDialog : BottomSheetDialogFragment() {
             else binding.errorName.visibility = View.VISIBLE
         }
 
-        if (isCreated) {
+        if (isCreated && schedule.type == TYPE_SCHEDULE_PERIODIC) {
             binding.countDays.addTextChangedListener {
                 if (binding.countDays.text.toString() != "") {
                     schedule.countDays = binding.countDays.text.toString().toInt()
@@ -131,15 +116,19 @@ class ScheduleDialog : BottomSheetDialogFragment() {
 
             if (permission){
                 if (isCreated) {
-                    mScheduleRepository.createSchedule(schedule)
+                    mScheduleRepository.createPeriodicSchedule(schedule)
                     mUnionRepository.addUnion(union!!)
-
                     this.dismiss()
+
                     // Если расписание создается, то перемещаем пользователя в редактирование.
                     val bundle = Bundle().apply {
                         putString("scheduleID", schedule.id)
                     }
-                    this.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
+                    when (schedule.type){
+                        TYPE_SCHEDULE_PERIODIC -> this.findNavController().navigate(R.id.action_global_navigation_periodic_schedule, bundle)
+                        TYPE_SCHEDULE_ONCE -> this.findNavController().navigate(R.id.action_global_navigation_once_schedule, bundle)
+                        else -> throw IllegalArgumentException("Invalid type")
+                    }
                 }
                 else {
                     mScheduleRepository.updateSchedule(schedule)

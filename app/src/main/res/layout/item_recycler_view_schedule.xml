@@ -47,16 +47,6 @@
                 app:srcCompat="@drawable/ic_baseline_edit_24"
                 tools:ignore="ContentDescription" />
 
-            <TextView
-                android:id="@+id/textView11"
-                style="@style/Text.Caption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/type_"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView20" />
-
             <Switch
                 android:id="@+id/active_switch"
                 android:layout_width="wrap_content"
@@ -65,16 +55,6 @@
                 app:layout_constraintEnd_toStartOf="@+id/edit"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-            <TextView
-                android:id="@+id/type"
-                style="@style/Text.Caption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                app:layout_constraintStart_toEndOf="@+id/textView11"
-                app:layout_constraintTop_toTopOf="@+id/textView11"
-                tools:text="Absolute" />
 
             <ImageView
                 android:id="@+id/imageView5"
@@ -94,8 +74,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="@string/days_"
+                android:booleanVisibility="@{schedule.type == 0}"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/name" />
+                app:layout_constraintTop_toBottomOf="@+id/textView11" />
 
             <TextView
                 android:id="@+id/countDays"
@@ -104,6 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="@{String.valueOf(schedule.countDays)}"
+                android:booleanVisibility="@{schedule.type == 0}"
                 app:layout_constraintStart_toEndOf="@+id/textView5"
                 app:layout_constraintTop_toTopOf="@+id/textView5"
                 tools:text="7"/>
@@ -130,6 +112,24 @@
                 custom:timeStyle="longFormat"
                 custom:timeType="date"
                 tools:text="19.08.2021"/>
+
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/type_"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/name" />
+
+            <TextView
+                android:id="@+id/type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/textView11"
+                app:layout_constraintTop_toBottomOf="@+id/name"
+                tools:text="Periodic"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

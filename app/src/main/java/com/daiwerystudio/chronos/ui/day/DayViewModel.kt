@@ -60,9 +60,9 @@ class DayViewModel: ViewModel() {
                 val actionsRelativeSchedule = mutableListOf<ActionSchedule>()
 
                 mActiveSchedules.value!!.forEach {
-                    if (it.type == TYPE_SCHEDULE_RELATIVE) {
-                        // actionsRelativeSchedule.addAll(getActionsRelativeSchedule(it))
-                    }
+//                    if (it.type == TYPE_SCHEDULE_RELATIVE) {
+//                        // actionsRelativeSchedule.addAll(getActionsRelativeSchedule(it))
+//                    }
                 }
 
                 this.mActionsRelativeSchedule = actionsRelativeSchedule

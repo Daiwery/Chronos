@@ -208,12 +208,10 @@ abstract class ScheduleAbstractHolder(private val binding: ItemRecyclerViewSched
     open fun setStaticUI(schedule: Schedule){
         this.schedule = schedule
         binding.schedule = schedule
-
-        val array = itemView.context.resources.getStringArray(R.array.types_schedule)
-        when (schedule.type) {
-            TYPE_SCHEDULE_RELATIVE -> binding.type.text = array[0]
-            TYPE_SCHEDULE_ABSOLUTE -> binding.type.text = array[1]
-            else -> throw IllegalArgumentException("Invalid type")
+        when (schedule.type){
+            TYPE_SCHEDULE_PERIODIC -> binding.type.text = itemView.context.getString(R.string.periodic_schedule)
+            TYPE_SCHEDULE_ONCE -> binding.type.text = itemView.context.getString(R.string.once_schedule)
+            else -> throw java.lang.IllegalArgumentException("Invalid type")
         }
     }
 

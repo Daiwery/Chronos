@@ -63,9 +63,26 @@ class UnionPopupMenu(val fragmentManager: FragmentManager,
                         return true
                     }
 
-                    R.id.create_schedule -> {
+                    R.id.create_periodic_schedule -> {
                         val id = UUID.randomUUID().toString()
-                        val schedule = Schedule(id=id)
+                        val schedule = Schedule(id=id, type=TYPE_SCHEDULE_PERIODIC)
+                        val union = Union(id=id, parent=mUnionBuilder?.getParent() ?: "",
+                            type=TYPE_SCHEDULE, indexList=mUnionBuilder?.getIndexList() ?: 0)
+
+                        val dialog = ScheduleDialog()
+                        dialog.arguments = Bundle().apply{
+                            putSerializable("schedule", schedule)
+                            putSerializable("union", union)
+                            putBoolean("isCreated", true)
+                        }
+                        dialog.show(fragmentManager, "ScheduleDialog")
+
+                        return true
+                    }
+
+                    R.id.create_once_schedule -> {
+                        val id = UUID.randomUUID().toString()
+                        val schedule = Schedule(id=id, type=TYPE_SCHEDULE_ONCE)
                         val union = Union(id=id, parent=mUnionBuilder?.getParent() ?: "",
                             type=TYPE_SCHEDULE, indexList=mUnionBuilder?.getIndexList() ?: 0)
 

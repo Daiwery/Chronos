@@ -23,6 +23,15 @@
     <string name="days_">Дней:</string>
     <string name="type">Тип</string>
     <string name="type_">Тип:</string>
+    <string-array name="week">
+        <item>Понедельник</item>
+        <item>Вторник</item>
+        <item>Среда</item>
+        <item>Четверг</item>
+        <item>Пятница</item>
+        <item>Суббота</item>
+        <item>Воскресенье</item>
+    </string-array>
     <string name="start_">Начало:</string>
     <string name="end_">Конец:</string>
     <string name="start">Начало</string>
@@ -40,4 +49,6 @@
     <string name="time_">Время:</string>
     <string name="reminder">Напоминание</string>
     <string name="progress_">Прогресс:</string>
+    <string name="periodic_schedule">Периодическое</string>
+    <string name="once_schedule">На один день</string>
 </resources>
