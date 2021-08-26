@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="none">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/all"
+            style="@style/Text.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/drawable_select_type_showing"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="@string/all"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/note"
+            style="@style/Text.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/drawable_select_type_showing"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="@string/note"
+            app:layout_constraintStart_toEndOf="@+id/all"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/reminder"
+            style="@style/Text.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/drawable_select_type_showing"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="@string/reminder"
+            app:layout_constraintStart_toEndOf="@+id/note"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/goal"
+            style="@style/Text.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/drawable_select_type_showing"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="@string/goal"
+            app:layout_constraintStart_toEndOf="@+id/reminder"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/schedule"
+            style="@style/Text.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/drawable_select_type_showing"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="@string/schedule"
+            app:layout_constraintStart_toEndOf="@+id/goal"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/action_type"
+            style="@style/Text.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/drawable_select_type_showing"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="@string/action_type"
+            app:layout_constraintStart_toEndOf="@+id/schedule"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</HorizontalScrollView>

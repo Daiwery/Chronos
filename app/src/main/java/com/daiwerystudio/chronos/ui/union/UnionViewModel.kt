@@ -1,10 +1,20 @@
 /*
 * Дата создания: 17.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 24.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: вместо parentID теперь Pair<parentID, typeShowing>, где typeShowing -
+* какой тип показывать.
+*
+* Дата изменения: 26.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: вместо Pair<parentID, typeShowing> добавлен специальный класс, наследуемый от LiveData.
 */
 
 package com.daiwerystudio.chronos.ui.union
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.daiwerystudio.chronos.database.*
 import java.util.*
@@ -13,9 +23,11 @@ import java.util.concurrent.Executors
 /**
  * Класс определяет основные методы для взаимодействия с базой данных.
  *
- * Схема наблюдения LiveData: parentID - MutableLiveData, меняется во фрагмете;
- * На parentID подписан mUnions, которые по значению получает все unions от родителя;
- * На mUnions подписаны 3 LiveData: mActionTypesLiveData, mGoalsLiveData и т.п. Которые
+ * Схема наблюдения LiveData: showing: - ShowingLiveData, специальный класс, определенный
+ * здесь. Содержит два свойства - parentID и typeShowing, соединенные в Pair-объект,
+ * где typeShowing - какой тип показывать. Меняется во фрагмете;
+ * На showing подписан mUnions, которые по значению получает все unions от родителя;
+ * На mUnions подписаны n LiveData: mActionTypesLiveData, mGoalsLiveData и т.п. Которые
  * получают по значению соответствующие значения;
  * На эти 3 LiveData подписан MediatorLiveData data, который по ним формирует и сортирует
  * общие данные.
@@ -24,12 +36,36 @@ open class UnionViewModel : ViewModel() {
     private val mRepository = UnionRepository.get()
     private val mExecutor = Executors.newSingleThreadExecutor()
 
-    var parentID: MutableLiveData<String> = MutableLiveData()
-        private set
+    /**
+     * Специальный LiveData для наблюдения за id родителя и типом показа.
+     */
+    class ShowingLiveData: LiveData<Pair<String, Int>>(){
+        var parentID: String = ""
+            private set
+        var typeShowing: Int = -1
+            private set
+
+        fun setData(parentID: String, typeShowing: Int){
+            this.parentID = parentID
+            this.typeShowing = typeShowing
+            value = Pair(parentID, typeShowing)
+        }
+
+        fun setTypeShowing(typeShowing: Int){
+            this.typeShowing = typeShowing
+            value = Pair(parentID, typeShowing)
+        }
+    }
+    val showing: ShowingLiveData = ShowingLiveData()
+
 
     /*                        Первый этап наблюдения                        */
     private var mUnions: LiveData<List<Union>> =
-        Transformations.switchMap(parentID) { mRepository.getUnionsFromParent(it) }
+        Transformations.switchMap(showing) {
+            Log.d("TEST", "${it.second}")
+            if (it.second == -1)  mRepository.getUnionsFromParent(it.first)
+            else mRepository.getUnionsFromParentAndType(it.first, it.second)
+        }
 
 
     /*                         Второй этап наблюдения                        */

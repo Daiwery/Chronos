@@ -22,6 +22,9 @@
         <attr name="behavior_minHeightAppBar" format="dimension"/>
     </declare-styleable>
 
+    <declare-styleable name="SelectTypeShowing">
+    </declare-styleable>
+
 
 
     <attr name="stripWidth" format="dimension" />

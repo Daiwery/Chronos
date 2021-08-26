@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.databinding.FragmentUnionPreviewBinding
 import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
+import com.google.android.material.appbar.AppBarLayout
 import java.util.*
 
 class UnionPreviewFragment : UnionAbstractFragment() {
@@ -35,6 +36,12 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
+        binding.selectTypeShowing.setTypeShowing(viewModel.showing.typeShowing)
+        binding.selectTypeShowing.setSelectTypeShowingListener{
+            binding.loadingView.visibility = View.VISIBLE
+            viewModel.showing.setTypeShowing(it)
+        }
+
         viewModel.data.observe(viewLifecycleOwner, {
             (binding.recyclerView.adapter as Adapter).updateData(it)
         })
@@ -42,7 +49,7 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         binding.fab.setOnClickListener{
             val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
             popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
-                override fun getParent(): String = viewModel.parentID.value!!
+                override fun getParent(): String = viewModel.showing.parentID
                 override fun getIndexList(): Int = viewModel.data.value!!.size
             })
             popup.show()

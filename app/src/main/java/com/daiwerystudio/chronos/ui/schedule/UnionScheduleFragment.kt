@@ -60,7 +60,7 @@ class UnionScheduleFragment : UnionAbstractFragment() {
 
         binding.editMore.setOnClickListener {
             val bundle = Bundle().apply {
-                putString("scheduleID", viewModel.parentID.value!!)
+                putString("scheduleID", viewModel.showing.parentID)
             }
             when (viewModel.parent.value!!.type){
                 TYPE_SCHEDULE_PERIODIC -> this.findNavController().navigate(R.id.action_global_navigation_periodic_schedule, bundle)
@@ -72,7 +72,7 @@ class UnionScheduleFragment : UnionAbstractFragment() {
         binding.fab.setOnClickListener{
             val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
             popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
-                override fun getParent(): String = viewModel.parentID.value!!
+                override fun getParent(): String = viewModel.showing.parentID
                 override fun getIndexList(): Int = viewModel.data.value!!.size
             })
             popup.show()
@@ -97,7 +97,7 @@ class UnionScheduleFragment : UnionAbstractFragment() {
                     AlertDialog.Builder(context, R.style.App_AlertDialog)
                         .setTitle(resources.getString(R.string.are_you_sure))
                         .setPositiveButton(R.string.yes) { _, _ ->
-                            viewModel.deleteUnionWithChild(viewModel.parentID.value!!)
+                            viewModel.deleteUnionWithChild(viewModel.showing.parentID)
                             requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
                         }
                         .setNegativeButton(R.string.no){ _, _ -> }

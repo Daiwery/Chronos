@@ -7,7 +7,8 @@ package com.daiwerystudio.chronos.ui.union
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
+import androidx.navigation.findNavController
+import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.*
 
 /**
@@ -20,12 +21,21 @@ abstract class UnionAbstractFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.parentID.value = arguments?.getString("parentID") ?: ""
+        viewModel.showing.setData(arguments?.getString("parentID") ?: "",
+            arguments?.getInt("typeShowing") ?: -1)
     }
 
 
     open inner class ActionTypeHolder(binding: ItemRecyclerViewActionTypeBinding):
-        ActionTypeAbstractHolder(binding, requireActivity().supportFragmentManager)
+        ActionTypeAbstractHolder(binding, requireActivity().supportFragmentManager) {
+        override fun onClicked() {
+            val bundle = Bundle().apply {
+                putString("parentID", actionType.id)
+                putInt("typeShowing", viewModel.showing.typeShowing)
+            }
+            itemView.findNavController().navigate(R.id.action_global_navigation_union_action_type, bundle)
+        }
+    }
 
     open inner class GoalHolder(binding: ItemRecyclerViewGoalBinding) :
         GoalAbstractHolder(binding, requireActivity().supportFragmentManager){
@@ -41,6 +51,14 @@ abstract class UnionAbstractFragment : Fragment() {
                 binding.progressBar.progress = it
             })
         }
+
+        override fun onClicked() {
+            val bundle = Bundle().apply {
+                putString("parentID", goal.id)
+                putInt("typeShowing", viewModel.showing.typeShowing)
+            }
+            itemView.findNavController().navigate(R.id.action_global_navigation_union_goal, bundle)
+        }
     }
 
     open inner class ScheduleHolder(binding: ItemRecyclerViewScheduleBinding):
@@ -49,10 +67,26 @@ abstract class UnionAbstractFragment : Fragment() {
             schedule.isActive = !schedule.isActive
             viewModel.updateSchedule(schedule)
         }
+
+        override fun onClicked() {
+            val bundle = Bundle().apply {
+                putString("parentID", schedule.id)
+                putInt("typeShowing", viewModel.showing.typeShowing)
+            }
+            itemView.findNavController().navigate(R.id.action_global_navigation_union_schedule, bundle)
+        }
     }
 
     open inner class NoteHolder(binding: ItemRecyclerViewNoteBinding):
-        NoteAbstractHolder(binding)
+        NoteAbstractHolder(binding) {
+        override fun onClicked() {
+            val bundle = Bundle().apply {
+                putString("parentID", note.id)
+                putInt("typeShowing", viewModel.showing.typeShowing)
+            }
+            itemView.findNavController().navigate(R.id.action_global_navigation_union_note, bundle)
+        }
+    }
 
     open inner class ReminderHolder(binding: ItemRecyclerViewReminderBinding):
         ReminderAbstractHolder(binding, requireActivity().supportFragmentManager)

@@ -51,4 +51,5 @@
     <string name="progress_">Прогресс:</string>
     <string name="periodic_schedule">Периодическое</string>
     <string name="once_schedule">На один день</string>
+    <string name="all">Все</string>
 </resources>

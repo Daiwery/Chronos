@@ -50,4 +50,5 @@
     <string name="progress_">Progress:</string>
     <string name="periodic_schedule">Periodic</string>
     <string name="once_schedule">For one day</string>
+    <string name="all">All</string>
 </resources>

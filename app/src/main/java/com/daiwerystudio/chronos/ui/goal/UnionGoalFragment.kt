@@ -42,8 +42,14 @@ class UnionGoalFragment : UnionAbstractFragment() {
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
+        binding.selectTypeShowing.setTypeShowing(viewModel.showing.typeShowing)
+        binding.selectTypeShowing.setSelectTypeShowingListener{
+            binding.loadingView.visibility = View.VISIBLE
+            viewModel.showing.setTypeShowing(it)
+        }
+
         viewModel.parent.observe(viewLifecycleOwner, { goal ->
-            binding.appBar.title = goal.name
+            binding.toolBar.title = goal.name
 
             // Percent удаляется, так как это не RoomLiveData.
             val percent = viewModel.getPercentAchieved(goal.id)
@@ -60,22 +66,22 @@ class UnionGoalFragment : UnionAbstractFragment() {
         binding.fab.setOnClickListener{
             val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
             popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
-                override fun getParent(): String = viewModel.parentID.value!!
+                override fun getParent(): String = viewModel.showing.parentID
                 override fun getIndexList(): Int = viewModel.data.value!!.size
             })
             popup.show()
         }
 
-        binding.appBar.setNavigationOnClickListener {
+        binding.toolBar.setNavigationOnClickListener {
             it.findNavController().navigateUp()
         }
-        binding.appBar.setOnMenuItemClickListener {
+        binding.toolBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.edit -> {
                     viewModel.updateUnions()
                     val dialog = GoalDialog()
                     dialog.arguments = Bundle().apply{
-                        putSerializable("goal", viewModel.parent.value!!)
+                        putSerializable("goal", viewModel.showing.parentID)
                         putBoolean("isCreated", false)
                     }
                     dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
@@ -85,7 +91,7 @@ class UnionGoalFragment : UnionAbstractFragment() {
                     AlertDialog.Builder(context, R.style.App_AlertDialog)
                         .setTitle(resources.getString(R.string.are_you_sure))
                         .setPositiveButton(R.string.yes) { _, _ ->
-                            viewModel.deleteUnionWithChild(viewModel.parentID.value!!)
+                            viewModel.deleteUnionWithChild(viewModel.showing.parentID)
                             requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
                         }
                         .setNegativeButton(R.string.no){ _, _ -> }

@@ -16,6 +16,6 @@ class UnionGoalViewModel: UnionViewModel() {
 
     // Добавляем подписку на parentID.
     var parent: LiveData<Goal> =
-        Transformations.switchMap(parentID) { mRepository.getGoal(it) }
+        Transformations.switchMap(showing) { mRepository.getGoal(it.first) }
         private set
 }

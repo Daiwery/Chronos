@@ -95,12 +95,7 @@ abstract class ActionTypeAbstractHolder(val binding: ItemRecyclerViewActionTypeB
     lateinit var actionType: ActionType
 
     init {
-        itemView.setOnClickListener{
-            val bundle = Bundle().apply {
-                putString("parentID", actionType.id)
-            }
-            itemView.findNavController().navigate(R.id.action_global_navigation_union_action_type, bundle)
-        }
+        itemView.setOnClickListener{ onClicked() }
         binding.edit.setOnClickListener{
             val dialog = ActionTypeDialog()
             dialog.arguments = Bundle().apply{
@@ -123,6 +118,8 @@ abstract class ActionTypeAbstractHolder(val binding: ItemRecyclerViewActionTypeB
         if (old.name != new.name) binding.name.text = new.name
         if (old.color != new.color) binding.color.setColorFilter(new.color)
     }
+
+    abstract fun onClicked()
 }
 
 /**
@@ -134,12 +131,7 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
     lateinit var goal: Goal
 
     init {
-        itemView.setOnClickListener{
-            val bundle = Bundle().apply {
-                putString("parentID", goal.id)
-            }
-            itemView.findNavController().navigate(R.id.action_global_navigation_union_goal, bundle)
-        }
+        itemView.setOnClickListener{ onClicked() }
         binding.edit.setOnClickListener{
             val dialog = GoalDialog()
             dialog.arguments = Bundle().apply{
@@ -172,6 +164,7 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
 
     abstract fun onAchieved()
     abstract fun setPercentAchieved()
+    abstract fun onClicked()
 }
 
 /**
@@ -183,12 +176,7 @@ abstract class ScheduleAbstractHolder(private val binding: ItemRecyclerViewSched
     lateinit var schedule: Schedule
 
     init {
-        itemView.setOnClickListener{
-            val bundle = Bundle().apply {
-                putString("parentID", schedule.id)
-            }
-            itemView.findNavController().navigate(R.id.action_global_navigation_union_schedule, bundle)
-        }
+        itemView.setOnClickListener{ onClicked() }
         binding.edit.setOnClickListener{
             val dialog = ScheduleDialog()
             dialog.arguments = Bundle().apply{
@@ -222,6 +210,7 @@ abstract class ScheduleAbstractHolder(private val binding: ItemRecyclerViewSched
     }
 
     abstract fun onActive()
+    abstract fun onClicked()
 }
 
 /**
@@ -232,12 +221,7 @@ abstract class NoteAbstractHolder(private val binding: ItemRecyclerViewNoteBindi
     lateinit var note: Note
 
     init {
-        itemView.setOnClickListener{
-            val bundle = Bundle().apply {
-                putString("parentID", note.id)
-            }
-            itemView.findNavController().navigate(R.id.action_global_navigation_union_note, bundle)
-        }
+        itemView.setOnClickListener{ onClicked() }
         binding.edit.setOnClickListener{
             val bundle = Bundle().apply{
                 putSerializable("note", note)
@@ -255,6 +239,8 @@ abstract class NoteAbstractHolder(private val binding: ItemRecyclerViewNoteBindi
         this.note = new as Note
         binding.note = note
     }
+
+    abstract fun onClicked()
 }
 
 /**

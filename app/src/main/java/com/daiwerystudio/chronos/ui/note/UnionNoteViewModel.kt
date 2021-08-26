@@ -16,6 +16,6 @@ class UnionNoteViewModel : UnionViewModel() {
 
     // Добавляем подписку на parentID.
     var parent: LiveData<Note> =
-        Transformations.switchMap(parentID) { mRepository.getNote(it) }
+        Transformations.switchMap(showing) { mRepository.getNote(it.first) }
         private set
 }

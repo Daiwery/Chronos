@@ -44,11 +44,17 @@ interface UnionDao{
     @Query("SELECT * FROM union_table WHERE parent=(:parent) ORDER BY indexList")
     fun getUnionsFromParent(parent: String): LiveData<List<Union>>
 
+    @Query("WITH RECURSIVE sub_table(id, parent, type) " +
+            "AS (SELECT id, parent, type FROM union_table WHERE parent=(:id)" +
+            "UNION ALL " +
+            "SELECT a.id, a.parent, a.type FROM union_table AS a JOIN sub_table AS b ON a.parent=b.id AND (b.type!=(:type) OR a.parent='')) " +
+            "SELECT * FROM union_table WHERE id IN (SELECT id FROM sub_table WHERE type=(:type))")
+    fun getUnionsFromParentAndType(id: String, type: Int): LiveData<List<Union>>
+
     @Query("WITH RECURSIVE sub_table(id, parent) " +
         "AS (SELECT id, parent FROM union_table WHERE id=(:id) " +
         "UNION ALL " +
-        "SELECT b.id, b.parent FROM union_table AS b " +
-        "JOIN sub_table AS c ON c.id=b.parent) " +
+        "SELECT a.id, a.parent FROM union_table AS a JOIN sub_table AS b ON a.parent=b.id) " +
         "SELECT * FROM union_table WHERE id IN (SELECT id FROM sub_table)")
     fun getUnionWithChild(id: String): List<Union>
 
@@ -56,8 +62,7 @@ interface UnionDao{
     @Query("WITH RECURSIVE sub_table(id, parent, type) " +
             "AS (SELECT id, parent, type FROM union_table WHERE id=(:id) " +
             "UNION ALL " +
-            "SELECT b.id, b.parent, b.type FROM union_table AS b " +
-            "JOIN sub_table AS c ON c.id=b.parent) " +
+            "SELECT a.id, a.parent, a.type FROM union_table AS a JOIN sub_table AS b ON a.parent=b.id) " +
             "SELECT id FROM union_table WHERE id IN (SELECT id FROM sub_table WHERE type=1)")
     fun getGoalWithChild(id: String): List<String>
 
@@ -100,7 +105,11 @@ class UnionRepository private constructor(context: Context) {
         mHandler = Handler(mHandlerThread.looper)
     }
 
-    fun getUnionsFromParent(parent: String): LiveData<List<Union>> = mDao.getUnionsFromParent(parent)
+    fun getUnionsFromParent(parent: String): LiveData<List<Union>> =
+        mDao.getUnionsFromParent(parent)
+
+    fun getUnionsFromParentAndType(id: String, type: Int): LiveData<List<Union>> =
+        mDao.getUnionsFromParentAndType(id, type)
 
     fun getActionTypes(union: List<Union>): LiveData<List<ActionType>> =
         mActionTypeRepository.getActionTypes(union.filter { it.type == TYPE_ACTION_TYPE }.map { it.id })
