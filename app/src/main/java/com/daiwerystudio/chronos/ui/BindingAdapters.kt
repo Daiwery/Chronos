@@ -12,6 +12,7 @@ package com.daiwerystudio.chronos.ui
 import android.view.View
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import com.daiwerystudio.chronos.ui.widgets.TimeTextView
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter

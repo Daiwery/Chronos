@@ -50,7 +50,7 @@
                 tools:ignore="ContentDescription" />
 
 
-            <com.daiwerystudio.chronos.ui.TimeTextView
+            <com.daiwerystudio.chronos.ui.widgets.TimeTextView
                 android:id="@+id/time"
                 style="@style/Text.Caption"
                 android:layout_width="wrap_content"
@@ -64,7 +64,7 @@
                 custom:timeType="time"
                 tools:text="14:00" />
 
-            <com.daiwerystudio.chronos.ui.TimeTextView
+            <com.daiwerystudio.chronos.ui.widgets.TimeTextView
                 android:id="@+id/day"
                 style="@style/Text.Caption"
                 android:layout_width="wrap_content"

@@ -12,17 +12,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionActionTypeBinding
-import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
 import com.daiwerystudio.chronos.ui.union.ID
 import com.daiwerystudio.chronos.ui.union.ItemAnimator
 import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
 import com.daiwerystudio.chronos.ui.union.UnionPopupMenu
-import java.util.*
 
 class UnionActionTypeFragment: UnionAbstractFragment() {
     override val viewModel: UnionActionTypeViewModel
@@ -59,7 +55,6 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
             val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
             popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
                 override fun getParent(): String = viewModel.showing.parentID
-                override fun getIndexList(): Int = viewModel.data.value!!.size
             })
             popup.show()
         }
@@ -70,7 +65,6 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
         binding.toolBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.edit -> {
-                    viewModel.updateUnions()
                     val dialog = ActionTypeDialog()
                     dialog.arguments = Bundle().apply{
                         putSerializable("actionType", viewModel.parent.value!!)
@@ -117,38 +111,6 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
             if (data.isEmpty()) setEmptyView()
             else setNullView()
         }
-    }
-
-
-    private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
-        CustomItemTouchCallback(requireContext(),
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-            ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
-        private val mAdapter = binding.recyclerView.adapter!! as Adapter
-
-        override fun onMove(recyclerView: RecyclerView,
-                            viewHolder: RecyclerView.ViewHolder,
-                            target: RecyclerView.ViewHolder): Boolean {
-            val from = viewHolder.adapterPosition
-            val to = target.adapterPosition
-
-            viewModel.swap(from, to)
-            Collections.swap(mAdapter.data, from, to)
-            mAdapter.notifyItemMoved(from, to)
-
-            return true
-        }
-
-        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder) {
-            viewModel.deleteUnionWithChild(mAdapter.data[viewHolder.adapterPosition].second.id)
-        }
-
-        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder) {
-            mAdapter.notifyItemChanged(viewHolder.adapterPosition)
-        }
-    }
-
-        ItemTouchHelper(simpleItemTouchCallback)
     }
 }
 

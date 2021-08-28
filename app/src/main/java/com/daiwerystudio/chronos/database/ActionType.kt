@@ -35,7 +35,7 @@ data class ActionType(
 
 @Dao
 interface ActionTypeDao {
-    @Query("SELECT * FROM action_type_table WHERE id IN (:ids)")
+    @Query("SELECT * FROM action_type_table WHERE id IN (:ids) ORDER BY name")
     fun getActionTypes(ids: List<String>): LiveData<List<ActionType>>
 
     @Query("SELECT * FROM action_type_table WHERE id=(:id)")

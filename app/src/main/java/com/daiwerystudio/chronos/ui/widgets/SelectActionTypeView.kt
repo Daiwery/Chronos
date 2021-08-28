@@ -3,7 +3,7 @@
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 */
 
-package com.daiwerystudio.chronos.ui
+package com.daiwerystudio.chronos.ui.widgets
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -296,7 +296,7 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
 
 
         /*  Ниже представлены стандартные функции адаптера.  См. оф. документацию. */
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder{
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
             return Holder(LayoutInflater.from(parent.context)
                 .inflate(R.layout.layout_line_select_action_type, parent, false))
         }

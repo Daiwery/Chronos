@@ -3,7 +3,7 @@
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 */
 
-package com.daiwerystudio.chronos.ui
+package com.daiwerystudio.chronos.ui.widgets
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -284,7 +284,8 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
                 val right = left+1
 
                 actionDrawables.add(
-                    ActionDrawable(interval.color, interval.start, interval.end, left, right))
+                    ActionDrawable(interval.color, interval.start, interval.end, left, right)
+                )
             }
 
 
@@ -723,7 +724,8 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                 val right = left+1
 
                 actionDrawables.add(
-                    ActionDrawable(interval.color, interval.start, interval.end, left, right))
+                    ActionDrawable(interval.color, interval.start, interval.end, left, right)
+                )
             }
 
 
@@ -1003,7 +1005,8 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
                 val left = interval.index.toFloat()
                 val right = left+1
 
-                actionDrawables.add(ActionDrawable(interval.color, interval.start,
+                actionDrawables.add(
+                    ActionDrawable(interval.color, interval.start,
                     interval.end, left, right)
                 )
             }
@@ -1231,7 +1234,7 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
 
         scheduleView = findViewById(R.id.scheduleView)
         scheduleView.setFinishedListener{ mFinishedListener?.finish() }
-        scheduleView.setCorruptedListener(object : ScheduleView.CorruptedListener{
+        scheduleView.setCorruptedListener(object : ScheduleView.CorruptedListener {
             override fun addCorrupt(id: String) {
                 mCorruptedListener?.addCorrupt(id)
             }

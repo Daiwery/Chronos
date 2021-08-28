@@ -75,7 +75,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/end"
                 app:layout_constraintTop_toBottomOf="@+id/startTextView" />
 
-            <com.daiwerystudio.chronos.ui.TimeTextView
+            <com.daiwerystudio.chronos.ui.widgets.TimeTextView
                 android:id="@+id/start"
                 style="@style/Text.Caption"
                 android:layout_width="wrap_content"
@@ -89,7 +89,7 @@
                 custom:timeType="time"
                 tools:text="14:00" />
 
-            <com.daiwerystudio.chronos.ui.TimeTextView
+            <com.daiwerystudio.chronos.ui.widgets.TimeTextView
                 android:id="@+id/end"
                 style="@style/Text.Caption"
                 android:layout_width="wrap_content"

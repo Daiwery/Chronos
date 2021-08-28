@@ -22,7 +22,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
@@ -30,7 +29,6 @@ import com.daiwerystudio.chronos.database.Action
 import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.databinding.FragmentDayBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
-import com.daiwerystudio.chronos.ui.CustomItemTouchCallback
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import java.time.LocalDate
@@ -170,7 +168,7 @@ class DayFragment: Fragment() {
             adapter = Adapter(emptyList())
             // itemAnimator = ItemAnimator()
         }
-        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+        // itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         // Если мы в настоящем.
         if (position == 0L) {
@@ -501,40 +499,6 @@ class DayFragment: Fragment() {
         }
     }
 
-    /**
-     * Переопределение класа CustomItemTouchCallback из файла RecyclerViewAnimation.
-     * Перемещения вверх или вниз запрещены, взмахи влево или вправо разрешены.
-     */
-    private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
-        CustomItemTouchCallback(requireContext(),
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-            ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
-        /**
-         * Адаптер RecyclerView в этом фрагменте. Нужен в функции onClickNegativeButton, чтобы
-         * уведомить адаптер, что произошла отмена удаления и нужно вернуть holder на место.
-         */
-        private val mAdapter = binding.recyclerView.adapter!!
-
-        /**
-         * Выполняется при нажатии на кнопку "Yes". Удаляет выбранный элемент из базы данных
-         * со всем деревом.
-         */
-        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder) {
-            viewModel.deleteAction(viewModel.actions.value!![viewHolder.adapterPosition])
-        }
-
-        /**
-         * Выполняется при нажатии на кнопку "No". Уведомляет адаптер, что произошла отмена удаления
-         * и нужно выбранный элемент вернуть на место.
-         */
-        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder) {
-            mAdapter.notifyItemChanged(viewHolder.adapterPosition)
-        }
-
-    }
-
-        ItemTouchHelper(simpleItemTouchCallback)
-    }
 
     /**
      * Runnable объект для таймера.

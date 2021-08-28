@@ -35,7 +35,7 @@ data class Goal(
 
 @Dao
 interface GoalTypeDao {
-    @Query("SELECT * FROM goal_table WHERE id IN (:ids)")
+    @Query("SELECT * FROM goal_table WHERE id IN (:ids) ORDER BY name")
     fun getGoals(ids: List<String>): LiveData<List<Goal>>
 
     @Query("SELECT * FROM goal_table WHERE id=(:id)")

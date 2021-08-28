@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.daiwerystudio.chronos.ui.ClockFaceView
+            <com.daiwerystudio.chronos.ui.widgets.ClockFaceView
                 android:id="@+id/clockFaceView"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <com.daiwerystudio.chronos.ui.ScheduleView
+                    <com.daiwerystudio.chronos.ui.widgets.ScheduleView
                         android:id="@+id/scheduleView"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"

@@ -30,7 +30,7 @@ data class Note(
 
 @Dao
 interface NoteDao {
-    @Query("SELECT * FROM note_table WHERE id IN (:ids)")
+    @Query("SELECT * FROM note_table WHERE id IN (:ids) ORDER BY name")
     fun getNotes(ids: List<String>): LiveData<List<Note>>
 
     @Query("SELECT * FROM note_table WHERE id=(:id)")

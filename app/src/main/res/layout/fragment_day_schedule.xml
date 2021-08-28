@@ -57,7 +57,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.daiwerystudio.chronos.ui.ScheduleClockView
+        <com.daiwerystudio.chronos.ui.widgets.ScheduleClockView
             android:id="@+id/clock"
             android:layout_width="wrap_content"
             android:layout_height="0dp"

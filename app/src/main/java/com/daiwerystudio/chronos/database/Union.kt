@@ -27,21 +27,18 @@ const val TYPE_REMINDER = 4
  * @property id уникальный идентификатор. Совпадает с id у соответствующего значения ActionType, Goal и др.
  * @property parent id родителя. Совпадает с id у соответствующего значения ActionType, Goal и др.
  * @property type тип, который представляет из себя union.
- * @property indexList порядковый номер в списке. По нему сортируется вывод данных, для того
- * чтобы сохранить порядок, требуемый пользователем.
  */
 @Entity(tableName = "union_table")
 data class Union(
     @PrimaryKey val id: String,
     var parent: String,
     var type: Int,
-    var indexList: Int
 ) : Serializable
 
 
 @Dao
 interface UnionDao{
-    @Query("SELECT * FROM union_table WHERE parent=(:parent) ORDER BY indexList")
+    @Query("SELECT * FROM union_table WHERE parent=(:parent)")
     fun getUnionsFromParent(parent: String): LiveData<List<Union>>
 
     @Query("WITH RECURSIVE sub_table(id, parent, type) " +
@@ -58,6 +55,9 @@ interface UnionDao{
         "SELECT * FROM union_table WHERE id IN (SELECT id FROM sub_table)")
     fun getUnionWithChild(id: String): List<Union>
 
+    @Query("SELECT parent FROM union_table WHERE id=(:id)")
+    fun getParentUnion(id: String): String?
+
     // Для значения type используется абсолютное значение, а не переменная TYPE_GOAL.
     @Query("WITH RECURSIVE sub_table(id, parent, type) " +
             "AS (SELECT id, parent, type FROM union_table WHERE id=(:id) " +
@@ -70,7 +70,7 @@ interface UnionDao{
     fun deleteUnions(unions: List<Union>)
 
     @Update
-    fun updateUnions(unions: List<Union>)
+    fun updateUnion(union: Union)
 
     @Insert
     fun addUnion(union: Union)
@@ -110,6 +110,8 @@ class UnionRepository private constructor(context: Context) {
 
     fun getUnionsFromParentAndType(id: String, type: Int): LiveData<List<Union>> =
         mDao.getUnionsFromParentAndType(id, type)
+
+    fun getParentUnion(id: String): String? = mDao.getParentUnion(id)
 
     fun getActionTypes(union: List<Union>): LiveData<List<ActionType>> =
         mActionTypeRepository.getActionTypes(union.filter { it.type == TYPE_ACTION_TYPE }.map { it.id })
@@ -156,8 +158,8 @@ class UnionRepository private constructor(context: Context) {
         return percent
     }
 
-    fun updateUnions(unions: List<Union>){
-        mHandler.post { mDao.updateUnions(unions) }
+    fun updateUnion(union: Union){
+        mHandler.post { mDao.updateUnion(union) }
     }
 
     fun addUnion(union: Union){

@@ -116,7 +116,7 @@ data class ActionSchedule(
 
 @Dao
 interface ScheduleDao {
-    @Query("SELECT * FROM schedule_table WHERE id=(:id)")
+    @Query("SELECT * FROM schedule_table WHERE id=(:id) ORDER BY name")
     fun getSchedule(id: String): LiveData<Schedule>
 
     @Query("SELECT * FROM schedule_table WHERE id IN (:ids)")

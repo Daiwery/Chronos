@@ -21,7 +21,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:title="@string/title_union_preview" />
 
-        <com.daiwerystudio.chronos.ui.SelectTypeShowing
+        <com.daiwerystudio.chronos.ui.widgets.SelectTypeShowing
             android:id="@+id/selectTypeShowing"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

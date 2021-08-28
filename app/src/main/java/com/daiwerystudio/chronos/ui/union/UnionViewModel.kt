@@ -15,9 +15,11 @@
 package com.daiwerystudio.chronos.ui.union
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import com.daiwerystudio.chronos.database.*
-import java.util.*
 import java.util.concurrent.Executors
 
 /**
@@ -119,13 +121,14 @@ open class UnionViewModel : ViewModel() {
     private fun updateData(): List<Pair<Int, ID>>{
         val newData = mutableListOf<Pair<Int, ID>>()
 
-        newData.addAll(mActionTypes.map { Pair(TYPE_ACTION_TYPE, it) })
-        newData.addAll(mGoals.map { Pair(TYPE_GOAL, it) })
-        newData.addAll(mSchedules.map { Pair(TYPE_SCHEDULE, it) })
+        /*  Липового сортируем вывод по типу.  */
         newData.addAll(mNotes.map { Pair(TYPE_NOTE, it) })
         newData.addAll(mReminders.map { Pair(TYPE_REMINDER, it) })
+        newData.addAll(mGoals.map { Pair(TYPE_GOAL, it) })
+        newData.addAll(mSchedules.map { Pair(TYPE_SCHEDULE, it) })
+        newData.addAll(mActionTypes.map { Pair(TYPE_ACTION_TYPE, it) })
 
-        return newData.sortedBy { mUnions.value!!.indexOfFirst { union -> union.id == it.second.id } }
+        return newData
     }
 
 
@@ -134,15 +137,24 @@ open class UnionViewModel : ViewModel() {
         mRepository.deleteUnionWithChild(id)
     }
 
-    fun swap(from: Int, to: Int){
-        mUnions.value!![from].indexList = to
-        mUnions.value!![to].indexList = from
+    fun editParentUnion(from: Int, to: Int){
+        mExecutor.execute {
+            val id = data.value!![from].second.id
+            val union = mUnions.value!!.first { it.id == id }
 
-        Collections.swap(mUnions.value!!, from, to)
-    }
-
-    fun updateUnions(){
-        mRepository.updateUnions(mUnions.value!!)
+            // Если to == -1, то перемещаем union вверх по иерархии.
+            if (to == -1) {
+                // Не является LiveData, поэтому выполняем в отдельном потоке.
+                val parent = mRepository.getParentUnion(showing.parentID)
+                if (parent != null) {
+                    union.parent = parent
+                    mRepository.updateUnion(union)
+                }
+            } else {
+                union.parent = data.value!![to].second.id
+                mRepository.updateUnion(union)
+            }
+        }
     }
 
     fun setAchievedGoalWithChild(id: String, isAchieved: Boolean){

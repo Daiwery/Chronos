@@ -24,7 +24,7 @@
             app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24"
             app:titleCentered="true" />
 
-        <com.daiwerystudio.chronos.ui.SelectTypeShowing
+        <com.daiwerystudio.chronos.ui.widgets.SelectTypeShowing
             android:id="@+id/selectTypeShowing"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

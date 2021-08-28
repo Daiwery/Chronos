@@ -108,7 +108,7 @@
             app:srcCompat="@drawable/ic_baseline_error_24"
             tools:ignore="ContentDescription" />
 
-        <com.daiwerystudio.chronos.ui.TimeTextView
+        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
             android:id="@+id/startDay"
             style="@style/Text.Item"
             android:layout_width="wrap_content"

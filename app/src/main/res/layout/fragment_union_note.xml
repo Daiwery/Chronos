@@ -29,7 +29,7 @@
             app:title="@{note.name}"
             app:titleCentered="true" />
 
-        <com.daiwerystudio.chronos.ui.SelectTypeShowing
+        <com.daiwerystudio.chronos.ui.widgets.SelectTypeShowing
             android:id="@+id/selectTypeShowing"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

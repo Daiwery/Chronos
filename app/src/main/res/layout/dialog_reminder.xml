@@ -25,7 +25,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/day" />
 
-        <com.daiwerystudio.chronos.ui.TimeTextView
+        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
             android:id="@+id/day"
             style="@style/Text.Item"
             android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
             custom:timeType="date"
             tools:text="8 августа" />
 
-        <com.daiwerystudio.chronos.ui.TimeTextView
+        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
             android:id="@+id/time"
             style="@style/Text.Item"
             android:layout_width="wrap_content"

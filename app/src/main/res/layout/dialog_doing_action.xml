@@ -58,7 +58,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="0:10" />
 
-        <com.daiwerystudio.chronos.ui.SelectActionTypeView
+        <com.daiwerystudio.chronos.ui.widgets.SelectActionTypeView
             android:id="@+id/selectActionType"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

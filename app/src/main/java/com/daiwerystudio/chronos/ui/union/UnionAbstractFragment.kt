@@ -5,17 +5,49 @@
 
 package com.daiwerystudio.chronos.ui.union
 
+import android.app.AlertDialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.*
+import com.daiwerystudio.chronos.ui.ItemTouchDragCallback
 
 /**
  * Абстрактный класс для union фрагмента.
  */
 abstract class UnionAbstractFragment : Fragment() {
     abstract val viewModel: UnionViewModel
+    val itemTouchHelper by lazy {
+        val simpleItemTouchCallback = ItemTouchDragCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN)
+        simpleItemTouchCallback.background = ColorDrawable(Color.parseColor("#CA0000"))
+        simpleItemTouchCallback.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_delete_24_white)
+
+        simpleItemTouchCallback.setSwipeItemListener{ position ->
+            AlertDialog.Builder(context, R.style.App_AlertDialog)
+                .setTitle(R.string.are_you_sure)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    viewModel.data.value?.also { viewModel.deleteUnionWithChild(it[position].second.id) }
+                }
+                .setNegativeButton(R.string.no){ _, _ -> }
+                .setCancelable(false).create().show()
+        }
+        simpleItemTouchCallback.setDragItemListener{dragFromPosition, dragToPosition ->
+            AlertDialog.Builder(context, R.style.App_AlertDialog)
+                .setTitle(R.string.are_you_sure)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    viewModel.editParentUnion(dragFromPosition, dragToPosition)
+                }
+                .setNegativeButton(R.string.no){ _, _ -> }
+                .setCancelable(false).create().show()
+        }
+
+        ItemTouchHelper(simpleItemTouchCallback)
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,11 +139,5 @@ abstract class UnionAbstractFragment : Fragment() {
 
         override fun createReminderHolder(binding: ItemRecyclerViewReminderBinding): RawHolder =
             ReminderHolder(binding)
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        viewModel.updateUnions()
     }
 }

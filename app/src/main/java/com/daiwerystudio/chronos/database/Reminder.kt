@@ -24,13 +24,13 @@ private const val REMINDER_DATABASE_NAME = "reminder-database"
 data class Reminder(
     @PrimaryKey override val id: String,
     var text: String = "",
-    var time: Long = System.currentTimeMillis()
+    var time: Long = System.currentTimeMillis()+60*60*1000
 ) : Serializable, ID
 
 
 @Dao
 interface ReminderDao {
-    @Query("SELECT * FROM reminder_table WHERE id IN (:ids)")
+    @Query("SELECT * FROM reminder_table WHERE id IN (:ids) ORDER BY text")
     fun getReminders(ids: List<String>): LiveData<List<Reminder>>
 
     @Query("DELETE FROM reminder_table WHERE id IN (:ids)")

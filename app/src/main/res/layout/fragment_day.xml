@@ -127,7 +127,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:ignore="ContentDescription" />
 
-            <com.daiwerystudio.chronos.ui.ActionsClockView
+            <com.daiwerystudio.chronos.ui.widgets.ActionsClockView
                 android:id="@+id/clock"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
