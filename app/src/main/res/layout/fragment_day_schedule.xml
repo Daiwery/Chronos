@@ -55,7 +55,8 @@
             android:layout_marginTop="8dp"
             android:src="@drawable/ic_baseline_access_time_24"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
         <com.daiwerystudio.chronos.ui.widgets.ScheduleClockView
             android:id="@+id/clock"
