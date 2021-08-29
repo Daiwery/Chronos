@@ -1,6 +1,10 @@
 /*
 * Дата создания: 07.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 29.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: рефакторинг.
 */
 
 package com.daiwerystudio.chronos.ui.widgets
@@ -24,9 +28,7 @@ import com.daiwerystudio.chronos.database.ActionSchedule
 import com.daiwerystudio.chronos.database.ActionTypeRepository
 import java.util.concurrent.Executors
 
-/**
- * В данном файле описаны необходимые виджеты для визуализации времени.
- */
+/*  В данном файле описаны необходимые виджеты для визуализации времени.  */
 
 /**
  * Вспомогательный класс. Хранит информацию об одной точке. Нужен в алгоритме для обработки
@@ -51,7 +53,7 @@ private data class ActionDrawable(
 )
 
 /**
- * Основной виджет для визуализации времени. Показывает действия на временной шкале.
+ * Показывает действия на временной шкале.
  *
  * Главная особенность состоит в том, что если времена действий пересекают друг друга,
  * то это действие нужно отодвинуть в сторону, чтобы не рисовать их друг на друге.
@@ -60,52 +62,26 @@ private data class ActionDrawable(
  * координате. После чего можно найти те действия, которые пересекаются, и делать с ними,
  * что требуется.
  *
+ * Используется для показа действий внутри расписания.
+ *
  * Возможная модификация: при смене defaultStartDayTime все расчеты происходят заного.
  * Лучше сделать что-то более оптимизированное.
  */
 class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) {
-    /**
-     * Ширина линии. UI. Получает из xml.
-     */
     private var stripWidth: Float
-    /**
-     * Ширина пробела. UI. Получает из xml.
-     */
     private var spaceWidth: Float
-    /**
-     * Размер закруглений у отрезков времени. UI. Получает из xml.
-     */
     private var corner: Float
-    /**
-     * Задний цвет первой колонки. UI. Получает из xml.
-     */
     private var colorColumn: Int
+    private var mActionDrawables: List<ActionDrawable> = emptyList()
+    private var mCount: Int = 1
+    private val mPaint: Paint = Paint()
+    private val mHandler: Handler = Handler(Looper.getMainLooper())
 
     /**
      * Репозиторий для связи с базой данных типов действий. Необходим для получения цвета.
+     * Получает не LiveData, а напрямую значению., поэтому наблюдателей нет.
      */
     private val mRepository = ActionTypeRepository.get()
-
-    /**
-     * Массив ActionDrawables. Необходим для прорисовки.
-     */
-    private var mActionDrawables: List<ActionDrawable> = emptyList()
-
-    /**
-     * Количество колонок. Необохдим для расчета ширины виджета.
-     */
-    private var mCount: Int = 1
-
-    /**
-     * Paint. Необходим для рисования.
-     */
-    private val mPaint: Paint = Paint()
-
-    /**
-     * Handler. Необходим для передачи запроса на обновление виджета из потока, в котором
-     * обратываются действия.
-     */
-    private val mHandler: Handler = Handler(Looper.getMainLooper())
 
     /**
      * Массив с id испорченных действий. Необходим, чтобы при получении новых данных, найти
@@ -114,13 +90,11 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
     private var mCorrupted: List<String> = emptyList()
 
     /**
-     * Время начала на цифрблате. В секундах.
+     * Время начала на циферблате.
      */
     private var startTime: Long = 0
 
-    /**
-     * Инициализация виджета. Получение из xml необходимых атрибутов.
-     */
+
     init {
         context.theme.obtainStyledAttributes(attrs, R.styleable.ScheduleView,
             0, 0).apply {
@@ -138,9 +112,7 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
         mPaint.isAntiAlias = true
     }
 
-    /**
-     * Интерфейс, который сообщает, что завершена обработка данных.
-     */
+    /*  Интерфейс, который сообщает, что завершена обработка данных.  */
     private var mFinishedListener: FinishedListener? = null
     fun interface FinishedListener{
         fun finish()
@@ -149,9 +121,8 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
         mFinishedListener = finishedListener
     }
 
-    /**
-     * Интерфейс, который сообщает, какой action schedule испорчен посредстом его id.
-     * countCorrupted нужен, чтобы при равенстве его нулю, отметить расписание, как не испорченное.
+    /*  Интерфейс, который сообщает, какой action schedule испорчен.
+     * CountCorrupted нужен, чтобы при равенстве его нулю, отметить день, как не испорченный.
      */
     private var mCorruptedListener: CorruptedListener? = null
     interface CorruptedListener{
@@ -172,15 +143,11 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
         val color: Int,
         val start: Float,
         val end: Float,
-        var scheduleID: String,
+        var dayID: String,
         var index: Int = 0,
     )
 
-    /**
-     * Класс для объявления функций класса DiffUtil.Callback. См. оф. документацию.
-     *
-     * Нужен для оптимизированного нахождения изменений у mCorrupted.
-     */
+    /*  Нужен для оптимизированного нахождения изменений у mCorrupted.  */
     private class Diff(private val oldList: List<String>,
                private val newList: List<String>): DiffUtil.Callback() {
 
@@ -202,19 +169,19 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
      *
      * Основная суть алгоритма состоит в превращении отрезка времени в две точки с указанием,
      * конец это или начало, и последующей сортировке этих точек по координате.
-     * С помощью этого находит те действия, которые пересекаются. После находит для первый
-     * свободны столбец, в котором можно его нарисовать.
-     * Выбор регулирует параметр useSchedule.
+     * С помощью этого находит те действия, которые пересекаются. После находит для них первый
+     * свободный столбец, в котором можно это действие нарисовать.
      * @param actionsSchedule массив с действиями в расписании.
      * @param startDayTime начало дня. Нужен для нахождения выхода за пределы в относительном
-     * расписании. В абсолютном равен null.
+     * расписании. В абсолютном должен быть равен null.
      */
     fun setActionsSchedule(actionsSchedule: List<ActionSchedule>, startDayTime: Long?){
         Executors.newSingleThreadExecutor().execute {
-            this.mCount = 1
+            mCount = 1
 
             val corrupted = mutableListOf<String>()
             val rawPoints = mutableListOf<Point>()
+            // У каждого действия может быть только один интервал. Связываем id и интервал.
             val intervals = mutableMapOf<String, Interval>()
 
             actionsSchedule.forEach{
@@ -223,10 +190,10 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
                 val end = it.endTime/(24f*60*60)
 
                 // В абсолютном расписании невозможно указать время больше, чем 24 часа.
-                // Но в относительном можно. Но тут все по-другому. Все, что больше 24 часов,
-                // должно находится в промежутке между 00:00 и defaultDayStartTime, но в следующем
+                // А в относительном можно. Но тут все по-другому. Все, что больше 24 часов,
+                // должно находится в промежутке между 00:00 и defaultDayStartTime, но! в следующем
                 // дне. Если не влезает, то ошибка.
-                // Если defaultStartDayTime == null, то это не относительное расписание.
+                // Если startDayTime == null, то это не относительное расписание.
                 if (startDayTime != null)
                     if (start-1f >= startDayTime/(24f*60*60) || end-1f >= startDayTime/(24f*60*60)) {
                         corrupted.add(it.id)
@@ -240,24 +207,28 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
             val points = rawPoints.sortedBy { it.coordinate }
 
 
-            // А это нужно, если расписания не используются. Тогда действия будут иметь индекс
-            // первого свободного слобца.
+            // Массив id действий, которые сейчас активны в столбце с номер, равным индексу.
+            // Если id='', то это свободный столбец. По умолчанию всегда есть один столбец.
             val columns = mutableListOf("")
+            // Это номер последного задейственного столбца.
             var index = 0
 
-            // Нужно для определения пересечений.
+            // Список активных действий, то есть тех, которые есть в данный момент времени.
             val active = mutableListOf<String>()
             points.forEach { point ->
                 if (point.isStart) {
+                    // Если это начало, то добавляем id в список активных id.
                     active.add(point.id)
-
+                    // Если сейчас только одно активное действие, то даем ему первый столбец.
                     if (active.size == 1) columns[0] = point.id
-
+                    // Если больше одного, то действия пересекаются.
                     if (active.size > 1) {
                         corrupted.add(point.id)
 
+                        // Находим свободный индекс.
                         val freeIndex = columns.indexOfFirst { it == "" }
                         if (freeIndex == -1){
+                            // Если не нашли, то ставим новый столбец.
                             index += 1
                             columns.add(point.id)
                             intervals[point.id]!!.index = index
@@ -265,17 +236,15 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
                             intervals[point.id]!!.index = freeIndex
                             columns[freeIndex] = point.id
                         }
-
-                        if (index+1 > this.mCount) this.mCount = index+1
+                        if (index+1 > mCount) mCount = index+1
                     }
                 } else {
                     active.remove(point.id)
-
                     columns[columns.indexOfFirst { it == point.id }] = ""
                 }
             }
 
-
+            // Составляем объекты для рисования.
             val actionDrawables = mutableListOf<ActionDrawable>()
             intervals.toList().forEach {
                 val interval = it.second
@@ -288,7 +257,8 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
                 )
             }
 
-
+            // Находим, какие изменения произошли в списке испорченных действий,
+            // и уведомляем об этом.
             val diff = Diff(mCorrupted, corrupted)
             val diffResult = DiffUtil.calculateDiff(diff , false)
             mCorrupted.forEachIndexed { i, id ->
@@ -300,10 +270,10 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
                     mHandler.post { mCorruptedListener?.addCorrupt(id) }
             }
 
-
             this.mActionDrawables = actionDrawables
             this.mCorrupted = corrupted
 
+            // Обновляем объекты рисования с учетом другого начала времени.
             updateActionDrawables()
 
             // Это нужно сделать, так как мы не в основном потоке.
@@ -329,8 +299,8 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
         mActionDrawables.forEach {
             val actionDrawable = it
 
-            actionDrawable.start -= startTime/(60f*60*24)
-            actionDrawable.end -= startTime/(60f*60*24)
+            actionDrawable.start -= startTime/(1000f*60*60*24)
+            actionDrawable.end -= startTime/(1000f*60*60*24)
 
             if (actionDrawable.start < 0f && actionDrawable.end < 0f){
                 actionDrawable.start += 1f
@@ -351,8 +321,7 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
     }
 
     /**
-     * Вызывается, когда родитель хочет установить размер для этого виджета.
-     * Изменят только ширину виджета в зависимости от mCount.
+     * Изменяет только ширину виджета в зависимости от mCount.
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
@@ -378,19 +347,15 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
         setMeasuredDimension(width, height)
     }
 
-    /**
-     * Событие рисования. Рисует все действия на временной шкале.
-     */
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
         val height = height.toFloat()
-        // val width = width.toFloat()
 
         mPaint.color = colorColumn
         canvas?.drawRoundRect(0f, 0f,
             (stripWidth+spaceWidth)-spaceWidth, height, corner, corner, mPaint)
-
 
         mActionDrawables.forEach {
             mPaint.color = it.color
@@ -402,35 +367,22 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
 
 /**
  * Тоже самое, что и ScheduleView, но используется для нескольких расписаний одновременно.
- * Использует для расчета индекса в Interval от факт, что в одном расписании нет
- * пересечений.
+ * Использует для расчета индекса в Interval тот факт, что в одном расписании нет
+ * пересечений. В пределах одного пересечения один столбец имеет действия только от
+ * одного расписания.
+ *
+ * Используется для показа расписания на один день, которое составляется из множества расписаний.
  */
 class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) {
-    /**
-     * Ширина линии. UI. Получает из xml.
-     */
     private var stripWidth: Float
-    /**
-     * Ширина пробела. UI. Получает из xml.
-     */
     private var spaceWidth: Float
-    /**
-     * Размер закруглений у отрезков времени. UI. Получает из xml.
-     */
     private var corner: Float
-    /**
-     * Задний цвет первой колонки. UI. Получает из xml.
-     */
     private var colorColumn: Int
-    /**
-     * Цвет ошибки, в которую красится секция.
-     */
     private var colorError: Int
-
-    /**
-     * Репозиторий для связи с базой данных типов действий. Необходим для получения цвета.
-     */
-    private val mRepository = ActionTypeRepository.get()
+    private var mActionDrawables: List<ActionDrawable> = emptyList()
+    private var mCount: Int = 1
+    private val mPaint: Paint = Paint()
+    private val mHandler: Handler = Handler(Looper.getMainLooper())
 
     /**
      * Массив секций, в которых пересекаются действия. В каждой секции содержится начало, конец
@@ -439,46 +391,24 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
     private var mSections: List<Section> = emptyList()
 
     /**
-     * Массив ActionDrawables. Необходим для прорисовки.
+     * Репозиторий для связи с базой данных типов действий. Необходим для получения цвета.
+     * Получает не LiveData, а напрямую значению., поэтому наблюдателей нет.
      */
-    private var mActionDrawables: List<ActionDrawable> = emptyList()
-
-    /**
-     * Количество колонок. Необходим для расчета ширины виджета.
-     */
-    private var mCount: Int = 1
-
-    /**
-     * Paint. Необходим для рисования.
-     */
-    private val mPaint: Paint = Paint()
-
-    /**
-     * Handler. Необходим для передачи запроса на обновление виджета из потока, в котором
-     * обратываются действия.
-     */
-    private val mHandler: Handler = Handler(Looper.getMainLooper())
-
-    /**
-     * Время начала на цифрблате. В секундах.
-     */
-    private var startTime: Long = 0
+    private val mRepository = ActionTypeRepository.get()
 
     /**
      * Массив с ActionTypeTime. Нужен, чтобы определить,
      * какое сейчас действие необходимо выполнять.
      */
-    private var mActionTypes: List<ActionTypeTime> = emptyList()
+    private var mActionTypesTime: List<ActionTypeTime> = emptyList()
 
     /**
      * Timer. Каждую минуту проверяет, какой тип действие нужно выполнить, и
-     * если оно изменилось, меняет необходимый UI.
+     * если оно изменилось, сообщает об этом с помощью интерфейса.
      */
     private val mTimer: Handler = Handler(Looper.getMainLooper())
 
-    /**
-     * Инициализация виджета. Получение из xml необходимых атрибутов.
-     */
+
     init {
         context.theme.obtainStyledAttributes(attrs, R.styleable.MultiScheduleView,
             0, 0).apply {
@@ -496,17 +426,15 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
         // Сглаживание.
         mPaint.isAntiAlias = true
 
-        // Таймер
+        // Таймер.
         val run = Runnable {
-            val time = (System.currentTimeMillis()+TimeZone.getDefault().getOffset(System.currentTimeMillis()))/1000
+            val time = (System.currentTimeMillis()+TimeZone.getDefault().getOffset(System.currentTimeMillis()))
             mMustActionTypeListener?.getMustActionType(getMustActionType(time))
         }
         mTimer.postDelayed(run, 60*1000L)
     }
 
-    /**
-     * Интерфейс, который сообщает, что завершена обработка данных.
-     */
+    /*  Интерфейс, который сообщает, что завершена обработка данных.  */
     private var mFinishedListener: FinishedListener? = null
     fun interface FinishedListener{
         fun finish()
@@ -515,9 +443,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
         mFinishedListener = finishedListener
     }
 
-    /**
-     * Интерфейс, который сообщает, на какую секцию было нажатие.
-     */
+    /*  Интерфейс, который сообщает, на какую секцию призошло нажатие.  */
     private var mClickListener: ClickListener? = null
     fun interface ClickListener{
         fun onClick(section: Section)
@@ -526,9 +452,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
         mClickListener = clickListener
     }
 
-    /**
-     * Интерфейс, который сообщает количество испорченных секций.
-     */
+    /* Интерфейс, который сообщает количество испорченных секций.  */
     private var mCorruptedListener: CorruptedListener? = null
     fun interface CorruptedListener{
         fun getCount(countCorrupted: Int)
@@ -537,9 +461,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
         mCorruptedListener = corruptedListener
     }
 
-    /**
-     * Интерфейс, который сообщает о типе действии, которое нужно выполнить.
-     */
+    /*  Интерфейс, который сообщает о типе действии, которое нужно выполнить.  */
     private var mMustActionTypeListener: MustActionTypeListener? = null
     fun interface MustActionTypeListener{
         fun getMustActionType(id: String?)
@@ -589,33 +511,25 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
      * Основная суть алгоритма состоит в превращении отрезка времени в две точки с указанием,
      * конец это или начало, и последующей сортировке этих точек по координате.
      * С помощью этого находит те действия, которые пересекаются. После находит для них столбец,
-     * в котором находится расписание, в котором находится это действие.
-     * Выбор регулирует параметр useSchedule.
+     * в котором находится это расписание.
      * @param actionsSchedule массив с действиями в расписании.
-     * @param startDayTime начало дня.
      */
-    fun setActionsSchedule(actionsSchedule: List<ActionSchedule>, startDayTime: Long){
+    fun setActionsSchedule(actionsSchedule: List<ActionSchedule>){
         Executors.newSingleThreadExecutor().execute {
-            this.mCount = 1
+            mCount = 1
 
             val rawPoints = mutableListOf<Point>()
+            // У каждого действия может быть только один интервал. Связываем id и интервал.
             val intervals = mutableMapOf<String, Interval>()
 
-            val startDay = startDayTime/(24f*60*60)
             actionsSchedule.forEach{
                 val color = mRepository.getColor(it.actionTypeId)
                 var start = it.startTime/(24f*60*60)
                 var end = it.endTime/(24f*60*60)
 
-                // startDay  - это новое начало дня.
-                if (start < startDay  && end < startDay ) return@forEach
-                if (start > 1f+startDay && end > 1f+startDay ) return@forEach
-                if (start < startDay ) start = startDay
-                if (end > 1f+startDay ) end = 1f+startDay
-
-                // После чего переводим в обычные координаты.
-                start -= startDay
-                end -= startDay
+                // Возможно, что дкйствие выйдет за пределы текущего дня.
+                if (start < 1f ) start = 0f
+                if (end > 1f ) end = 1f
 
                 rawPoints.add(Point(it.id, true, start, color))
                 rawPoints.add(Point(it.id,false, end, color))
@@ -632,17 +546,21 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
             var section = Section()
             var intervalsForSection = mutableListOf<Interval>()
 
-            // Нужно для определение индексов. Это нужно, чтобы
-            // действия из одного расписания имели одной индекс. Естественно, это при условии, что
-            // само расписание не имеет пересечений.
-            var index = 0
+            // Нужно, чтобы  действия из одного расписания имели один индекс.
+            // Естественно, это при условии, что само расписание не имеет пересечений.
+            // Словарь типа id расписания: номер столбца.
             var activeSchedules = mutableMapOf<String, Int>()
+            // Это номер последного задейственного столбца.
+            var index = 0
 
-            // Нужно для определения пересечений.
+            // ID действия в первом столбце. Нужно, чтобы добавить его в секцию, если
+            // оно пересекается с другим действием.
             var first = ""
+            // Список активных действий, то есть тех, которые есть в данный момент времени.
             val active = mutableListOf<String>()
             points.forEach { point ->
                 if (point.isStart) {
+                    // Если это начало, то добавляем id в список активных id.
                     active.add(point.id)
 
                     if (active.size == 1) {
@@ -655,19 +573,20 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
 
                     // Если все-таки находим пересечение, то нужно не забыть
                     // про первое действие в этой секции (которое могло просто существовать
-                    // без персечений.
+                    // без персечений).
                     if (active.size == 2) {
-                        // При пересечении, неизвестно, что делать.
+                        // Устанавливаем конец действия в начале секции.
+                        // Так как при пересечении неизвестно, что делать.
                         actionType.end = point.coordinate
                         actionTypes.add(actionType)
                         actionType = ActionTypeTime()
 
-                        // Указываем, что тут ошибка.
+                        // Указываем, что тут ошибка, и нельзя определить тип действия, который
+                        // нужно выполнить.
                         actionType.actionTypeID = null
                         actionType.start = point.coordinate
 
                         section.start = point.coordinate
-
                         intervalsForSection.add(intervals[first]!!)
                         activeSchedules[intervals[first]!!.scheduleID] = 1
                     }
@@ -675,23 +594,28 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                     if (active.size > 1) {
                         val scheduleID = intervals[point.id]!!.scheduleID
                         if (scheduleID !in activeSchedules) {
+                            // Если такого расписания еще нет в секции, то добавляем
+                            // новый столбец.
                             index += 1
                             intervals[point.id]!!.index = index
                             activeSchedules[scheduleID] = index
                         } else intervals[point.id]!!.index = activeSchedules[scheduleID]!!
 
-
-                        if (index+1 > this.mCount) this.mCount = index+1
+                        if (index+1 > mCount) mCount = index+1
                         intervalsForSection.add(intervals[point.id]!!)
                     }
                 } else {
                     active.remove(point.id)
 
+                    // Если сейчас только одно активное действие, то мы только что
+                    // вышли из пересечения.
                     if (active.size == 1) {
+                        // Заканчиваем секцию.
                         section.end = point.coordinate
                         section.intervals = intervalsForSection
                         sections.add(section)
 
+                        // И готовимся к следующей части.
                         section = Section()
                         first = active[0]
                         index = 0
@@ -702,11 +626,15 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                         actionType.end = point.coordinate
                         actionTypes.add(actionType)
                         actionType = ActionTypeTime()
-                        // И начало нового действия.
+
+                        // И начало нового действия. Так как теперь можно определить,
+                        // какое действие необходимо выполнить.
                         actionType.actionTypeID = intervals[first]!!.actionTypeID
                         actionType.start = point.coordinate
                     }
-                    // Конец единственного действия.
+
+                    // Если нет активный действий, то мы закончили действие без пересечений
+                    // (с учетом того, что начало действия моглы было в конце пересечения).
                     if (active.size == 0) {
                         actionType.end = point.coordinate
                         actionTypes.add(actionType)
@@ -715,7 +643,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                 }
             }
 
-
+            // Составляем объекты для рисования.
             val actionDrawables = mutableListOf<ActionDrawable>()
             intervals.toList().forEach {
                 val interval = it.second
@@ -728,11 +656,9 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                 )
             }
 
-
             this.mActionDrawables = actionDrawables
             this.mSections = sections
-            this.mActionTypes = actionTypes
-
+            this.mActionTypesTime = actionTypes
 
             // Это нужно сделать, так как мы не в основном потоке.
             mHandler.post{ requestLayout() }
@@ -746,35 +672,24 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
     }
 
     /**
-     * Возвращает id тип действия, которое нужно сейчас выполнить.
+     * Возвращает id типа действия, которое нужно сейчас выполнить.
      * "" - ничего
      * null - ошибка.
      */
     private fun getMustActionType(time: Long): String? {
-        var timeDay = time%(24*60*60)-startTime
-        if (timeDay < 0) timeDay += 24*60*60
-
-        val coordinate = timeDay/(24f*60*60)
-        val actionType = mActionTypes.firstOrNull { coordinate >= it.start && coordinate <= it.end }
+        val timeDay = time%(24*60*60*1000)
+        val coordinate = timeDay/(24f*60*60*1000)
+        val actionType = mActionTypesTime.firstOrNull { coordinate >= it.start && coordinate <= it.end }
 
         return if (actionType == null) ""
         else actionType.actionTypeID
     }
 
-
     /**
-     * Устанавливает новое время начала. Расчитывать новое расположение необходимо заного.
-     */
-    fun setStartTime(startTime: Long){
-        this.startTime = startTime
-    }
-
-    /**
-     * Выполняется при нажатии на экран.
+     * Выполняется при нажатии на экран. Определяет, на какую секцию нажал пользователь.
      */
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-
         if (event?.actionMasked == MotionEvent.ACTION_DOWN){
             val y = event.y/height.toFloat()
             val section = mSections.firstOrNull{ y >= it.start && y <= it.end }
@@ -783,12 +698,10 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                 mClickListener?.onClick(section)
             }
         }
-
         return true
     }
 
     /**
-     * Вызывается, когда родитель хочет установить размер для этого виджета.
      * Изменят только ширину виджета в зависимости от mCount.
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -815,9 +728,6 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
         setMeasuredDimension(width, height)
     }
 
-    /**
-     * Событие рисования. Рисует все действия на временной шкале.
-     */
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
@@ -843,60 +753,26 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
 
 /**
  * Очень похож на класс ScheduleView, за тем исключением, что находит только индексы у Interval.
+ *
+ * Используется для визуализации тайм трекинга.
  */
 class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
-    /**
-     * Ширина линии. UI. Получает из xml.
-     */
     private var stripWidth: Float
-    /**
-     * Ширина пробела. UI. Получает из xml.
-     */
     private var spaceWidth: Float
-
-    /**
-     * Размер закруглений у отрезков времени. UI. Получает из xml.
-     */
     private var corner: Float
-    /**
-     * Задний цвет первой колонки. UI. Получает из xml.
-     */
     private var colorColumn: Int
-
-    /**
-     * Репозиторий для связи с базой данных типов действий. Необходим для получения цвета.
-     */
-    private val mRepository = ActionTypeRepository.get()
-
-    /**
-     * Массив ActionDrawables. Необходим для прорисовки.
-     */
     private var mActionDrawables: List<ActionDrawable> = emptyList()
-
-    /**
-     * Количество колонок. Необохдим для расчета ширины виджета.
-     */
     private var mCount: Int = 1
-
-    /**
-     * Paint. Необходим для рисования.
-     */
     private val mPaint: Paint = Paint()
-
-    /**
-     * Handler. Необходим для передачи запроса на обновление виджета из потока, в котором
-     * обратываются действия.
-     */
     private val mHandler: Handler = Handler(Looper.getMainLooper())
 
     /**
-     * Время начала на цифрблате. В секундах.
+     * Репозиторий для связи с базой данных типов действий. Необходим для получения цвета.
+     * Получает не LiveData, а напрямую значению., поэтому наблюдателей нет.
      */
-    private var startTime: Long = 0
+    private val mRepository = ActionTypeRepository.get()
 
-    /**
-     * Инициализация виджета. Получение из xml необходимых атрибутов.
-     */
+
     init {
         context.theme.obtainStyledAttributes(attrs, R.styleable.ActionsView,
             0, 0).apply {
@@ -933,28 +809,28 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
      * Основная суть алгоритма состоит в превращении отрезка времени в две точки с указанием,
      * конец это или начало, и последующей сортировке этих точек по координате.
      * С помощью этого находит те действия, которые пересекаются. После находит для первый
-     * свободны столбец, в котором можно его нарисовать.
+     * свободный столбец, в котором можно его нарисовать.
      * @param actions массив с действиями. Время НЕ локальное.
      * @param local отклонение от местного времени
      * @param day локальный день, от начало которого нужно отсчитывать.
      */
     fun setActions(actions: List<Action>, local: Int, day: Int){
         Executors.newSingleThreadExecutor().execute {
-            this.mCount = 1
+            mCount = 1
 
             val rawPoints = mutableListOf<Point>()
+            // У каждого действия может быть только один интервал. Связываем id и интервал.
             val intervals = mutableMapOf<String, Interval>()
 
-            val startDay = day*24*60*60+startTime
-
+            val startDay = day*24*60*60*1000
             actions.forEach{
                 val color = mRepository.getColor(it.actionTypeId)
-                var start = (it.startTime+local-startDay)/(24f*60*60)
-                var end = (it.endTime+local-startDay)/(24f*60*60)
+                var start = (it.startTime+local-startDay)/(24f*60*60*1000)
+                var end = (it.endTime+local-startDay)/(24f*60*60*1000)
 
-                // На всякий случай
+                // На всякий случай.
                 if (start < 0f && end < 0f) return@forEach
-                if (start > 1f && end > 0f) return@forEach
+                if (start > 1f && end > 1f) return@forEach
                 // Если мы вышли за пределы, то значит действие начинается
                 // или заканчивается в другом дне.
                 if (start < 0f) start = 0f
@@ -966,21 +842,27 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
             }
             val points = rawPoints.sortedBy { it.coordinate }
 
-            // Это нужно для определения индекса. Действия будут иметь индекс
-            // первого свободного слобца.
-            var index = 0
+            // Массив id действий, которые сейчас активны в столбце с номер, равным индексу.
+            // Если id='', то это свободный столбец. По умолчанию всегда есть один столбец.
             val columns = mutableListOf("")
+            // Это номер последного задейственного столбца.
+            var index = 0
 
-            // Нужно для определения пересечений.
+            // Список активных действий, то есть тех, которые есть в данный момент времени.
             val active = mutableListOf<String>()
             points.forEach { point ->
                 if (point.isStart) {
+                    // Если это начало, то добавляем id в список активных id.
                     active.add(point.id)
 
+                    // Если сейчас только одно активное действие, то даем ему первый столбец.
                     if (active.size == 1) columns[0] = point.id
+                    // Если больше одного, то действия пересекаются.
                     if (active.size > 1) {
+                        // Находим свободный индекс.
                         val freeIndex = columns.indexOfFirst { it == "" }
                         if (freeIndex == -1){
+                            // Если не нашли, то ставим новый столбец.
                             index += 1
                             columns.add(point.id)
                             intervals[point.id]!!.index = index
@@ -988,8 +870,7 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
                             intervals[point.id]!!.index = freeIndex
                             columns[freeIndex] = point.id
                         }
-
-                        if (index+1 > this.mCount) this.mCount = index+1
+                        if (index+1 > mCount) mCount = index+1
                     }
                 } else {
                     active.remove(point.id)
@@ -997,7 +878,7 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
                 }
             }
 
-
+            // Составляем объекты для рисования.
             val actionDrawables = mutableListOf<ActionDrawable>()
             intervals.toList().forEach {
                 val interval = it.second
@@ -1019,14 +900,6 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
     }
 
     /**
-     * Устанавливает новое время начала. Расчитывать новое расположение необходимо заного.
-     */
-    fun setStartTime(startTime: Long){
-        this.startTime = startTime
-    }
-
-    /**
-     * Вызывается, когда родитель хочет установить размер для этого виджета.
      * Изменят только ширину виджета в зависимости от mCount.
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -1053,9 +926,6 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
         setMeasuredDimension(width, height)
     }
 
-    /**
-     * Событие рисования. Рисует все действия на временной шкале.
-     */
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
@@ -1077,27 +947,16 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
 
 /**
  * Вспомогательный виджет. Показывает циферблат. Имеет один изменяемый парамент: время
- * в самом начале. То есть может показывать не только от 00:00 до 00:00
+ * в начале циферблата. Показываем 24 часа.
  */
 class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs){
-    /**
-     * Размер текста. UI. Получает из xml.
-     */
     private var textSize: Int
-
-    /**
-     * Размер пространства между часами. Грудо говоря, размер одного часа.
-     * UI. Получает из xml.
-     */
     private var spaceHeight: Int
-
-    /**
-     * Paint. Рисует.
-     */
     private var paint: Paint = Paint()
+    private val mHandler: Handler = Handler(Looper.getMainLooper())
 
     /**
-     * Время начала на цифрблате. В секундах.
+     * Время начала на цифрблате.
      */
     private var startTime: Long = 0
 
@@ -1106,12 +965,6 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
      * Нужен для единоразового расчета расположения цифр.
      */
     private var hours: List<Hour> = emptyList()
-
-    /**
-     * Handler. Необходим для передачи запроса на обновление виджета из потока, в котором
-     * обратываются действия.
-     */
-    private val mHandler: Handler = Handler(Looper.getMainLooper())
 
     /**
      * Иниализация виджета. Получение параметров из xml.
@@ -1130,8 +983,6 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
         paint.color = Color.BLACK
         paint.textSize = textSize.toFloat()
         paint.isAntiAlias = true
-
-        // setStartTime(0)
     }
 
     /**
@@ -1157,7 +1008,7 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
             val width = paint.measureText(text)
 
             var y = i/24f
-            y -= startTime/(60f*60*24)
+            y -= startTime/(1000f*60*60*24)
             if (y < 0) y += 1
 
             hours.add(Hour(text, width, y))
@@ -1170,7 +1021,6 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
 
 
     /**
-     * Вызывается, когда родитель хочет установить размер для этого виджета.
      * Изменят только вызоту виджета в зависимости от заданных параметров.
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -1197,9 +1047,7 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
         setMeasuredDimension(width, height)
     }
 
-    /**
-     * Событие рисования. Рисует циферблат.
-     */
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
@@ -1217,18 +1065,10 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
  * Высота определяется ClockFaceView.
  */
 class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(context, attrs) {
-    /**
-     * ScheduleView. Необходим для настройки интерфейсов.
-     */
     private val scheduleView: ScheduleView
-    /**
-     * ClockFaceView. Необходим для задания времени начала.
-     */
     private val clockFaceView: ClockFaceView
 
-    /**
-     * Инициализация виджета. Заполнение макета и настройка интерфейсов.
-     */
+
     init {
         inflate(context, R.layout.layout_schedule_clock_view, this)
 
@@ -1247,9 +1087,7 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
         clockFaceView = findViewById(R.id.clockFaceView)
     }
 
-    /**
-     * Интерфейс, который сообщает, что заверешна обработка данных.
-     */
+    /*  Интерфейс, который сообщает, что заверешна обработка данных.  */
     private var mFinishedListener: FinishedListener? = null
     fun interface FinishedListener{
         fun finish()
@@ -1258,9 +1096,7 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
         mFinishedListener = finishedListener
     }
 
-    /**
-     * Интерфейс, который сообщает, какой action schedule испорчен посредстом его id.
-     */
+    /*  Интерфейс, который сообщает, какой action schedule испорчен посредстом его id.  */
     private var mCorruptedListener: CorruptedListener? = null
     interface CorruptedListener{
         fun addCorrupt(id: String)
@@ -1271,17 +1107,13 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
     }
 
 
-    /**
-     * Установка данных для ScheduleView.
-     */
+    /*  Установка данных для ScheduleView.  */
     fun setActionsSchedule(actionsSchedule: List<ActionSchedule>,
                            defaultStartDayTime: Long?){
         scheduleView.setActionsSchedule(actionsSchedule, defaultStartDayTime)
     }
 
-    /**
-     * Устанавливает новое время начала.
-     */
+    /*  Устанавливает новое время начала.  */
     fun setStartTime(startTime: Long){
         clockFaceView.setStartTime(startTime)
         scheduleView.setStartTime(startTime)
@@ -1293,22 +1125,11 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
  * Высота определяется ClockFaceView.
  */
 class ActionsClockView(context: Context, attrs: AttributeSet): FrameLayout(context, attrs) {
-    /**
-     * ScheduleView. Необходим для настройки интерфейсов.
-     */
     private val multiScheduleView: MultiScheduleView
-    /**
-     * ActionsView. Необходим для настройки интерфейсов.
-     */
     private val actionsView: ActionsView
-    /**
-     * ClockFaceView. Необходим для задания времени начала.
-     */
     private val clockFaceView: ClockFaceView
 
-    /**
-     * Инициализация виджета. Заполнение макета и настройка интерфейсов.
-     */
+
     init {
         inflate(context, R.layout.layout_actions_clock_view, this)
 
@@ -1321,9 +1142,7 @@ class ActionsClockView(context: Context, attrs: AttributeSet): FrameLayout(conte
         actionsView = findViewById(R.id.actionsView)
     }
 
-    /**
-     * Интерфейс, который сообщает, что заверешна обработка данных.
-     */
+    /*  Интерфейс, который сообщает, что заверешна обработка данных.  */
     private var mFinishedListener: FinishedListener? = null
     fun interface FinishedListener{
         fun finish()
@@ -1332,9 +1151,7 @@ class ActionsClockView(context: Context, attrs: AttributeSet): FrameLayout(conte
         mFinishedListener = finishedListener
     }
 
-    /**
-     * Интерфейс, который сообщает, на какую секцию было нажатие.
-     */
+    /*  Интерфейс, который сообщает, на какую секцию было нажатие.  */
     private var mClickListener: ClickListener? = null
     fun interface ClickListener{
         fun onClick(section: MultiScheduleView.Section)
@@ -1343,9 +1160,7 @@ class ActionsClockView(context: Context, attrs: AttributeSet): FrameLayout(conte
         mClickListener = clickListener
     }
 
-    /**
-     * Интерфейс, который сообщает количество испорченных секций.
-     */
+    /*  Интерфейс, который сообщает количество испорченных секций.  */
     private var mCorruptedListener: CorruptedListener? = null
     fun interface CorruptedListener{
         fun getCount(countCorrupted: Int)
@@ -1354,9 +1169,7 @@ class ActionsClockView(context: Context, attrs: AttributeSet): FrameLayout(conte
         mCorruptedListener = corruptedListener
     }
 
-    /**
-     * Интерфейс, который сообщает о типе действии, которое нужно выполнить.
-     */
+    /*  Интерфейс, который сообщает о типе действии, которое нужно выполнить.  */
     private var mMustActionTypeListener: MustActionTypeListener? = null
     fun interface MustActionTypeListener{
         fun getMustActionType(id: String?)
@@ -1365,48 +1178,29 @@ class ActionsClockView(context: Context, attrs: AttributeSet): FrameLayout(conte
         mMustActionTypeListener = mustActionTypeListener
     }
 
-    /**
-     * Установка данных для ScheduleView.
-     */
-    fun setActionsSchedule(actionsSchedule: List<ActionSchedule>, defaultStartDayTime: Long){
-        multiScheduleView.setActionsSchedule(actionsSchedule, defaultStartDayTime)
+    /*  Установка данных для MultiScheduleView.  */
+    fun setActionsSchedule(actionsSchedule: List<ActionSchedule>){
+        multiScheduleView.setActionsSchedule(actionsSchedule)
     }
 
-    /**
-     * Установка данных для ActionsView.
-     */
+    /*  Установка данных для ActionsView.  */
     fun setActions(actions: List<Action>, local: Int, day: Int){
         actionsView.setActions(actions, local, day)
     }
 
-    /**
-     * Устанавливает новое время начала.
-     */
-    fun setStartTime(startTime: Long){
-        clockFaceView.setStartTime(startTime)
-        multiScheduleView.setStartTime(startTime)
-        actionsView.setStartTime(startTime)
-    }
-
-    /**
-     * Устанавливает видимость компонентов UI, если мы в будущем.
-     */
+    /*  Устанавливает видимость компонентов UI, если мы в будущем.  */
     fun setFuture(){
         actionsView.visibility = View.GONE
         multiScheduleView.visibility = View.VISIBLE
     }
 
-    /**
-     * Устанавливает видимость компонентов UI, если мы в прошлом.
-     */
+    /* Устанавливает видимость компонентов UI, если мы в прошлом. */
     fun setPast(){
         actionsView.visibility = View.VISIBLE
         multiScheduleView.visibility = View.GONE
     }
 
-    /**
-     * Устанавливает видимость компонентов UI, если мы в настощем.
-     */
+    /* Устанавливает видимость компонентов UI, если мы в настоящем. */
     fun setPresent(){
         actionsView.visibility = View.VISIBLE
         multiScheduleView.visibility = View.VISIBLE

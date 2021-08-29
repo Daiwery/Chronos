@@ -28,6 +28,7 @@ import com.daiwerystudio.chronos.databinding.FragmentDayScheduleBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionScheduleBinding
 import com.daiwerystudio.chronos.ui.union.CustomDiffUtil
 import com.daiwerystudio.chronos.ui.union.ItemAnimator
+import com.daiwerystudio.chronos.ui.widgets.ScheduleClockView
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 
@@ -124,9 +125,9 @@ class DayScheduleFragment : Fragment() {
             dialog.show(activity?.supportFragmentManager!!, "ActionScheduleDialog")
         }
 
-        //        binding.clock.setFinishedListener { binding.loadingClock.visibility = View.GONE }
-//        binding.clock.setCorruptedListener(object : ScheduleClockView.CorruptedListener {
-//            override fun addCorrupt(id: String) {
+        binding.clock.setFinishedListener { binding.loadingClock.visibility = View.GONE }
+        binding.clock.setCorruptedListener(object : ScheduleClockView.CorruptedListener {
+            override fun addCorrupt(id: String) {
 //                val position = viewModel.actionsSchedule.value!!.indexOfFirst { it.id == id }
 //                // После обновления это не уходит в бесконечный цикл, так как
 //                // есть DiffUtil в ScheduleView.
@@ -139,9 +140,9 @@ class DayScheduleFragment : Fragment() {
 //                    schedule.isCorrupted = true
 //                    viewModel.updateSchedule(schedule)
 //                }
-//            }
-//
-//            override fun deleteCorrupt(id: String, countCorrupted: Int) {
+            }
+
+            override fun deleteCorrupt(id: String, countCorrupted: Int) {
 //                val position = viewModel.actionsSchedule.value!!.indexOfFirst { it.id == id }
 //                // После обновления это не уходит в бесконечный цикл, так как
 //                // есть DiffUtil в ScheduleView.
@@ -154,8 +155,8 @@ class DayScheduleFragment : Fragment() {
 //                    schedule.isCorrupted = false
 //                    viewModel.updateSchedule(schedule)
 //                }
-//            }
-//        })
+            }
+        })
 
         return binding.root
     }

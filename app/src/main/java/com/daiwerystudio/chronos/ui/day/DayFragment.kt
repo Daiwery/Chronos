@@ -247,10 +247,6 @@ class DayFragment: Fragment() {
 
 
         viewModel.actions.observe(viewLifecycleOwner,  {
-            // Изменения actions могут быть вызваны изменением startDayTime.
-            // Чтобы не было гонки потоков, устанавливаем значение здесь.
-            binding.clock.setStartTime(viewModel.startDayTime.value!!)
-
             binding.clock.setActions(it, viewModel.local, viewModel.day)
 
             (binding.recyclerView.adapter as Adapter).setData(it)
@@ -259,11 +255,7 @@ class DayFragment: Fragment() {
         viewModel.actionsSchedule.observe(viewLifecycleOwner, {
             binding.loadingClock.visibility = View.VISIBLE
 
-            // Изменения actions могут быть вызваны изменением startDayTime.
-            // Чтобы не было гонки потоков, устанавливаем значение здесь.
-            binding.clock.setStartTime(viewModel.startDayTime.value!!)
-
-            binding.clock.setActionsSchedule(it, viewModel.startDayTime.value!!)
+            binding.clock.setActionsSchedule(it)
         })
 
 
