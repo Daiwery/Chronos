@@ -52,4 +52,5 @@
     <string name="periodic_schedule">Периодическое</string>
     <string name="once_schedule">На один день</string>
     <string name="all">Все</string>
+    <string name="inside_">Внутри:</string>
 </resources>

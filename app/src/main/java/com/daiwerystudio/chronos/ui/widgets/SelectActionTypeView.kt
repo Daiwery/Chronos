@@ -1,16 +1,21 @@
 /*
 * Дата создания: 07.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 28.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: теперь mActionTypes имеет тип List<Pair<String, ActionType>>, а не List<ActionType>.
+* Это связано с добавлением Union. Небольшой рефакторинг.
 */
 
 package com.daiwerystudio.chronos.ui.widgets
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -19,51 +24,42 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.ActionType
-import java.util.*
+import com.daiwerystudio.chronos.ui.union.CustomDiffUtil
+import com.daiwerystudio.chronos.ui.union.ItemAnimator
 
 /**
- * Класс виджета, позволяющего выбрать тип действия. Представляет из себя горизонтальные
+ * Виджет, позволяющий выбрать тип действия. Представляет из себя горизонтальные
  * RecyclerView, вложенный в один вертикальный RecyclerView. Взаимосвязь между компонентами
- * осуществляется с помощью вложенных классов.
+ * осуществляется с помощью интерфейсов.
  */
 class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLayout(context, attrs) {
     /**
-     * Все типы действий.
+     * Типы действий, из которых нужно выбрать. Представляет из себя массив из соединненых
+     * id родителя и типа действийя.
      */
-    private var mActionTypes: List<ActionType> = emptyList()
+    private var mActionTypes: List<Pair<String, ActionType>> = emptyList()
 
     /**
      * Массив с id типов действий. В каждой строчке показываются дети от родителя с id
      * из этого массива.
      */
     private var mIDs: MutableList<String> = mutableListOf("")
-
-    /**
-     * Выбранный тип действия.
-     */
-    private var mSelectActionType: ActionType? = null
-
-    /**
-     * UI для выбранного типа действия.
-     */
+    var selectedActionType: ActionType? = null
+        private set
     private var color: ImageView
     private var name: TextView
-
-    /**
-     * Основной RecyclerView
-     */
+    private var isAll: CheckBox
     private var mRecyclerView: RecyclerView
 
-    /**
-     * Инициализация. Заполнение макета и настройка UI.
-     */
+
     init {
         inflate(context, R.layout.layout_select_action_type, this)
 
         color = findViewById(R.id.imageView)
         color.visibility = View.INVISIBLE
-
         name = findViewById(R.id.textView1)
+        isAll = findViewById(R.id.isAll)
+        isAll.setOnClickListener { mOnEditIsAllListener?.editIsALl(isAll.isChecked) }
 
         mRecyclerView = findViewById(R.id.recyclerView)
         mRecyclerView.apply {
@@ -72,251 +68,227 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
         }
     }
 
-    /**
-     * Интерфейс для события выбора типа действия.
-     */
+    /* Интерфейс для события выбора типа действия. */
     private var mOnSelectListener: OnSelectListener? = null
     fun interface OnSelectListener{
         fun onSelect(actionType: ActionType)
     }
-    fun setOnSelectListener(onSelectListener: OnSelectListener?) {
-        this.mOnSelectListener = onSelectListener
+    fun setOnSelectListener(onSelectListener: OnSelectListener) {
+        mOnSelectListener = onSelectListener
+    }
+
+    /* Интерфейс для события изменения isAll. */
+    private var mOnEditIsAllListener: OnEditIsAllListener? = null
+    fun interface OnEditIsAllListener{
+        fun editIsALl(isAll: Boolean)
+    }
+    fun setOnEditIsAllListener(onEditIsAllListener: OnEditIsAllListener){
+        mOnEditIsAllListener = onEditIsAllListener
     }
 
     /**
-     * Устанавливает массив с типами действий, из которых необоходимо выбрать.
+     * Устанавливает типы действий, из которых нужно выбрать пользователю.
      */
-    @SuppressLint("NotifyDataSetChanged")
-    fun setData(actionTypes: List<ActionType>){
+    fun setData(actionTypes: List<Pair<String, ActionType>>){
         mActionTypes = actionTypes
-        mRecyclerView.adapter?.notifyDataSetChanged()
+        // Устанавливаем mIDs в начальное значение.
+        mIDs = mutableListOf("")
+        (mRecyclerView.adapter as Adapter).setData(mIDs)
+        // После уведовляем, что могли изменится данные.
+        mRecyclerView.adapter?.notifyItemRangeChanged(0, mIDs.size)
     }
 
     /**
-     * Устанавливает заданный тип действия как выбранный.
+     * Устанавливает выбранный тип действия.
      */
-    fun setSelectActionType(actionType: ActionType){
-        // Так нужно сделать, чтобы UI для выбранного элемента не менялся
-        // при изменении базы данных. Такое возможно, так как это подписка.
-        // Проще говоря, установить selectActionType можно только один раз.
-        if (mSelectActionType == null) {
-            mSelectActionType = actionType
-            setUI(mSelectActionType!!)
-        }
-    }
+    fun setSelectedActionType(actionType: ActionType){
+        selectedActionType = actionType
 
-    /**
-     * Устанавливает UI для типа действия.
-     */
-    private fun setUI(actionType: ActionType){
         color.visibility = View.VISIBLE
         color.setColorFilter(actionType.color)
         name.text = actionType.name
     }
 
-    /**
-     * Обновляет массив с id после выбора типа действий. Сперва удаляет все id после выбранного
-     * и добавляет выбранный id.
-     */
-    private fun updateIds(position: Int, actionType: ActionType){
+
+    /*  После выбора типа действия, нужно удалить все строки после него и добавить новую строку. */
+    private fun updateIDs(position: Int, actionType: ActionType){
         val size = mIDs.size
         for (i in position+1 until size){
             mIDs.removeAt(position+1)
         }
         mIDs.add(actionType.id)
 
-        setUI(actionType)
-        mSelectActionType = actionType
-
         (mRecyclerView.adapter as Adapter).setData(mIDs)
         mRecyclerView.scrollToPosition(position+1)
 
+        setSelectedActionType(actionType)
         mOnSelectListener?.onSelect(actionType)
+    }
+
+
+    /**
+     * Адаптер для вертикального RecyclerView.
+     */
+    private inner class Adapter(var ids: List<String>): RecyclerView.Adapter<Holder>(){
+        fun setData(newData: List<String>){
+            val diffUtilCallback = DiffUtilString(ids, newData)
+            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+
+            // Необходимо скопировать значения, чтобы значения не менялись сами до этого момента.
+            ids = newData.map{ it }
+            diffResult.dispatchUpdatesTo(this)
+        }
+
+        override fun getItemCount() = ids.size
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+            val holder = Holder(LayoutInflater.from(parent.context)
+                .inflate(R.layout.layout_line_select_action_type, parent, false))
+            holder.setOnSelectListener{ position, actionType ->
+                updateIDs(position, actionType)
+            }
+            return holder
+        }
+
+        override fun onBindViewHolder(holder: Holder, position: Int) {
+            holder.bind(mActionTypes, ids[position])
+        }
     }
 
     /**
      * Внутри этого holder-а находится горизонтальный RecyclerView.
      */
-    private inner class Holder(view: View): RecyclerView.ViewHolder(view){
-        /**
-         * Горизонтальный RecyclerView.
-         */
+    private class Holder(view: View): RecyclerView.ViewHolder(view){
         private var recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
-
-        /**
-         * UI.
-         */
         private var emptyView: View = view.findViewById(R.id.empty_view)
 
-        /**
-         * Заполнение холдера.
-         */
-        fun bind(id: String) {
-            this.recyclerView.apply {
+        init{
+            recyclerView.apply {
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
                 adapter = ActionTypeAdapter(emptyList())
-                // itemAnimator = ItemAnimator()
             }
-
-//            var actionTypes = mActionTypes.filter { it.parent == id }
-//            actionTypes = actionTypes.sortedBy { it.name }
-//            (this.recyclerView.adapter as ActionTypeAdapter).setData(actionTypes)
+            (recyclerView.adapter as ActionTypeAdapter).setOnSelectListener{
+                mOnSelectListener?.onSelect(absoluteAdapterPosition, it)
+            }
         }
 
-        /**
-         * Вызывается из адаптера, когда пользователь выбрал тип действия.
-         */
-        fun select(actionType: ActionType){
-            updateIds(adapterPosition, actionType)
+        fun bind(rawActionTypes: List<Pair<String, ActionType>>, id: String) {
+            var actionTypes = rawActionTypes.filter { it.first == id }.map { it.second }
+            actionTypes = actionTypes.sortedBy { it.name }
+
+            if (actionTypes.isEmpty()) emptyView.visibility = View.VISIBLE
+            else emptyView.visibility = View.GONE
+
+            (this.recyclerView.adapter as ActionTypeAdapter).setData(actionTypes)
         }
 
-        /**
-         * Вложенный класс адаптера для горизонтального RecyclerView.
-         */
-        private inner class ActionTypeAdapter(var actionTypes: List<ActionType>):
-            RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-            /**
-             * Хранит позицию выбранного холдера в данной строке (горизонтальном RecyclerView).
-             */
-            private var selectPosition: Int = -1
-
-            /**
-             * Установка новых данных для адаптера.
-             */
-            fun setData(newData: List<ActionType>) {
-                actionTypes = newData
-
-                if (actionTypes.isEmpty()) emptyView.visibility = View.VISIBLE
-                else emptyView.visibility = View.GONE
-            }
-
-            /**
-             * Вызывается их холдера, который выбрал пользователь. Нужна для установки рамки
-             * только у выбранного холдера.
-             */
-            fun select(position: Int, actionType: ActionType){
-                val oldSelect = selectPosition
-                selectPosition = position
-
-                this.notifyItemChanged(oldSelect)
-                this.notifyItemChanged(selectPosition)
-
-                this@Holder.select(actionType)
-            }
-
-            /*  Ниже представлены стандартные функции адаптера.  См. оф. документацию. */
-            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionTypeHolder {
-                return ActionTypeHolder(LayoutInflater.from(parent.context)
-                    .inflate(R.layout.layout_item_select_action_type, parent, false))
-            }
-
-            override fun getItemCount() = actionTypes.size
-
-            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-                (holder as ActionTypeHolder).bind(actionTypes[position])
-
-                if (position == selectPosition) holder.setVisibilityFrame(View.VISIBLE)
-                else holder.setVisibilityFrame(View.INVISIBLE)
-            }
-
-            /**
-             * Вложенный класс холдера в адаптере. Это то, с чем в/д пользователь.
-             * При нажатии на холдер он посылает сигнал адаптеру, что пользователь выбрал его.
-             */
-            private inner class ActionTypeHolder(view: View):
-                RecyclerView.ViewHolder(view), OnClickListener {
-                /**
-                 * Тип действия, который показывет холдер.
-                 */
-                private lateinit var actionType: ActionType
-
-                /**
-                 * UI.
-                 */
-                private var color: ImageView  = view.findViewById(R.id.imageView)
-                private var name: TextView = view.findViewById(R.id.textView1)
-                private var frame: ImageView = view.findViewById(R.id.frame)
-                private var countChild: TextView = view.findViewById(R.id.textView3)
-
-                /**
-                 * Инициализация. Ставится OnClickListener на холдер.
-                 */
-                init {
-                    itemView.setOnClickListener(this)
-                }
-
-                /**
-                 * Установка содержимого holder-а.
-                 */
-                fun bind(actionType: ActionType) {
-                    this.actionType = actionType
-
-                    color.setColorFilter(actionType.color)
-                    name.text = actionType.name
-
-//                    val count = mActionTypes.count{ it.parent == actionType.id }
-//                    if (count != 0){
-//                        countChild.visibility = View.VISIBLE
-//                        countChild.text = (resources.getString(R.string.sub_action_types_)+" "+count.toString())
-//                    } else countChild.visibility = View.GONE
-                }
-
-                /**
-                 * Устанавливает видимость для рамки. Вызвается из адаптера.
-                 */
-                fun setVisibilityFrame(visibility: Int){
-                    frame.visibility = visibility
-                }
-
-                /**
-                 * Выполняет при нажатии на холдер. Посылает сигнал адаптеру, что его выбрали.
-                 */
-                override fun onClick(v: View) {
-                    this@ActionTypeAdapter.select(adapterPosition, this.actionType)
-                }
-            }
+        /* Интерфейс для события выбора типа действия. */
+        private var mOnSelectListener: OnSelectListener? = null
+        fun interface OnSelectListener{
+            fun onSelect(position: Int, actionType: ActionType)
+        }
+        fun setOnSelectListener(onSelectListener: OnSelectListener){
+            mOnSelectListener = onSelectListener
         }
     }
 
     /**
-     * Адаптер для главного RecyclerView. Никаких особенностей не имеет.
+     * Адаптер для горизонтального RecyclerView.
      */
-    private inner class Adapter(var ids: List<String>): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+    private class ActionTypeAdapter(var actionTypes: List<ActionType>):
+        RecyclerView.Adapter<ActionTypeHolder>() {
         /**
-         * Установка новых данных для адаптера.
+         * Позиция последнего выбранного типа действия в этой строке.
          */
-        fun setData(newData: List<String>){
-            val diffUtilCallback = DiffUtilString(ids, newData)
+        private var mSelectPosition: Int = -1
+
+        fun setData(newData: List<ActionType>) {
+            val diffUtilCallback = CustomDiffUtil(actionTypes, newData)
             val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
 
-            // Copy data
-            ids = newData.map{ it }
+            mSelectPosition = -1
+            actionTypes = newData.map{ it.copy() }
             diffResult.dispatchUpdatesTo(this)
         }
 
+        override fun getItemCount() = actionTypes.size
 
-        /*  Ниже представлены стандартные функции адаптера.  См. оф. документацию. */
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-            return Holder(LayoutInflater.from(parent.context)
-                .inflate(R.layout.layout_line_select_action_type, parent, false))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionTypeHolder {
+            val holder = ActionTypeHolder(LayoutInflater.from(parent.context)
+                .inflate(R.layout.layout_item_select_action_type, parent, false))
+            holder.setOnSelectListener{position, actionType ->
+                val oldSelect = mSelectPosition
+                mSelectPosition = position
+
+                notifyItemChanged(mSelectPosition)
+                notifyItemChanged(oldSelect)
+
+                mOnSelectListener?.select(actionType)
+            }
+            return holder
         }
 
-        override fun getItemCount() = ids.size
+        override fun onBindViewHolder(holder: ActionTypeHolder, position: Int) {
+            holder.bind(actionTypes[position])
 
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            (holder as Holder).bind(ids[position])
+            if (position == mSelectPosition) holder.setVisibilityFrame(View.VISIBLE)
+            else holder.setVisibilityFrame(View.INVISIBLE)
+        }
+
+        /* Интерфейс для события выбора типа действия. */
+        private var mOnSelectListener: OnSelectListener? = null
+        fun interface OnSelectListener{
+            fun select(actionType: ActionType)
+        }
+        fun setOnSelectListener(onSelectListener: OnSelectListener){
+            mOnSelectListener = onSelectListener
         }
     }
 
-    /**
-     * Класс для объявления функций класса DiffUtil.Callback. См. оф. документацию.
-     *
-     * Возможная модификация: необходимо вынести этот класс в файл RecyclerView, так как
-     * он повторяется почти по всех RecyclerView. Но из-за того, что в каждом RecyclerView
-     * данные разных типов, это сделать проблематично. (Но ведь возможно!)
-     */
+
+    private class ActionTypeHolder(view: View): RecyclerView.ViewHolder(view){
+        private lateinit var actionType: ActionType
+        private val color: ImageView  = view.findViewById(R.id.imageView)
+        private val name: TextView = view.findViewById(R.id.textView1)
+        private val frame: ImageView = view.findViewById(R.id.frame)
+//        private val countChild: TextView = view.findViewById(R.id.textView3)
+
+        init {
+            itemView.setOnClickListener{
+                mOnSelectListener?.select(absoluteAdapterPosition, actionType)
+            }
+        }
+
+        fun bind(actionType: ActionType) {
+            this.actionType = actionType
+
+            color.setColorFilter(actionType.color)
+            name.text = actionType.name
+
+//                val count = mActionTypes.count{ it.first == actionType.id }
+//                if (count != 0){
+//                    countChild.visibility = View.VISIBLE
+//                    countChild.text = (resources.getString(R.string.inside_)+" "+count.toString())
+//                } else countChild.visibility = View.GONE
+        }
+
+        fun setVisibilityFrame(visibility: Int){
+            frame.visibility = visibility
+        }
+
+        /* Интерфейс для события выбора типа действия. */
+        private var mOnSelectListener: OnSelectListener? = null
+        fun interface OnSelectListener{
+            fun select(position: Int, actionType: ActionType)
+        }
+        fun setOnSelectListener(onSelectListener: OnSelectListener){
+            mOnSelectListener = onSelectListener
+        }
+    }
+
+
     private class DiffUtilString(private val oldList: List<String>,
-                                   private val newList: List<String>): DiffUtil.Callback() {
+                                 private val newList: List<String>): DiffUtil.Callback() {
 
         override fun getOldListSize() = oldList.size
 
@@ -325,7 +297,6 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
         override fun areItemsTheSame(oldPosition: Int, newPosition: Int): Boolean {
             return oldList[oldPosition] == newList[newPosition]
         }
-
         override fun areContentsTheSame(oldPosition: Int, newPosition: Int): Boolean {
             return oldList[oldPosition] == newList[newPosition]
         }

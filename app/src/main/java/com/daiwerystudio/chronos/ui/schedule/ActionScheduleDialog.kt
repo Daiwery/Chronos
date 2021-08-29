@@ -1,6 +1,11 @@
 /*
 * Дата создания: 07.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 28.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: изменена логика извлечения типов действий и добавлена взаимодействие с
+* SelectActionTypeViewModel.
 */
 
 package com.daiwerystudio.chronos.ui.schedule
@@ -15,63 +20,23 @@ import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.DialogActionScheduleBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
+import com.daiwerystudio.chronos.ui.widgets.SelectActionTypeViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 
-/** Представляет из себя диалог в виде нижней панели. По логике абсолютно такое же, как и
- * ActionTypeDialog. За тем исключение, что работает с ActionSchedule.
- *
- * Для выбора типа действия используется самописный виджет SelectActionTypeView.
- *
- * Действия UI зависят от типа расписания.
- *
- * Возможная модификация: будет лучше, если для разных типов расписаний будут отдельные
- * диалоги. Если данная модификация добавлена, не забудте убрать предупреждение в database.Schedule.
- */
 class ActionScheduleDialog : BottomSheetDialogFragment() {
-    /**
-     * ViewModel.
-     */
-    private val viewModel: DataViewModel
-    by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
-
-    /**
-     * Репозиторий для взаимодействия с базой данных. Данные из базы данных не извлекаются,
-     * поэтому помещать его в ViewModel нет смысла.
-     */
-    private val scheduleRepository = ScheduleRepository.get()
-
-    /**
-     * Репозиторий для взаимодействия с базой данных. Нужен для работы
-     * SelectActionTypeView.
-     */
-    private val actionTypeRepository = ActionTypeRepository.get()
-
-    /**
-     * Привязка данных.
-     */
+    private val viewModel: SelectActionTypeViewModel
+        by lazy { ViewModelProvider(this).get(SelectActionTypeViewModel::class.java) }
+    private val dataViewModel: DataViewModel
+        by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
+    private val mScheduleRepository = ScheduleRepository.get()
+    private val mActionTypeRepository = ActionTypeRepository.get()
     private lateinit var binding: DialogActionScheduleBinding
-
-    /**
-     * Действие в расписании, которое получает диалог из Bundle.
-     */
     private lateinit var actionSchedule: ActionSchedule
-
-    /**
-     * Тип расписания, которое получает диалог из Bundle.
-     */
     private var type: Int = 0
-
-    /**
-     * Определяет, создается или изменяется ли диалог. Диалог получает его из Bundle.
-     */
     private var isCreated: Boolean = false
 
-
-    /**
-     * Выполняет перед созданиес интефейса. Получает данные из Bundle.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -82,40 +47,38 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
         // Это нужно, чтобы RecyclerView смог засечь изменение данных и перерисовал holder.
         actionSchedule = actionSchedule.copy()
 
-        if (viewModel.data != null) actionSchedule = viewModel.data as ActionSchedule
+        if (dataViewModel.data != null) actionSchedule = dataViewModel.data as ActionSchedule
+
+        // Сперва нужно получить id родителя.
+        viewModel.parentID = arguments?.getString("parentID") as String
+        if (viewModel.isAll.value == null) viewModel.isAll.value = false
     }
 
-    /**
-     * Создание UI и его настройка.
-     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DialogActionScheduleBinding.inflate(inflater, container, false)
-        val view = binding.root
         binding.actionSchedule = actionSchedule
         binding.type = type
 
         // Отмена клавиатуры.
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
 
-        val actionTypes = actionTypeRepository.getAllActionType()
-        actionTypes.observe(viewLifecycleOwner, {
+
+        viewModel.actionTypes.observe(viewLifecycleOwner, {
             binding.selectActionType.setData(it)
         })
-
-        val actionType = actionTypeRepository.getActionType(actionSchedule.actionTypeId)
+        val actionType = mActionTypeRepository.getActionType(actionSchedule.actionTypeId)
         actionType.observe(viewLifecycleOwner, {
-            if (it != null) binding.selectActionType.setSelectActionType(it)
+            if (it != null && binding.selectActionType.selectedActionType != null)
+                binding.selectActionType.setSelectedActionType(it)
         })
-
-        binding.selectActionType.setOnSelectListener{
-            actionSchedule.actionTypeId = it.id
-        }
+        binding.selectActionType.setOnSelectListener{ actionSchedule.actionTypeId = it.id }
+        binding.selectActionType.setOnEditIsAllListener{ viewModel.isAll.value = it }
 
 
         binding.startAfter.setOnClickListener{
-            val hour = actionSchedule.startAfter.toInt()/3600
-            val minute =  (actionSchedule.startAfter.toInt()-hour*3600)/60
+            val hour = actionSchedule.startAfter.toInt()/(1000*60*60)
+            val minute =  (actionSchedule.startAfter.toInt()-hour*1000*60*60)/(1000*60)
 
             val dialog = MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_24H)
@@ -125,16 +88,14 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
                 .build()
 
             dialog.addOnPositiveButtonClickListener {
-                actionSchedule.startAfter = (dialog.hour * 60 + dialog.minute) * 60L
+                actionSchedule.startAfter = (dialog.hour*60+dialog.minute)*1000*60L
                 binding.actionSchedule = actionSchedule
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
-
-
         binding.duration.setOnClickListener {
-            val hour = actionSchedule.duration.toInt()/3600
-            val minute =  (actionSchedule.duration.toInt()-hour*3600)/60
+            val hour = actionSchedule.duration.toInt()/(1000*60*60)
+            val minute =  (actionSchedule.duration.toInt()-hour*1000*60*60)/(1000*60)
 
             val dialog = MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_24H)
@@ -144,16 +105,15 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
                 .build()
 
             dialog.addOnPositiveButtonClickListener {
-                actionSchedule.duration = (dialog.hour * 60 + dialog.minute) * 60L
+                actionSchedule.duration = (dialog.hour*60+dialog.minute)*1000*60L
                 binding.actionSchedule = actionSchedule
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
-
 
         binding.startTime.setOnClickListener{
-            val hour = actionSchedule.startTime.toInt()/3600
-            val minute =  (actionSchedule.startTime.toInt()-hour*3600)/60
+            val hour = actionSchedule.startTime.toInt()/(1000*60*60)
+            val minute =  (actionSchedule.startTime.toInt()-hour*1000*60*60)/(1000*60)
 
             val dialog = MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_24H)
@@ -163,15 +123,14 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
                 .build()
 
             dialog.addOnPositiveButtonClickListener {
-                actionSchedule.startTime = (dialog.hour * 60 + dialog.minute) * 60L
+                actionSchedule.startTime = (dialog.hour*60+dialog.minute)*1000*60L
                 binding.actionSchedule = actionSchedule
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
-
         binding.endTime.setOnClickListener{
-            val hour = actionSchedule.endTime.toInt()/3600
-            val minute =  (actionSchedule.endTime.toInt()-hour*3600)/60
+            val hour = actionSchedule.endTime.toInt()/(1000*60*60)
+            val minute =  (actionSchedule.endTime.toInt()-hour*1000*60*60)/(1000*60)
 
             val dialog = MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_24H)
@@ -181,12 +140,11 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
                 .build()
 
             dialog.addOnPositiveButtonClickListener {
-                actionSchedule.endTime = (dialog.hour * 60 + dialog.minute) * 60L
+                actionSchedule.endTime = (dialog.hour*60+dialog.minute)*1000*60L
                 binding.actionSchedule = actionSchedule
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
-
 
         when (type) {
             TYPE_DAY_SCHEDULE_RELATIVE -> {
@@ -202,32 +160,25 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
 
         if (isCreated) binding.button.text = resources.getString(R.string.add)
         else binding.button.text = resources.getString(R.string.edit)
-
-
         binding.button.setOnClickListener {
             var permission = true
             if (actionSchedule.actionTypeId == "") permission = false
-            if (type == TYPE_DAY_SCHEDULE_ABSOLUTE && actionSchedule.startTime > actionSchedule.endTime)
-                permission = false
+            if (actionSchedule.startTime > actionSchedule.endTime) permission = false
 
             if (permission){
-                if (isCreated) scheduleRepository.addActionSchedule(actionSchedule)
-                else scheduleRepository.updateActionSchedule(actionSchedule)
+                if (isCreated) mScheduleRepository.addActionSchedule(actionSchedule)
+                else mScheduleRepository.updateActionSchedule(actionSchedule)
 
                 this.dismiss()
             }
         }
 
-        return view
+        return binding.root
     }
 
-    /**
-     * Выполняется при уничтожении диалога. Нужно, чтобы сохранить данные, если уничтожение
-     * произошло при перевороте устройства.
-     */
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.data = actionSchedule
+        dataViewModel.data = actionSchedule
     }
 }
 

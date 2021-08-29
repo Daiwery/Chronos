@@ -1,6 +1,11 @@
 /*
 * Дата создания: 12.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 28.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: изменена логика извлечения типов действий и добавлена взаимодействие с
+* SelectActionTypeViewModel.
 */
 
 package com.daiwerystudio.chronos.ui.day
@@ -11,59 +16,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.lifecycle.ViewModelProvider
+import com.daiwerystudio.chronos.database.Action
+import com.daiwerystudio.chronos.database.ActionRepository
 import com.daiwerystudio.chronos.database.ActionTypeRepository
 import com.daiwerystudio.chronos.databinding.DialogDoingActionBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
+import com.daiwerystudio.chronos.ui.widgets.SelectActionTypeViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import java.util.*
 
-
-/**
- * Представляет из себя диалог в виде нижней панели. По логике абсолютно такое же, как и
- * ActionDialog. За тем исключение, что дает выбрать только start и action type.
- *
- * Возможная модификация: экран загрузки при загрузке DatePicker, ибо он долго грузится,
- * никак не уведомляя пользователя.
- */
 class DoingActionDialog : BottomSheetDialogFragment() {
-    /**
-     * ViewModel.
-     */
-    private val viewModel: DataViewModel
-    by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
-
-    /**
-     * Репозиторий для взаимодействия с базой данных. Нужен для работы
-     * SelectActionTypeView.
-     */
-    private val actionTypeRepository = ActionTypeRepository.get()
-
-    /**
-     * Выбранный тип действия. Получает из Bundle.
-     */
-    private var actionTypeID: String = ""
-
-    /**
-     * Привязка данных.
-     */
+    private val dataViewModel: DataViewModel
+            by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
+    private val viewModel: SelectActionTypeViewModel
+            by lazy { ViewModelProvider(this).get(SelectActionTypeViewModel::class.java) }
+    private val mActionRepository = ActionRepository.get()
+    private val mActionTypeRepository = ActionTypeRepository.get()
     private lateinit var binding: DialogDoingActionBinding
+    private var startTime = System.currentTimeMillis()
+    private var actionTypeID: String = ""
+    private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
-    /**
-     * Смещение времени в часовом поезде.
-     */
-    private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())/1000
-
-    /**
-     * Время начала действия.
-     */
-    private var startTime = System.currentTimeMillis()/1000
-
-    /**
-     * Интерфейс, который сообщает, какое действие хочет делать пользователь.
-     */
+    /*  Интерфейс, который сообщает, какое действие хочет делать пользователь.  */
     private var mAddDoingActionTypeListener: AddDoingActionTypeListener? = null
     fun interface AddDoingActionTypeListener{
         fun addDoingActionType(actionTypeID: String, startTime: Long)
@@ -72,40 +49,36 @@ class DoingActionDialog : BottomSheetDialogFragment() {
         mAddDoingActionTypeListener = addDoingActionTypeListener
     }
 
-    /**
-     * Выполняет перед созданиес интефейса. Получает данные из Bundle.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         actionTypeID = arguments?.getString("actionTypeID") as String
-        if (viewModel.data != null) actionTypeID = viewModel.data as String
+        if (dataViewModel.data != null) actionTypeID = dataViewModel.data as String
+
+        // Сперва нужно получить id родителя.
+        viewModel.parentID = arguments?.getString("parentID") as String
+        if (viewModel.isAll.value == null) viewModel.isAll.value = false
     }
 
-    /**
-     * Создание UI и его настройка.
-     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DialogDoingActionBinding.inflate(inflater, container, false)
-        val view = binding.root
         binding.start = startTime
 
         // Отмена клавиатуры.
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
 
-        val actionTypes = actionTypeRepository.getAllActionType()
-        actionTypes.observe(viewLifecycleOwner, {
-            if (it != null) binding.selectActionType.setData(it)
+        viewModel.actionTypes.observe(viewLifecycleOwner, {
+            binding.selectActionType.setData(it)
         })
+        val actionType = mActionTypeRepository.getActionType(actionTypeID)
+        actionType.observe(viewLifecycleOwner, {
+            if (it != null && binding.selectActionType.selectedActionType != null)
+                binding.selectActionType.setSelectedActionType(it)
+        })
+        binding.selectActionType.setOnSelectListener{ actionTypeID = it.id }
+        binding.selectActionType.setOnEditIsAllListener{ viewModel.isAll.value = it }
 
-        //val actionType = actionTypeRepository.getActionType(actionTypeID)
-//        actionType.observe(viewLifecycleOwner, {
-//            binding.selectActionType.setSelectActionType(it)
-//        })
-        binding.selectActionType.setOnSelectListener{
-            actionTypeID = it.id
-        }
 
 
         binding.startTime.setOnClickListener{
@@ -156,7 +129,7 @@ class DoingActionDialog : BottomSheetDialogFragment() {
             }
         }
 
-        return view
+        return binding.root
     }
 
 
@@ -166,6 +139,6 @@ class DoingActionDialog : BottomSheetDialogFragment() {
      */
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.data = actionTypeID
+        dataViewModel.data = actionTypeID
     }
 }

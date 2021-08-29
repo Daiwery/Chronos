@@ -55,11 +55,9 @@ class DayScheduleViewModel : ViewModel() {
         }
     }
 
-
     fun updateDaySchedule(){
         mScheduleRepository.updateDaySchedule(daySchedule.value!!)
     }
-
 
     private val mActionTypeRepository = ActionTypeRepository.get()
     fun getActionType(id: String): LiveData<ActionType> = mActionTypeRepository.getActionType(id)

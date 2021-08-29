@@ -74,7 +74,7 @@ class ItemAnimator: DefaultItemAnimator(){
 
     override fun animateChange(oldHolder: RecyclerView.ViewHolder, newHolder: RecyclerView.ViewHolder,
                                preInfo: ItemHolderInfo, postInfo: ItemHolderInfo): Boolean {
-        return false
+        return true
     }
 }
 

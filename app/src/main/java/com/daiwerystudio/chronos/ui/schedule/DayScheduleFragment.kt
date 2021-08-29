@@ -92,39 +92,37 @@ class DayScheduleFragment : Fragment() {
             viewModel.updateDaySchedule()
         }
 
+        binding.fab.setOnClickListener {
+            val actionSchedule = ActionSchedule(dayID=viewModel.dayScheduleID.value!!,
+                indexList=viewModel.actionsSchedule.value!!.size)
 
-//        binding.fab.setOnClickListener {
-//            val actionSchedule = ActionSchedule(
-//                scheduleID = schedule.id, dayIndex = dayIndex,
-//                indexList = viewModel.actionsSchedule.value?.size!!
-//            )
-//
-//            when (schedule.type) {
-//                TYPE_SCHEDULE_RELATIVE -> {
-//                    actionSchedule.startAfter = 30 * 60
-//                    actionSchedule.duration = 90 * 60
-//                }
-//                TYPE_SCHEDULE_ABSOLUTE -> {
-//                    val actionsSchedule = viewModel.actionsSchedule.value!!
-//
-//                    if (actionsSchedule.isNotEmpty()) actionSchedule.startTime =
-//                        (actionsSchedule[actionsSchedule.size - 1].endTime + 30 * 60)
-//                    else actionSchedule.startTime = 0
-//
-//                    actionSchedule.endTime = (actionSchedule.startTime + 90 * 60)
-//                }
-//                else -> throw IllegalStateException("Invalid type")
-//            }
-//
-//
-//            val dialog = ActionScheduleDialog()
-//            dialog.arguments = Bundle().apply {
-//                putSerializable("actionSchedule", actionSchedule)
-//                putInt("type", schedule.type)
-//                putBoolean("isCreated", true)
-//            }
-//            dialog.show(activity?.supportFragmentManager!!, "ActionScheduleDialog")
-//        }
+            when (viewModel.daySchedule.value!!.type) {
+                TYPE_DAY_SCHEDULE_RELATIVE -> {
+                    actionSchedule.startAfter = 30*60*1000
+                    actionSchedule.duration = 90*60*1000
+                }
+                TYPE_DAY_SCHEDULE_ABSOLUTE -> {
+                    val actionsSchedule = viewModel.actionsSchedule.value!!
+
+                    if (actionsSchedule.isNotEmpty()) actionSchedule.startTime =
+                        (actionsSchedule[actionsSchedule.size-1].endTime+30*60*1000)%(25*60*60*1000)
+                    else actionSchedule.startTime = 0
+
+                    actionSchedule.endTime = (actionSchedule.startTime+90*60*1000)%(25*60*60*1000)
+                }
+                else -> throw IllegalStateException("Invalid type")
+            }
+
+
+            val dialog = ActionScheduleDialog()
+            dialog.arguments = Bundle().apply {
+                putSerializable("actionSchedule", actionSchedule)
+                putInt("type", viewModel.daySchedule.value!!.type)
+                putBoolean("isCreated", true)
+                putString("parentID", viewModel.daySchedule.value!!.scheduleID)
+            }
+            dialog.show(activity?.supportFragmentManager!!, "ActionScheduleDialog")
+        }
 
         //        binding.clock.setFinishedListener { binding.loadingClock.visibility = View.GONE }
 //        binding.clock.setCorruptedListener(object : ScheduleClockView.CorruptedListener {
@@ -162,7 +160,6 @@ class DayScheduleFragment : Fragment() {
         return binding.root
     }
 
-
     private fun setEmptyView(){
         binding.loadingView.visibility = View.GONE
         binding.emptyView.visibility = View.VISIBLE
@@ -180,13 +177,14 @@ class DayScheduleFragment : Fragment() {
 
         init {
             itemView.setOnClickListener {
-//                val dialog = ActionScheduleDialog()
-//                dialog.arguments = Bundle().apply {
-//                    putSerializable("actionSchedule", actionSchedule)
-//                    putInt("type", schedule.type)
-//                    putBoolean("isCreated", false)
-//                }
-//                dialog.show(activity?.supportFragmentManager!!, "ActionScheduleDialog")
+                val dialog = ActionScheduleDialog()
+                dialog.arguments = Bundle().apply {
+                    putSerializable("actionSchedule", actionSchedule)
+                    putInt("type", viewModel.daySchedule.value!!.type)
+                    putBoolean("isCreated", false)
+                    putString("parentID", viewModel.daySchedule.value!!.scheduleID)
+                }
+                dialog.show(activity?.supportFragmentManager!!, "ActionScheduleDialog")
             }
         }
 
@@ -220,51 +218,16 @@ class DayScheduleFragment : Fragment() {
              else setNullView()
         }
 
+        override fun getItemCount() = actionsSchedule.size
 
-         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder{
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder{
             return Holder(DataBindingUtil.inflate(layoutInflater,
                     R.layout.item_recycler_view_action_schedule,
                     parent, false))
         }
 
-         override fun getItemCount() = actionsSchedule.size
-
         override fun onBindViewHolder(holder: Holder, position: Int) {
             holder.bind(actionsSchedule[position])
         }
     }
-
-//    private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
-//        CustomItemTouchCallback(requireContext(),
-//            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-//            ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
-//        private val mAdapter = binding.recyclerView.adapter!!
-//
-//        override fun onMove(recyclerView: RecyclerView,
-//                            viewHolder: RecyclerView.ViewHolder,
-//                            target: RecyclerView.ViewHolder): Boolean {
-//            val from = viewHolder.adapterPosition
-//            val to = target.adapterPosition
-//
-//            viewModel.actionsSchedule.value!![from].indexList = to
-//            viewModel.actionsSchedule.value!![to].indexList = from
-//
-//            Collections.swap(viewModel.actionsSchedule.value!!, from, to)
-//            recyclerView.adapter?.notifyItemMoved(from, to)
-//
-//            return true
-//        }
-//
-//        override fun onClickPositiveButton(viewHolder: RecyclerView.ViewHolder) {
-//            viewModel.deleteActionSchedule(viewModel.actionsSchedule.value!![viewHolder.adapterPosition])
-//        }
-//
-//        override fun onClickNegativeButton(viewHolder: RecyclerView.ViewHolder) {
-//            mAdapter.notifyItemChanged(viewHolder.adapterPosition)
-//        }
-//
-//        }
-//
-//        ItemTouchHelper(simpleItemTouchCallback)
-//    }
  }

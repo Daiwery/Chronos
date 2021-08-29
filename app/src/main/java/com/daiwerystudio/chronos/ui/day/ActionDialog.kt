@@ -1,6 +1,11 @@
 /*
 * Дата создания: 11.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 28.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: изменена логика извлечения типов действий и добавлена взаимодействие с
+* SelectActionTypeViewModel.
 */
 
 package com.daiwerystudio.chronos.ui.day
@@ -15,62 +20,26 @@ import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.DialogActionBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
+import com.daiwerystudio.chronos.ui.widgets.SelectActionTypeViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import java.util.*
 
-/**
- * Представляет из себя диалог в виде нижней панели. По логике абсолютно такое же, как и
- * ActionTypeDialog. За тем исключение, что работает с Action.
- *
- * Возможная модификация: экран загрузки при загрузке DatePicker, ибо он долго грузится,
- * никак не уведомляя пользователя.
- */
 class ActionDialog : BottomSheetDialogFragment() {
-    /**
-     * ViewModel.
-     */
-    private val viewModel: DataViewModel
-    by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
-
-    /**
-     * Репозиторий для взаимодействия с базой данных. Данные из базы данных не извлекаются,
-     * поэтому помещать его в ViewModel нет смысла.
-     */
-    private val actionRepository = ActionRepository.get()
-
-    /**
-     * Репозиторий для взаимодействия с базой данных. Нужен для работы
-     * SelectActionTypeView.
-     */
-    private val actionTypeRepository = ActionTypeRepository.get()
-
-    /**
-     * Привязка данных.
-     */
+    private val dataViewModel: DataViewModel
+        by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
+    private val viewModel: SelectActionTypeViewModel
+        by lazy { ViewModelProvider(this).get(SelectActionTypeViewModel::class.java) }
+    private val mActionRepository = ActionRepository.get()
+    private val mActionTypeRepository = ActionTypeRepository.get()
     private lateinit var binding: DialogActionBinding
-
-    /**
-     * Действие, которое получает диалог из Bundle.
-     */
     private lateinit var action: Action
-
-    /**
-     * Определяет, создается или изменяется ли диалог. Диалог получает его из Bundle.
-     */
     private var isCreated: Boolean = false
-
-    /**
-     * Смещение времени в часовом поезде.
-     */
-    private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())/1000
+    private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
 
-    /**
-     * Выполняет перед созданиес интефейса. Получает данные из Bundle.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -80,12 +49,13 @@ class ActionDialog : BottomSheetDialogFragment() {
         // Это нужно, чтобы RecyclerView смог засечь изменение данных и перерисовал holder.
         action = action.copy()
 
-        if (viewModel.data != null) action = viewModel.data as Action
+        if (dataViewModel.data != null) action = dataViewModel.data as Action
+
+        // Сперва нужно получить id родителя.
+        viewModel.parentID = arguments?.getString("parentID") as String
+        if (viewModel.isAll.value == null) viewModel.isAll.value = false
     }
 
-    /**
-     * Создание UI и его настройка.
-     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DialogActionBinding.inflate(inflater, container, false)
@@ -95,19 +65,17 @@ class ActionDialog : BottomSheetDialogFragment() {
         // Отмена клавиатуры.
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
 
-        val actionTypes = actionTypeRepository.getAllActionType()
-        actionTypes.observe(viewLifecycleOwner, {
+
+        viewModel.actionTypes.observe(viewLifecycleOwner, {
             binding.selectActionType.setData(it)
         })
-
-        val actionType = actionTypeRepository.getActionType(action.actionTypeId)
+        val actionType = mActionTypeRepository.getActionType(action.actionTypeId)
         actionType.observe(viewLifecycleOwner, {
-            if (it != null) binding.selectActionType.setSelectActionType(it)
+            if (it != null && binding.selectActionType.selectedActionType != null)
+                binding.selectActionType.setSelectedActionType(it)
         })
-
-        binding.selectActionType.setOnSelectListener{
-            action.actionTypeId = it.id
-        }
+        binding.selectActionType.setOnSelectListener{ action.actionTypeId = it.id }
+        binding.selectActionType.setOnEditIsAllListener{ viewModel.isAll.value = it }
 
 
         binding.startTime.setOnClickListener{
@@ -195,8 +163,8 @@ class ActionDialog : BottomSheetDialogFragment() {
                 permission = false
 
             if (permission){
-                if (isCreated) actionRepository.addAction(action)
-                else actionRepository.updateAction(action)
+                if (isCreated) mActionRepository.addAction(action)
+                else mActionRepository.updateAction(action)
 
                 this.dismiss()
             }
@@ -205,13 +173,8 @@ class ActionDialog : BottomSheetDialogFragment() {
         return view
     }
 
-
-    /**
-     * Выполняется при уничтожении диалога. Нужно, чтобы сохранить данные, если уничтожение
-     * произошло при перевороте устройства.
-     */
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.data = action
+        dataViewModel.data = action
     }
 }
