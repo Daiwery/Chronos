@@ -62,12 +62,12 @@
         app:popEnterAnim="@android:anim/fade_in"
         app:popExitAnim="@android:anim/fade_out" />
     <fragment
-        android:id="@+id/navigation_periodic_schedule"
-        android:name="com.daiwerystudio.chronos.ui.schedule.PeriodicScheduleFragment"
+        android:id="@+id/navigation_schedule"
+        android:name="com.daiwerystudio.chronos.ui.schedule.ScheduleFragment"
         android:label="" />
     <action
-        android:id="@+id/action_global_navigation_periodic_schedule"
-        app:destination="@id/navigation_periodic_schedule"
+        android:id="@+id/action_global_navigation_schedule"
+        app:destination="@id/navigation_schedule"
         app:enterAnim="@android:anim/slide_in_left"
         app:exitAnim="@android:anim/slide_out_right"
         app:popEnterAnim="@android:anim/slide_in_left"
@@ -84,16 +84,4 @@
         app:exitAnim="@android:anim/fade_out"
         app:popEnterAnim="@android:anim/fade_in"
         app:popExitAnim="@android:anim/fade_out"/>
-    <fragment
-        android:id="@+id/navigation_once_schedule"
-        android:name="com.daiwerystudio.chronos.ui.schedule.OnceScheduleFragment"
-        android:label="fragment_once_schedule"
-        tools:layout="@layout/fragment_once_schedule" />
-    <action
-        android:id="@+id/action_global_navigation_once_schedule"
-        app:destination="@id/navigation_once_schedule"
-        app:enterAnim="@android:anim/slide_in_left"
-        app:exitAnim="@android:anim/slide_out_right"
-        app:popEnterAnim="@android:anim/slide_in_left"
-        app:popExitAnim="@android:anim/slide_out_right"/>
 </navigation>

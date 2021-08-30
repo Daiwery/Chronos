@@ -29,7 +29,7 @@ private const val SCHEDULE_DATABASE_NAME = "schedule-database"
 const val TYPE_SCHEDULE_PERIODIC = 0
 const val TYPE_SCHEDULE_ONCE = 1
 
-/* Предупреждение: данные константы не используются в Data Binding в dialog_action_schedul*/
+/* Предупреждение: данные константы не используются в Data Binding в dialog_action_schedule*/
 const val TYPE_DAY_SCHEDULE_RELATIVE = 0
 const val TYPE_DAY_SCHEDULE_ABSOLUTE = 1
 

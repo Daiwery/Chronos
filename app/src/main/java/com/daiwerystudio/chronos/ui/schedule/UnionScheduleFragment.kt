@@ -19,14 +19,11 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.daiwerystudio.chronos.R
-import com.daiwerystudio.chronos.database.TYPE_SCHEDULE_ONCE
-import com.daiwerystudio.chronos.database.TYPE_SCHEDULE_PERIODIC
 import com.daiwerystudio.chronos.databinding.FragmentUnionScheduleBinding
 import com.daiwerystudio.chronos.ui.union.ID
 import com.daiwerystudio.chronos.ui.union.ItemAnimator
 import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
 import com.daiwerystudio.chronos.ui.union.UnionPopupMenu
-import java.lang.IllegalArgumentException
 
 class UnionScheduleFragment : UnionAbstractFragment() {
     override val viewModel: UnionScheduleViewModel
@@ -46,8 +43,14 @@ class UnionScheduleFragment : UnionAbstractFragment() {
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
+        binding.selectTypeShowing.setTypeShowing(viewModel.showing.typeShowing)
+        binding.selectTypeShowing.setSelectTypeShowingListener{
+            binding.loadingView.visibility = View.VISIBLE
+            viewModel.showing.setTypeShowing(it)
+        }
+
         viewModel.parent.observe(viewLifecycleOwner, {
-            binding.appBar.title = it.name
+            binding.toolBar.title = it.name
         })
 
         viewModel.data.observe(viewLifecycleOwner, {
@@ -58,11 +61,7 @@ class UnionScheduleFragment : UnionAbstractFragment() {
             val bundle = Bundle().apply {
                 putString("scheduleID", viewModel.showing.parentID)
             }
-            when (viewModel.parent.value!!.type){
-                TYPE_SCHEDULE_PERIODIC -> this.findNavController().navigate(R.id.action_global_navigation_periodic_schedule, bundle)
-                TYPE_SCHEDULE_ONCE -> this.findNavController().navigate(R.id.action_global_navigation_once_schedule, bundle)
-                else -> throw IllegalArgumentException("Invalid type")
-            }
+            this.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
         }
 
         binding.fab.setOnClickListener{
@@ -73,10 +72,10 @@ class UnionScheduleFragment : UnionAbstractFragment() {
             popup.show()
         }
 
-        binding.appBar.setNavigationOnClickListener {
+        binding.toolBar.setNavigationOnClickListener {
             it.findNavController().navigateUp()
         }
-        binding.appBar.setOnMenuItemClickListener {
+        binding.toolBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.edit -> {
                     val dialog = ScheduleDialog()

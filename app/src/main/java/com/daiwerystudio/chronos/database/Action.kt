@@ -146,7 +146,7 @@ class ActionRepository private constructor(context: Context) {
         }
 
         fun get(): ActionRepository {
-            return INSTANCE ?: throw IllegalStateException("ActionRepository must beinitialized")
+            return INSTANCE ?: throw IllegalStateException("ActionRepository must be initialized")
         }
     }
 }

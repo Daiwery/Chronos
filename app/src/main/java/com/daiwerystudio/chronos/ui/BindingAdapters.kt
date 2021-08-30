@@ -44,11 +44,6 @@ fun setBooleanVisibilityInvisible(view: View, visibility: Boolean){
 }
 
 
-@BindingAdapter("android:activated")
-fun setActivated(image: ImageView, activated: Boolean){
-    image.isActivated = activated
-}
-
 /**
  * Устанавливает кастомному виджету текст, показывающий время.
  */

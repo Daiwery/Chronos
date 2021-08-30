@@ -5,7 +5,6 @@
 
 package com.daiwerystudio.chronos.ui.note
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,6 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Note
 import com.daiwerystudio.chronos.database.Union
 import com.daiwerystudio.chronos.databinding.FragmentNoteBinding
@@ -45,26 +43,8 @@ class NoteFragment : Fragment()  {
             viewModel.note.note = it.toString()
         }
 
-        binding.appBar.setNavigationOnClickListener {
+        binding.toolBar.setNavigationOnClickListener {
             it.findNavController().navigateUp()
-        }
-        binding.appBar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.delete -> {
-                    AlertDialog.Builder(context, R.style.App_AlertDialog)
-                        .setTitle(resources.getString(R.string.are_you_sure))
-                        .setPositiveButton(R.string.yes) { _, _ ->
-                            viewModel.deleteUnionWithChild()
-                            requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
-                        }
-                        .setNegativeButton(R.string.no){ _, _ -> }
-                        .setCancelable(false)
-                        .create()
-                        .show()
-                    true
-                }
-                else -> false
-            }
         }
 
         return binding.root

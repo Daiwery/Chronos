@@ -14,7 +14,6 @@ import java.util.concurrent.Executors
  */
 class SelectActionTypeViewModel: ViewModel() {
     private val mUnionRepository = UnionRepository.get()
-    private val mExecutor = Executors.newSingleThreadExecutor()
 
     /* Показывать ли типы действий со всего дерева или только от id родителя, который получает диалог. */
     var isAll: MutableLiveData<Boolean> = MutableLiveData()

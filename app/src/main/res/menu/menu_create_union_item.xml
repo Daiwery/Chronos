@@ -12,9 +12,7 @@
         android:id="@+id/create_goal"
         android:title="@string/goal" />
 
-    <item
-        android:id="@+id/create_schedule"
-        android:title="@string/schedule">
+    <item android:title="@string/schedule">
         <menu>
             <item
                 android:id="@+id/create_periodic_schedule"

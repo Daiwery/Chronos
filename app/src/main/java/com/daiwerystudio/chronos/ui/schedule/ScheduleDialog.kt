@@ -116,7 +116,11 @@ class ScheduleDialog : BottomSheetDialogFragment() {
 
             if (permission){
                 if (isCreated) {
-                    mScheduleRepository.createPeriodicSchedule(schedule)
+                    when (schedule.type){
+                        TYPE_SCHEDULE_ONCE -> mScheduleRepository.createOnceSchedule(schedule)
+                        TYPE_SCHEDULE_PERIODIC -> mScheduleRepository.createPeriodicSchedule(schedule)
+                        else -> throw IllegalArgumentException("Invalid type")
+                    }
                     mUnionRepository.addUnion(union!!)
                     this.dismiss()
 
@@ -124,11 +128,7 @@ class ScheduleDialog : BottomSheetDialogFragment() {
                     val bundle = Bundle().apply {
                         putString("scheduleID", schedule.id)
                     }
-                    when (schedule.type){
-                        TYPE_SCHEDULE_PERIODIC -> this.findNavController().navigate(R.id.action_global_navigation_periodic_schedule, bundle)
-                        TYPE_SCHEDULE_ONCE -> this.findNavController().navigate(R.id.action_global_navigation_once_schedule, bundle)
-                        else -> throw IllegalArgumentException("Invalid type")
-                    }
+                    this.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
                 }
                 else {
                     mScheduleRepository.updateSchedule(schedule)

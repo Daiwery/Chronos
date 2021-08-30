@@ -21,7 +21,6 @@
     <string name="schedule_name_hint">Летнее</string>
     <string name="days">Дней</string>
     <string name="days_">Дней:</string>
-    <string name="type">Тип</string>
     <string name="type_">Тип:</string>
     <string-array name="week">
         <item>Понедельник</item>
@@ -52,5 +51,4 @@
     <string name="periodic_schedule">Периодическое</string>
     <string name="once_schedule">На один день</string>
     <string name="all">Все</string>
-    <string name="inside_">Внутри:</string>
 </resources>

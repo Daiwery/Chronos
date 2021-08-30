@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.ui.union.CustomDiffUtil
-import com.daiwerystudio.chronos.ui.union.ItemAnimator
 
 /**
  * Виджет, позволяющий выбрать тип действия. Представляет из себя горизонтальные
