@@ -54,8 +54,8 @@ open class ItemTouchSwipeCallback(dragDirs: Int) :
                              dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
         var dx = dX
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-            if (dx < -viewHolder.itemView.width/2f) {
-                dx = -viewHolder.itemView.width/2f
+            if (dx < -viewHolder.itemView.width/4f) {
+                dx = -viewHolder.itemView.width/4f
                 mIsSwiped = true
             } else mIsSwiped = false
 

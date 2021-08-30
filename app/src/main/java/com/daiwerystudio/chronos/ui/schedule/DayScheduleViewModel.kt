@@ -11,6 +11,7 @@ package com.daiwerystudio.chronos.ui.schedule
 
 import androidx.lifecycle.*
 import com.daiwerystudio.chronos.database.*
+import java.lang.IllegalArgumentException
 import java.util.concurrent.Executors
 
 class DayScheduleViewModel : ViewModel() {
@@ -44,7 +45,7 @@ class DayScheduleViewModel : ViewModel() {
                 if (daySchedule.value!!.type == TYPE_DAY_SCHEDULE_RELATIVE){
                     it.forEachIndexed { i, actionSchedule ->
                         var start = actionSchedule.startAfter
-                        start += if (i != 0) it[i-1].endTime else daySchedule.value!!.startDayTime
+                        start += if (i != 0) newData[i-1].endTime else daySchedule.value!!.startDayTime
 
                         newData[i].startTime = start
                         newData[i].endTime = start+actionSchedule.duration
@@ -55,8 +56,40 @@ class DayScheduleViewModel : ViewModel() {
         }
     }
 
+    fun setTypeDaySchedule(type: Int){
+        // При изменении типа дная мы должны корректно изменить действия.
+        when (type){
+            // Если мы переводим в абсолютное, то уже все сделано.
+            TYPE_DAY_SCHEDULE_ABSOLUTE -> {}
+
+            // А если переводим в относительное, то нужно рассчитать startAfter и duration.
+            TYPE_DAY_SCHEDULE_RELATIVE -> {
+                // Действия уже отсортированы по времени.
+                daySchedule.value!!.startDayTime = actionsSchedule.value!![0].startTime
+                actionsSchedule.value!!.forEachIndexed { i, actionSchedule ->
+                    actionsSchedule.value!![i].duration = actionSchedule.endTime-actionSchedule.startTime
+                    actionsSchedule.value!![i].startAfter =
+                        if (i == 0) actionSchedule.startTime-daySchedule.value!!.startDayTime
+                        else actionSchedule.startTime-actionsSchedule.value!![i-1].endTime
+                }
+            }
+            else -> throw IllegalArgumentException("Invalid type")
+        }
+        daySchedule.value!!.type = type
+        mScheduleRepository.updateDaySchedule(daySchedule.value!!)
+        mScheduleRepository.updateActionsSchedule(actionsSchedule.value!!)
+    }
+
     fun updateDaySchedule(){
         mScheduleRepository.updateDaySchedule(daySchedule.value!!)
+    }
+
+    fun updateActionSchedule(actionSchedule: ActionSchedule){
+        mScheduleRepository.updateActionSchedule(actionSchedule)
+    }
+
+    fun deleteActionSchedule(actionSchedule: ActionSchedule){
+        mScheduleRepository.deleteActionSchedule(actionSchedule)
     }
 
     private val mActionTypeRepository = ActionTypeRepository.get()

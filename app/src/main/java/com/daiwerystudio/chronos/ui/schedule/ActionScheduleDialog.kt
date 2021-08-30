@@ -69,7 +69,7 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
         })
         val actionType = mActionTypeRepository.getActionType(actionSchedule.actionTypeId)
         actionType.observe(viewLifecycleOwner, {
-            if (it != null && binding.selectActionType.selectedActionType != null)
+            if (it != null && binding.selectActionType.selectedActionType == null)
                 binding.selectActionType.setSelectedActionType(it)
         })
         binding.selectActionType.setOnSelectListener{ actionSchedule.actionTypeId = it.id }

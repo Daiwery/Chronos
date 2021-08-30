@@ -66,14 +66,17 @@ data class Schedule(
  * @property type тип дня. Абсолютный (действия задаются конкретными временами)
  * или относительный (действия задаются временем после прошлого действия и длительностью).
  * @property startDayTime время начала дня. Используется для относительного расписания.
+ * @property isCorrupted испорченно ли действие. Действие становится таковым, если пересекается
+ * с другим действием.
  */
 @Entity(tableName = "day_schedule_table")
 data class DaySchedule(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     var scheduleID: String,
     var dayIndex: Int,
-    var type: Int = TYPE_DAY_SCHEDULE_RELATIVE,
-    var startDayTime: Long = 6*60*60*1000
+    var type: Int = TYPE_DAY_SCHEDULE_ABSOLUTE,
+    var startDayTime: Long = 6*60*60*1000,
+    var isCorrupted: Boolean = false
 ) : Serializable
 
 
@@ -165,6 +168,9 @@ interface ScheduleDao {
     @Update
     fun updateActionSchedule(actionSchedule: ActionSchedule)
 
+    @Update
+    fun updateActionsSchedule(actionsSchedule: List<ActionSchedule>)
+
     @Insert
     fun addActionSchedule(actionSchedule: ActionSchedule)
 
@@ -249,6 +255,10 @@ class ScheduleRepository private constructor(context: Context) {
 
     fun updateActionSchedule(actionSchedule: ActionSchedule){
         mHandler.post { mDao.updateActionSchedule(actionSchedule) }
+    }
+
+    fun updateActionsSchedule(actionsSchedule: List<ActionSchedule>){
+        mHandler.post { mDao.updateActionsSchedule(actionsSchedule) }
     }
 
     fun addActionSchedule(actionSchedule: ActionSchedule){

@@ -9,14 +9,20 @@
 
 package com.daiwerystudio.chronos.ui.schedule
 
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
@@ -54,17 +60,25 @@ class DayScheduleFragment : Fragment() {
             adapter = Adapter(emptyList())
             itemAnimator = ItemAnimator()
         }
-//        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         viewModel.daySchedule.observe(viewLifecycleOwner, {
-            if (it.type != TYPE_DAY_SCHEDULE_RELATIVE) binding.setStartDayTime.visibility = View.GONE
-            else binding.setStartDayTime.visibility = View.VISIBLE
+            if (it.type != TYPE_DAY_SCHEDULE_RELATIVE) {
+                binding.setStartDayTime.visibility = View.GONE
+                binding.clock.setStartTime(0)
+            }
+            else {
+                binding.setStartDayTime.visibility = View.VISIBLE
+                binding.clock.setStartTime(it.startDayTime)
+            }
         })
 
         viewModel.actionsSchedule.observe(viewLifecycleOwner, {
             (binding.recyclerView.adapter as Adapter).setData(it)
-//            binding.loadingClock.visibility = View.VISIBLE
-//            binding.clock.setActionsSchedule(it, startDayTime)
+            binding.loadingClock.visibility = View.VISIBLE
+            if (viewModel.daySchedule.value!!.type != TYPE_DAY_SCHEDULE_RELATIVE)
+                binding.clock.setActionsSchedule(it, null)
+            else  binding.clock.setActionsSchedule(it, viewModel.daySchedule.value!!.startDayTime)
         })
 
         binding.setStartDayTime.setOnClickListener {
@@ -87,10 +101,9 @@ class DayScheduleFragment : Fragment() {
         }
 
         binding.setType.setOnClickListener {
-            viewModel.daySchedule.value!!.type =
-                if (viewModel.daySchedule.value!!.type == TYPE_DAY_SCHEDULE_RELATIVE) TYPE_DAY_SCHEDULE_ABSOLUTE
-                else TYPE_DAY_SCHEDULE_RELATIVE
-            viewModel.updateDaySchedule()
+            val type = if (viewModel.daySchedule.value!!.type == TYPE_DAY_SCHEDULE_RELATIVE) TYPE_DAY_SCHEDULE_ABSOLUTE
+            else TYPE_DAY_SCHEDULE_RELATIVE
+            viewModel.setTypeDaySchedule(type)
         }
 
         binding.fab.setOnClickListener {
@@ -128,33 +141,37 @@ class DayScheduleFragment : Fragment() {
         binding.clock.setFinishedListener { binding.loadingClock.visibility = View.GONE }
         binding.clock.setCorruptedListener(object : ScheduleClockView.CorruptedListener {
             override fun addCorrupt(id: String) {
-//                val position = viewModel.actionsSchedule.value!!.indexOfFirst { it.id == id }
-//                // После обновления это не уходит в бесконечный цикл, так как
-//                // есть DiffUtil в ScheduleView.
-//                if (position != -1){
-//                    viewModel.actionsSchedule.value!![position].isCorrupted = true
-//                    viewModel.updateActionSchedule(viewModel.actionsSchedule.value!![position])
-//                }
-//
-//                if (!schedule.isCorrupted) {
-//                    schedule.isCorrupted = true
-//                    viewModel.updateSchedule(schedule)
-//                }
+                val position = viewModel.actionsSchedule.value!!.indexOfFirst { it.id == id }
+                if (position != -1){
+                    viewModel.actionsSchedule.value!![position].isCorrupted = true
+                    // Сразу обновим адаптер.
+                    (binding.recyclerView.adapter as Adapter).setData(viewModel.actionsSchedule.value!!)
+                    // После обновления это не уходит в бесконечный цикл, так как
+                    // есть DiffUtil в ScheduleView.
+                    viewModel.updateActionSchedule(viewModel.actionsSchedule.value!![position])
+                }
+
+                if (!viewModel.daySchedule.value!!.isCorrupted) {
+                    viewModel.daySchedule.value!!.isCorrupted = true
+                    viewModel.updateDaySchedule()
+                }
             }
 
             override fun deleteCorrupt(id: String, countCorrupted: Int) {
-//                val position = viewModel.actionsSchedule.value!!.indexOfFirst { it.id == id }
-//                // После обновления это не уходит в бесконечный цикл, так как
-//                // есть DiffUtil в ScheduleView.
-//                if (position != -1){
-//                    viewModel.actionsSchedule.value!![position].isCorrupted = false
-//                    viewModel.updateActionSchedule(viewModel.actionsSchedule.value!![position])
-//                }
-//
-//                if (countCorrupted == 0){
-//                    schedule.isCorrupted = false
-//                    viewModel.updateSchedule(schedule)
-//                }
+                val position = viewModel.actionsSchedule.value!!.indexOfFirst { it.id == id }
+                if (position != -1){
+                    viewModel.actionsSchedule.value!![position].isCorrupted = false
+                    // Сразу обновим адаптер.
+                    (binding.recyclerView.adapter as Adapter).setData(viewModel.actionsSchedule.value!!)
+                    // После обновления это не уходит в бесконечный цикл, так как
+                    // есть DiffUtil в ScheduleView.
+                    viewModel.updateActionSchedule(viewModel.actionsSchedule.value!![position])
+                }
+
+                if (countCorrupted == 0){
+                    viewModel.daySchedule.value!!.isCorrupted = false
+                    viewModel.updateDaySchedule()
+                }
             }
         })
 
@@ -230,5 +247,60 @@ class DayScheduleFragment : Fragment() {
         override fun onBindViewHolder(holder: Holder, position: Int) {
             holder.bind(actionsSchedule[position])
         }
+    }
+
+
+    private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
+            ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT){
+
+        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                            target: RecyclerView.ViewHolder): Boolean {
+            return false
+        }
+
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                viewModel.deleteActionSchedule(viewModel.actionsSchedule.value!![viewHolder.absoluteAdapterPosition])
+        }
+
+        /**
+         * Иконка, которую рисует onChildDraw.
+         */
+        var icon: Drawable? = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_delete_24_white)
+
+        /**
+         * Задний фон, который рисует onChildDraw.
+         */
+        var background: Drawable? = ColorDrawable(Color.parseColor("#CA0000"))
+
+        override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                                 dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                if (dX < 0) {
+                    val itemView = viewHolder.itemView
+                    background?.setBounds(
+                        itemView.left + viewHolder.itemView.width/100,
+                        itemView.top, itemView.right, itemView.bottom
+                    )
+
+                    icon?.also {
+                        val iconMargin = (itemView.height - it.intrinsicHeight) / 2
+                        val iconTop = itemView.top + iconMargin
+                        val iconBottom = iconTop + it.intrinsicHeight
+                        val iconRight = itemView.right - iconMargin
+                        val iconLeft = iconRight - it.intrinsicWidth
+                        it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                    }
+                } else {
+                    icon?.setBounds(0, 0, 0, 0)
+                    background?.setBounds(0, 0, 0, 0)
+                }
+            }
+            background?.draw(c)
+            icon?.draw(c)
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+        }
+        }
+        ItemTouchHelper(simpleItemTouchCallback)
     }
  }

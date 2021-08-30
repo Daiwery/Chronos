@@ -186,8 +186,8 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
 
             actionsSchedule.forEach{
                 val color = mRepository.getColor(it.actionTypeId)
-                val start = it.startTime/(24f*60*60)
-                val end = it.endTime/(24f*60*60)
+                val start = it.startTime/(24f*60*60*1000)
+                val end = it.endTime/(24f*60*60*1000)
 
                 // В абсолютном расписании невозможно указать время больше, чем 24 часа.
                 // А в относительном можно. Но тут все по-другому. Все, что больше 24 часов,
@@ -195,7 +195,7 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
                 // дне. Если не влезает, то ошибка.
                 // Если startDayTime == null, то это не относительное расписание.
                 if (startDayTime != null)
-                    if (start-1f >= startDayTime/(24f*60*60) || end-1f >= startDayTime/(24f*60*60)) {
+                    if (start-1f >= startDayTime/(24f*60*60*1000) || end-1f >= startDayTime/(24f*60*60*1000)) {
                         corrupted.add(it.id)
                         return@forEach
                     }
@@ -213,14 +213,27 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
             // Это номер последного задейственного столбца.
             var index = 0
 
+            // ID действия в первом столбце. Нужно, чтобы сделать его испорченным, если
+            // оно пересекается с другим действием.
+            var first = ""
             // Список активных действий, то есть тех, которые есть в данный момент времени.
             val active = mutableListOf<String>()
             points.forEach { point ->
                 if (point.isStart) {
                     // Если это начало, то добавляем id в список активных id.
                     active.add(point.id)
+
                     // Если сейчас только одно активное действие, то даем ему первый столбец.
-                    if (active.size == 1) columns[0] = point.id
+                    if (active.size == 1) {
+                        first = point.id
+                        columns[0] = point.id
+                    }
+
+                    // Если все-таки находим пересечение, то нужно не забыть
+                    // про первое действие (которое могло просто существовать
+                    // без персечений).
+                    if (active.size == 2) corrupted.add(first)
+
                     // Если больше одного, то действия пересекаются.
                     if (active.size > 1) {
                         corrupted.add(point.id)
@@ -270,8 +283,8 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
                     mHandler.post { mCorruptedListener?.addCorrupt(id) }
             }
 
-            this.mActionDrawables = actionDrawables
-            this.mCorrupted = corrupted
+            mActionDrawables = actionDrawables
+            mCorrupted = corrupted
 
             // Обновляем объекты рисования с учетом другого начала времени.
             updateActionDrawables()
@@ -524,8 +537,8 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
 
             actionsSchedule.forEach{
                 val color = mRepository.getColor(it.actionTypeId)
-                var start = it.startTime/(24f*60*60)
-                var end = it.endTime/(24f*60*60)
+                var start = it.startTime/(24f*60*60*1000)
+                var end = it.endTime/(24f*60*60*1000)
 
                 // Возможно, что дкйствие выйдет за пределы текущего дня.
                 if (start < 1f ) start = 0f
@@ -656,9 +669,9 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                 )
             }
 
-            this.mActionDrawables = actionDrawables
-            this.mSections = sections
-            this.mActionTypesTime = actionTypes
+            mActionDrawables = actionDrawables
+            mSections = sections
+            mActionTypesTime = actionTypes
 
             // Это нужно сделать, так как мы не в основном потоке.
             mHandler.post{ requestLayout() }
@@ -892,7 +905,7 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
                 )
             }
 
-            this.mActionDrawables = actionDrawables
+            mActionDrawables = actionDrawables
 
             // Это нужно сделать, так как мы не в основном потоке.
             mHandler.post{ requestLayout() }
@@ -1109,8 +1122,8 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
 
     /*  Установка данных для ScheduleView.  */
     fun setActionsSchedule(actionsSchedule: List<ActionSchedule>,
-                           defaultStartDayTime: Long?){
-        scheduleView.setActionsSchedule(actionsSchedule, defaultStartDayTime)
+                           startDayTime: Long?){
+        scheduleView.setActionsSchedule(actionsSchedule, startDayTime)
     }
 
     /*  Устанавливает новое время начала.  */
