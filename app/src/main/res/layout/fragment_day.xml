@@ -5,238 +5,99 @@
     tools:context=".ui.day.DayFragment">
 
     <data>
-        <variable
-            name="countCorrupted"
-            type="Integer" />
-        <variable
-            name="mustActionType"
-            type="com.daiwerystudio.chronos.database.ActionType" />
-        <variable
-            name="doingActionType"
-            type="com.daiwerystudio.chronos.database.ActionType" />
-        <variable
-            name="doingTime"
-            type="Long" />
     </data>
 
-    <FrameLayout
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:id="@+id/motionLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layoutDescription="@xml/scene_fragment_day">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/start_stop"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginEnd="8dp"
-                android:src="@drawable/ic_baseline_play_circle_filled_24"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textView1"
-                tools:ignore="ContentDescription" />
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:title="31 августа 2021"/>
+        </com.google.android.material.appbar.AppBarLayout>
 
-            <TextView
-                android:id="@+id/textView19"
-                style="@style/Text.Item"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="8dp"
-                android:paddingBottom="0dp"
-                android:singleLine="true"
-                android:text="@{doingActionType.name}"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView17"
-                app:layout_constraintEnd_toStartOf="@+id/start_stop"
-                app:layout_constraintStart_toEndOf="@+id/colorDoingActionType"
-                app:layout_constraintTop_toTopOf="@+id/textView17"
-                tools:text="Nothing" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/clock"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+            app:layout_constraintWidth_min="50dp" />
 
-            <TextView
-                android:id="@+id/startTime"
-                style="@style/Text.Caption"
-                android:layout_width="wrap_content"
-                android:layout_height="19dp"
-                android:visibility="visible"
-                app:layout_constraintEnd_toEndOf="@+id/start_stop"
-                app:layout_constraintStart_toStartOf="@+id/start_stop"
-                app:layout_constraintTop_toBottomOf="@+id/start_stop"
-                tools:text="10:10:14" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="24dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:src="@drawable/ic_baseline_add_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="ContentDescription" />
 
-            <TextView
-                android:id="@+id/textView18"
-                style="@style/Text.Item"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="@string/you_must_"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView1"
-                app:layout_constraintStart_toEndOf="@+id/set"
-                app:layout_constraintTop_toTopOf="@+id/textView1"
-                app:layout_constraintVertical_bias="0.0" />
+        <com.daiwerystudio.chronos.ui.widgets.ActionsClockView
+            android:id="@+id/clock"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+            app:layout_constraintWidth_min="50dp" />
 
-            <ImageView
-                android:id="@+id/colorMustActionType"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:layout_marginStart="8dp"
-                android:colorFilter="@{mustActionType.color}"
-                app:layout_constraintBottom_toBottomOf="@+id/textView1"
-                app:layout_constraintStart_toEndOf="@+id/textView17"
-                app:layout_constraintTop_toTopOf="@+id/textView1"
-                app:srcCompat="@drawable/oval"
-                tools:ignore="ContentDescription" />
+        <include
+            android:id="@+id/loading_view"
+            layout="@layout/layout_loading"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+            app:layout_constraintEnd_toEndOf="@+id/recyclerView"
+            app:layout_constraintStart_toStartOf="@+id/recyclerView"
+            app:layout_constraintTop_toTopOf="@+id/recyclerView"
+            tools:visibility="gone" />
 
-            <TextView
-                android:id="@+id/textView17"
-                style="@style/Text.Item"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/you_doing_"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="@+id/textView18"
-                app:layout_constraintTop_toBottomOf="@+id/textView18" />
+        <include
+            android:id="@+id/empty_view"
+            layout="@layout/layout_empty"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+            app:layout_constraintEnd_toEndOf="@+id/recyclerView"
+            app:layout_constraintStart_toStartOf="@+id/recyclerView"
+            app:layout_constraintTop_toTopOf="@+id/recyclerView" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.9"
-                app:layout_constraintStart_toEndOf="@+id/clock"
-                app:layout_constraintTop_toBottomOf="@+id/startTime"
-                app:layout_constraintWidth_min="50dp" />
+        <include
+            android:id="@+id/loading_clock"
+            layout="@layout/layout_loading"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/clock"
+            app:layout_constraintEnd_toEndOf="@id/clock"
+            app:layout_constraintStart_toStartOf="@id/clock"
+            app:layout_constraintTop_toTopOf="@id/clock" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="24dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:src="@drawable/ic_baseline_add_24"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:ignore="ContentDescription" />
-
-            <com.daiwerystudio.chronos.ui.widgets.ActionsClockView
-                android:id="@+id/clock"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView4"
-                app:layout_constraintWidth_min="50dp" />
-
-            <ImageView
-                android:id="@+id/set"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="8dp"
-                android:src="@drawable/ic_baseline_access_time_filled_24"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
-
-            <include
-                android:id="@+id/loading_view"
-                layout="@layout/layout_loading"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="gone" />
-
-            <include
-                android:id="@+id/loading_clock"
-                layout="@layout/layout_loading"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/clock"
-                app:layout_constraintEnd_toEndOf="@id/clock"
-                app:layout_constraintStart_toStartOf="@id/clock"
-                app:layout_constraintTop_toTopOf="@id/clock" />
-
-            <include
-                android:id="@+id/empty_view"
-                layout="@layout/layout_empty"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/recycler_view"
-                app:layout_constraintEnd_toEndOf="@id/recycler_view"
-                app:layout_constraintStart_toStartOf="@id/recycler_view"
-                app:layout_constraintTop_toTopOf="@id/recycler_view" />
-
-            <TextView
-                android:id="@+id/textView15"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:booleanVisibilityInvisible="@{countCorrupted != 0}"
-                android:text="@{String.valueOf(countCorrupted)}"
-                android:textColor="#FF0000"
-                app:layout_constraintBottom_toBottomOf="@+id/imageView4"
-                app:layout_constraintStart_toEndOf="@+id/imageView4"
-                app:layout_constraintTop_toTopOf="@+id/imageView4"
-                tools:text="100"
-                tools:visibility="visible" />
-
-            <ImageView
-                android:id="@+id/colorDoingActionType"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:layout_marginStart="8dp"
-                android:colorFilter="@{doingActionType.color}"
-                app:layout_constraintBottom_toBottomOf="@+id/textView19"
-                app:layout_constraintStart_toEndOf="@+id/textView17"
-                app:layout_constraintTop_toTopOf="@+id/textView19"
-                app:srcCompat="@drawable/oval"
-                tools:ignore="ContentDescription" />
-
-            <TextView
-                android:id="@+id/textView1"
-                style="@style/Text.Item"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:paddingBottom="0dp"
-                android:singleLine="true"
-                android:text="@{mustActionType.name}"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toStartOf="@+id/start_stop"
-                app:layout_constraintStart_toEndOf="@+id/colorDoingActionType"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="12345556енкенкен" />
-
-            <ImageView
-                android:id="@+id/imageView4"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="8dp"
-                android:booleanVisibilityInvisible="@{countCorrupted != 0}"
-                android:src="@drawable/ic_baseline_error_24"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/set"
-                tools:ignore="ContentDescription" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </FrameLayout>
+    </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>

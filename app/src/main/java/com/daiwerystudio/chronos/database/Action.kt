@@ -1,79 +1,59 @@
 /*
 * Дата создания: 08.08.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 19.08.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: Вместо отдельного потока добавлен отдельный looper.
 */
 
 package com.daiwerystudio.chronos.database
 
 import android.content.Context
+import android.os.Handler
+import android.os.HandlerThread
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.daiwerystudio.chronos.ui.union.ID
 import java.io.Serializable
 import java.util.*
 import java.util.concurrent.Executors
 
-
-/**
- * Константа для хранения имени базы данных.
- */
 private const val ACTION_DATABASE_NAME = "action-database"
 
 /**
- * Представляет из себя одну строку в базе данных.
- * Времена startTime и endTime - это времена не от начала дня, а от начала эпохи (без учета
- * часового пояса, он учитывается в UI)
- *
- * Интерфейс Serializable необходим для передачи объекта класса в пакете Bundle.
  * @property id уникальный идентификатор.
  * @property actionTypeId id типа действие
- * @property startTime начало действия. В секундах.
- * @property endTime конец действия. В секундах.
+ * @property startTime начало действия. Время от начала эпохи.
+ * @property endTime конец действия. Время от начала эпохи.
  */
 @Entity(tableName = "action_table")
 data class Action(
-    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    @PrimaryKey override val id: String = UUID.randomUUID().toString(),
     var actionTypeId: String="",
-    var startTime: Long = System.currentTimeMillis()/1000-60*60,
-    var endTime: Long = System.currentTimeMillis()/1000
-) : Serializable
+    var startTime: Long = System.currentTimeMillis()-60*60*1000,
+    var endTime: Long = System.currentTimeMillis()
+) : Serializable, ID
 
-/**
- * С помощью этого интерфейса выполняются запросы к базе данных.
- *
- * Запросы написаны на SQLite.
- */
+
 @Dao
 interface ActionDao {
-    /**
-     * Возвращает все действия в обертке LiveData, у которых либо начало, либо конец находятся в указанном интервале.
-     */
     @Query("SELECT * FROM action_table WHERE " +
             "(startTime >= (:time1) AND startTime <= (:time2)) " +
             "OR (endTime >= (:time1) AND endTime <= (:time2)) ORDER BY startTime")
     fun getActionsFromInterval(time1: Long, time2: Long): LiveData<List<Action>>
 
-    /**
-     * Обновляет заданное действие.
-     */
     @Update
     fun updateAction(action: Action)
 
-    /**
-     * Добавляет заданное действие.
-     */
     @Insert
     fun addAction(action: Action)
 
-    /**
-     * Удаляет заданное действие.
-     */
     @Delete
     fun deleteAction(action: Action)
 }
 
-/**
- * Класс базы данных с указанием, что нужно хранить и какой номер версии.
- */
+
 @Database(entities = [Action::class], version=1, exportSchema = false)
 abstract class ActionDatabase : RoomDatabase() {
     abstract fun dao(): ActionDao
@@ -85,58 +65,33 @@ abstract class ActionDatabase : RoomDatabase() {
  * @see DataBaseApplication
  */
 class ActionRepository private constructor(context: Context) {
-    /**
-     * Объект класса базы данных.
-     */
     private val mDatabase: ActionDatabase = Room.databaseBuilder(context.applicationContext,
         ActionDatabase::class.java,
         ACTION_DATABASE_NAME).build()
-    /**
-     * Интрейфс DAO для взаимодействия с базой данных.
-     */
     private val mDao = mDatabase.dao()
-    /**
-     * Отдельный поток для обновления, добавления и удаления.
-     */
-    private val mExecutor = Executors.newSingleThreadExecutor()
+    private val mHandlerThread = HandlerThread("ScheduleRepository")
+    private var mHandler: Handler
 
-    /**
-     * Возвращает все действия в обертке LiveData, у которых либо начало,
-     * либо конец находятся в указанном интервале.
-     */
+    init {
+        mHandlerThread.start()
+        mHandler = Handler(mHandlerThread.looper)
+    }
+
     fun getActionsFromInterval(time1: Long, time2: Long): LiveData<List<Action>> =
         mDao.getActionsFromInterval(time1, time2)
 
-    /**
-     * Обновляет заданное действие в отдельном потоке.
-     */
     fun updateAction(action: Action) {
-        mExecutor.execute {
-            mDao.updateAction(action)
-        }
+        mHandler.post { mDao.updateAction(action) }
     }
 
-    /**
-     * Добавляет заданное действие в отдельном потоке.
-     */
     fun addAction(action: Action) {
-        mExecutor.execute {
-            mDao.addAction(action)
-        }
+        mHandler.post { mDao.addAction(action) }
     }
-
-    /**
-     * Удаляет заданное действие.
-     */
     fun deleteAction(action: Action) {
-        mExecutor.execute {
-            mDao.deleteAction(action)
-        }
+        mHandler.post { mDao.deleteAction(action) }
     }
 
-    /**
-     * Создаение экземпляр синглтона.
-     */
+
     companion object {
         private var INSTANCE: ActionRepository? = null
         fun initialize(context: Context) {

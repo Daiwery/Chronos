@@ -83,10 +83,10 @@ class DoingActionDialog : BottomSheetDialogFragment() {
 
         binding.startTime.setOnClickListener{
             val localTime = startTime+local
-            val day = localTime/(24*60*60)
-            val time = (localTime%(24*60*60)).toInt()
-            val hour = time/3600
-            val minute = (time-hour*3600)/60
+            val day = localTime/(24*60*60*1000)
+            val time = (localTime%(24*60*60*1000)).toInt()
+            val hour = time/(60*60*1000)
+            val minute = (time-hour*60*60*1000)/(60*1000)
 
             val dialog = MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_24H)
@@ -96,7 +96,7 @@ class DoingActionDialog : BottomSheetDialogFragment() {
                 .build()
 
             dialog.addOnPositiveButtonClickListener {
-                startTime = day*24*60*60+(dialog.hour*60 + dialog.minute)*60-local
+                startTime = day*24*60*60*1000+(dialog.hour*60+dialog.minute)*60*1000-local
                 binding.start = startTime
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
@@ -104,14 +104,14 @@ class DoingActionDialog : BottomSheetDialogFragment() {
 
         binding.startDay.setOnClickListener{
             val localTime = startTime+local
-            val time = localTime%(24*60*60)
+            val time = localTime%(24*60*60*1000)
 
             val dialog = MaterialDatePicker.Builder.datePicker()
-                .setSelection(localTime*1000)
+                .setSelection(localTime)
                 .build()
 
             dialog.addOnPositiveButtonClickListener {
-                startTime = dialog.selection!!/1000+time-local
+                startTime = it+time-local
                 binding.start = startTime
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")

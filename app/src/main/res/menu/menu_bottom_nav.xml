@@ -6,7 +6,7 @@
         android:title="@string/title_union_preview" />
 
     <item
-        android:id="@+id/navigation_day_container"
+        android:id="@+id/navigation_day"
         android:icon="@drawable/ic_baseline_home_24"
         android:title="@string/day" />
 </menu>

@@ -44,8 +44,6 @@ const val TYPE_DAY_SCHEDULE_ABSOLUTE = 1
  * Нужно помнить, что при обновении расписания, количество дней не должно меняться,
  * так как база данных "day_schedule_table" при этом никак не меняется. В once_schedules фиктивно.
  * @property isActive активно ли расписание.
- * @property isCorrupted содержится ли в расписании ошибка. Если да, то оно не будет
- * использоваться при создании расписания на день.
  */
 @Entity(tableName = "schedule_table")
 data class Schedule(
@@ -55,7 +53,6 @@ data class Schedule(
     var type: Int,
     var countDays: Int = 7,
     var isActive: Boolean = true,
-    var isCorrupted: Boolean = false
 ) : Serializable, ID
 
 
@@ -126,22 +123,26 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedule_table WHERE id IN (:ids)")
     fun getSchedules(ids: List<String>): LiveData<List<Schedule>>
 
-    @Query("SELECT * FROM schedule_table WHERE isActive=1 AND isCorrupted=0")
-    fun getActiveAndNotCorruptSchedules(): LiveData<List<Schedule>>
+    @Query("SELECT * FROM schedule_table WHERE isActive=1")
+    fun getActiveSchedules(): LiveData<List<Schedule>>
 
-    @Query("SELECT * FROM action_schedule_table " +
-            "WHERE dayID=(:dayID) ORDER BY indexList ASC")
+    @Query("SELECT * FROM action_schedule_table WHERE dayID=(:dayID) ORDER BY indexList ASC")
     fun getActionsRelativeScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>>
 
-    @Query("SELECT * FROM action_schedule_table " +
-            "WHERE dayID=(:dayID) ORDER BY startTime ASC")
+    @Query("SELECT * FROM action_schedule_table WHERE dayID=(:dayID) ORDER BY startTime ASC")
     fun getActionsAbsoluteScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>>
+
+    @Query("SELECT * FROM action_schedule_table WHERE dayID IN (:daysIDs)")
+    fun getActionsScheduleFromDaysIDs(daysIDs: List<String>): LiveData<List<ActionSchedule>>
 
     @Query("SELECT id FROM day_schedule_table WHERE scheduleID=(:scheduleID)")
     fun getIDsDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<String>>
 
     @Query("SELECT * FROM day_schedule_table WHERE id=(:id)")
     fun getDaySchedule(id: String): LiveData<DaySchedule>
+
+    @Query("SELECT * FROM day_schedule_table WHERE scheduleID=(:scheduleID) AND dayIndex=(:dayIndex)")
+    fun getDaySchedule(scheduleID: String, dayIndex: Int): DaySchedule
 
     @Query("DELETE FROM schedule_table WHERE id IN (:ids)")
     fun deleteSchedules(ids: List<String>)
@@ -207,8 +208,7 @@ class ScheduleRepository private constructor(context: Context) {
 
     fun getSchedules(ids: List<String>): LiveData<List<Schedule>> = mDao.getSchedules(ids)
 
-    fun getActiveAndNotCorruptSchedules(): LiveData<List<Schedule>> =
-        mDao.getActiveAndNotCorruptSchedules()
+    fun getActiveSchedules(): LiveData<List<Schedule>> = mDao.getActiveSchedules()
 
     fun getActionsRelativeScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>> =
         mDao.getActionsRelativeScheduleFromDayID(dayID)
@@ -216,11 +216,15 @@ class ScheduleRepository private constructor(context: Context) {
     fun getActionsAbsoluteScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>> =
         mDao.getActionsAbsoluteScheduleFromDayID(dayID)
 
+    fun getActionsScheduleFromDaysIDs(daysIDs: List<String>): LiveData<List<ActionSchedule>> =
+        mDao.getActionsScheduleFromDaysIDs(daysIDs)
+
     fun getIDsDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<String>> =
         mDao.getIDsDaysScheduleFromScheduleID(scheduleID)
 
     fun getDaySchedule(id: String): LiveData<DaySchedule> = mDao.getDaySchedule(id)
 
+    fun getDaySchedule(scheduleID: String, dayIndex: Int): DaySchedule = mDao.getDaySchedule(scheduleID, dayIndex)
 
     fun deleteCompletelySchedules(ids: List<String>){
         mHandler.post {

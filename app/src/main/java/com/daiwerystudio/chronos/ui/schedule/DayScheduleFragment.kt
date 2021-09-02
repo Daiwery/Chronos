@@ -178,6 +178,14 @@ class DayScheduleFragment : Fragment() {
         return binding.root
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        // При выходе из фрагмента нам нужно сохранить значение startTime и endTime,
+        // так как они будут использоваться в составлении расписании на день.
+        viewModel.updateActionsSchedule()
+    }
+
     private fun setEmptyView(){
         binding.loadingView.visibility = View.GONE
         binding.emptyView.visibility = View.VISIBLE

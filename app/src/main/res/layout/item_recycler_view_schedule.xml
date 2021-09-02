@@ -132,15 +132,5 @@
                 tools:text="Periodic"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <ImageView
-            android:id="@+id/error"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:booleanVisibility="@{schedule.corrupted}"
-            android:visibility="gone"
-            app:srcCompat="@drawable/drawable_error_schedule"
-            tools:ignore="ContentDescription" />
-
     </com.google.android.material.card.MaterialCardView>
 </layout>

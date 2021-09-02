@@ -20,7 +20,7 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.widget.FrameLayout
+import android.widget.ScrollView
 import androidx.recyclerview.widget.DiffUtil
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Action
@@ -457,12 +457,12 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
     }
 
     /*  Интерфейс, который сообщает, на какую секцию призошло нажатие.  */
-    private var mClickListener: ClickListener? = null
-    fun interface ClickListener{
+    private var mClickSectionListener: ClickSectionListener? = null
+    fun interface ClickSectionListener{
         fun onClick(section: Section)
     }
-    fun setClickListener(clickListener: ClickListener){
-        mClickListener = clickListener
+    fun setClickSectionListener(clickSectionListener: ClickSectionListener){
+        mClickSectionListener = clickSectionListener
     }
 
     /* Интерфейс, который сообщает количество испорченных секций.  */
@@ -708,7 +708,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
             val section = mSections.firstOrNull{ y >= it.start && y <= it.end }
 
             if (section != null) {
-                mClickListener?.onClick(section)
+                mClickSectionListener?.onClick(section)
             }
         }
         return true
@@ -827,7 +827,7 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
      * @param local отклонение от местного времени
      * @param day локальный день, от начало которого нужно отсчитывать.
      */
-    fun setActions(actions: List<Action>, local: Int, day: Int){
+    fun setActions(actions: List<Action>, local: Int, day: Long){
         Executors.newSingleThreadExecutor().execute {
             mCount = 1
 
@@ -1077,13 +1077,14 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
  * ViewGroup. Соединение виджетов выше с ScrollView. Используется в DayScheduleFragment.
  * Высота определяется ClockFaceView.
  */
-class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(context, attrs) {
+class ScheduleClockView(context: Context, attrs: AttributeSet): ScrollView(context, attrs) {
     private val scheduleView: ScheduleView
     private val clockFaceView: ClockFaceView
 
 
     init {
         inflate(context, R.layout.layout_schedule_clock_view, this)
+        isVerticalScrollBarEnabled = false
 
         scheduleView = findViewById(R.id.scheduleView)
         scheduleView.setFinishedListener{ mFinishedListener?.finish() }
@@ -1109,7 +1110,7 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
         mFinishedListener = finishedListener
     }
 
-    /*  Интерфейс, который сообщает, какой action schedule испорчен посредстом его id.  */
+    /*  Интерфейс, который сообщает, какой action schedule испорчен.  */
     private var mCorruptedListener: CorruptedListener? = null
     interface CorruptedListener{
         fun addCorrupt(id: String)
@@ -1137,19 +1138,20 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): FrameLayout(cont
  * ViewGroup. Соединение виджетов выше с ScrollView. Используется в DayFragment.
  * Высота определяется ClockFaceView.
  */
-class ActionsClockView(context: Context, attrs: AttributeSet): FrameLayout(context, attrs) {
+class ActionsClockView(context: Context, attrs: AttributeSet): ScrollView(context, attrs) {
     private val multiScheduleView: MultiScheduleView
     private val actionsView: ActionsView
     private val clockFaceView: ClockFaceView
 
 
     init {
-        inflate(context, R.layout.layout_actions_clock_view, this)
+        inflate(context, R.layout.layout_day_clock_view, this)
+        isVerticalScrollBarEnabled = false
 
         clockFaceView = findViewById(R.id.clockFaceView)
         multiScheduleView = findViewById(R.id.multiScheduleView)
         multiScheduleView.setFinishedListener{ mFinishedListener?.finish() }
-        multiScheduleView.setClickListener{ mClickListener?.onClick(it) }
+        multiScheduleView.setClickSectionListener{ mClickSectionListener?.onClick(it) }
         multiScheduleView.setCorruptedListener{ mCorruptedListener?.getCount(it) }
         multiScheduleView.setMustActionTypeListener{ mMustActionTypeListener?.getMustActionType(it) }
         actionsView = findViewById(R.id.actionsView)
@@ -1165,12 +1167,12 @@ class ActionsClockView(context: Context, attrs: AttributeSet): FrameLayout(conte
     }
 
     /*  Интерфейс, который сообщает, на какую секцию было нажатие.  */
-    private var mClickListener: ClickListener? = null
-    fun interface ClickListener{
+    private var mClickSectionListener: ClickSectionListener? = null
+    fun interface ClickSectionListener{
         fun onClick(section: MultiScheduleView.Section)
     }
-    fun setClickListener(clickListener: ClickListener){
-        mClickListener = clickListener
+    fun setClickSectionListener(clickSectionListener: ClickSectionListener){
+        mClickSectionListener = clickSectionListener
     }
 
     /*  Интерфейс, который сообщает количество испорченных секций.  */
@@ -1191,29 +1193,25 @@ class ActionsClockView(context: Context, attrs: AttributeSet): FrameLayout(conte
         mMustActionTypeListener = mustActionTypeListener
     }
 
-    /*  Установка данных для MultiScheduleView.  */
+
     fun setActionsSchedule(actionsSchedule: List<ActionSchedule>){
         multiScheduleView.setActionsSchedule(actionsSchedule)
     }
 
-    /*  Установка данных для ActionsView.  */
-    fun setActions(actions: List<Action>, local: Int, day: Int){
+    fun setActions(actions: List<Action>, local: Int, day: Long){
         actionsView.setActions(actions, local, day)
     }
 
-    /*  Устанавливает видимость компонентов UI, если мы в будущем.  */
     fun setFuture(){
         actionsView.visibility = View.GONE
         multiScheduleView.visibility = View.VISIBLE
     }
 
-    /* Устанавливает видимость компонентов UI, если мы в прошлом. */
     fun setPast(){
         actionsView.visibility = View.VISIBLE
         multiScheduleView.visibility = View.GONE
     }
 
-    /* Устанавливает видимость компонентов UI, если мы в настоящем. */
     fun setPresent(){
         actionsView.visibility = View.VISIBLE
         multiScheduleView.visibility = View.VISIBLE

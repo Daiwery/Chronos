@@ -5,10 +5,10 @@
     app:startDestination="@id/navigation_union_preview">
 
     <fragment
-        android:id="@+id/navigation_day_container"
-        android:name="com.daiwerystudio.chronos.ui.day.DayContainerFragment"
-        android:label="fragment_day_container"
-        tools:layout="@layout/fragment_day_container" />
+        android:id="@+id/navigation_day"
+        android:name="com.daiwerystudio.chronos.ui.day.DayFragment"
+        android:label=""
+        tools:layout="@layout/fragment_day" />
     <fragment
         android:id="@+id/navigation_union_preview"
         android:name="com.daiwerystudio.chronos.ui.union.UnionPreviewFragment"

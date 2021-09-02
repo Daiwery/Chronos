@@ -17,15 +17,8 @@
         </attr>
     </declare-styleable>
 
-    <declare-styleable name="FadeViewAppBarBehavior">
-        <attr name="behavior_startHeight" format="dimension"/>
-        <attr name="behavior_minHeightAppBar" format="dimension"/>
-    </declare-styleable>
-
     <declare-styleable name="SelectTypeShowing">
     </declare-styleable>
-
-
 
     <attr name="stripWidth" format="dimension" />
     <attr name="spaceWidth" format="dimension" />

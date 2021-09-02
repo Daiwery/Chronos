@@ -84,6 +84,9 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
     fun setOnEditIsAllListener(onEditIsAllListener: OnEditIsAllListener){
         mOnEditIsAllListener = onEditIsAllListener
     }
+    fun setVisibilityIsAll(visibility: Int){
+        isAll.visibility = visibility
+    }
 
     /**
      * Устанавливает типы действий, из которых нужно выбрать пользователю.

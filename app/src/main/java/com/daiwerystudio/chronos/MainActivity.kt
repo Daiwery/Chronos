@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         mNavController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.navigation_union_preview ->  navView.visibility = View.VISIBLE
-                R.id.navigation_day_container ->  navView.visibility = View.VISIBLE
+                R.id.navigation_day ->  navView.visibility = View.VISIBLE
                 else -> navView.visibility = View.GONE
             }
         }

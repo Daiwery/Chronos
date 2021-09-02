@@ -24,29 +24,56 @@
             custom:textSize="14sp" />
 
         <HorizontalScrollView
+            android:id="@+id/scrollView1"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:scrollbars="none"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/clockFaceView"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_max="70dp">
+            app:layout_constraintWidth_max="45dp">
 
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <com.daiwerystudio.chronos.ui.widgets.ScheduleView
-                    android:id="@+id/scheduleView"
+                <com.daiwerystudio.chronos.ui.widgets.MultiScheduleView
+                    android:id="@+id/multiScheduleView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    custom:colorColumn="@color/white_1000"
+                    custom:colorError="#4B930000"
                     custom:corner="10dp"
                     custom:spaceWidth="0dp"
-                    custom:stripWidth="15dp"
-                    custom:colorColumn="@color/white_1000" />
+                    custom:stripWidth="15dp" />
+            </FrameLayout>
+        </HorizontalScrollView>
+
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:scrollbars="none"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/scrollView1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="45dp">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <com.daiwerystudio.chronos.ui.widgets.ActionsView
+                    android:id="@+id/actionsView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    custom:colorColumn="@color/white_1000"
+                    custom:corner="10dp"
+                    custom:spaceWidth="0dp"
+                    custom:stripWidth="15dp" />
             </FrameLayout>
         </HorizontalScrollView>
 

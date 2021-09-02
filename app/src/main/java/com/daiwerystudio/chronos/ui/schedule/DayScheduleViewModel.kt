@@ -88,6 +88,10 @@ class DayScheduleViewModel : ViewModel() {
         mScheduleRepository.updateActionSchedule(actionSchedule)
     }
 
+    fun updateActionsSchedule(){
+        mScheduleRepository.updateActionsSchedule(actionsSchedule.value!!)
+    }
+
     fun deleteActionSchedule(actionSchedule: ActionSchedule){
         mScheduleRepository.deleteActionSchedule(actionSchedule)
     }

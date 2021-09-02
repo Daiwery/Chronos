@@ -31,7 +31,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/oval.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/activity_main.xml" value="0.264" />
-        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action.xml" value="0.1" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action.xml" value="0.264" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_absolute_schedule.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_schedule.xml" value="0.1" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_type.xml" value="0.4" />
@@ -74,6 +74,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_schedule.xml" value="0.1" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_spinner.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_actions_clock_view.xml" value="0.264" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_clickable_calendar_view.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_clock.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_clock_view.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_empty.xml" value="0.4" />
