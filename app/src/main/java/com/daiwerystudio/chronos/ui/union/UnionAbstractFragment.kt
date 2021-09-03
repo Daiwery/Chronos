@@ -81,6 +81,7 @@ abstract class UnionAbstractFragment : Fragment() {
             val percent = viewModel.getPercentAchieved(goal.id)
             percent.observe(viewLifecycleOwner, {
                 binding.progressBar.progress = it
+                binding.progressTextView.text = ("$it%")
             })
         }
 

@@ -37,13 +37,6 @@ fun setBooleanVisibility(view: View, visibility: Boolean){
 }
 
 
-@BindingAdapter("android:booleanVisibilityInvisible")
-fun setBooleanVisibilityInvisible(view: View, visibility: Boolean){
-    if (visibility) view.visibility = View.VISIBLE
-    else view.visibility = View.INVISIBLE
-}
-
-
 /**
  * Устанавливает кастомному виджету текст, показывающий время.
  */

@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -44,9 +45,20 @@ class UnionScheduleFragment : UnionAbstractFragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         binding.selectTypeShowing.setTypeShowing(viewModel.showing.typeShowing)
+        if (viewModel.showing.typeShowing != -1) {
+            binding.selectTypeShowing.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+            binding.selectTypeShowing.requestLayout()
+        }
         binding.selectTypeShowing.setSelectTypeShowingListener{
             binding.loadingView.visibility = View.VISIBLE
             viewModel.showing.setTypeShowing(it)
+        }
+
+        binding.toolBar.setOnClickListener {
+            if (binding.selectTypeShowing.height == 0)
+                binding.selectTypeShowing.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+            else binding.selectTypeShowing.layoutParams.height = 0
+            binding.selectTypeShowing.requestLayout()
         }
 
         viewModel.parent.observe(viewLifecycleOwner, {
@@ -56,13 +68,6 @@ class UnionScheduleFragment : UnionAbstractFragment() {
         viewModel.data.observe(viewLifecycleOwner, {
             (binding.recyclerView.adapter as Adapter).updateData(it)
         })
-
-        binding.editMore.setOnClickListener {
-            val bundle = Bundle().apply {
-                putString("scheduleID", viewModel.showing.parentID)
-            }
-            this.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
-        }
 
         binding.fab.setOnClickListener{
             val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
@@ -78,12 +83,10 @@ class UnionScheduleFragment : UnionAbstractFragment() {
         binding.toolBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.edit -> {
-                    val dialog = ScheduleDialog()
-                    dialog.arguments = Bundle().apply{
-                        putSerializable("schedule", viewModel.parent.value!!)
-                        putBoolean("isCreated", false)
+                    val bundle = Bundle().apply {
+                        putString("scheduleID", viewModel.showing.parentID)
                     }
-                    dialog.show(requireActivity().supportFragmentManager, "ScheduleDialog")
+                    this.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
                    true
                 }
                 R.id.delete -> {

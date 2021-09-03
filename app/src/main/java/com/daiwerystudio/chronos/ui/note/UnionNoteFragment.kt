@@ -10,6 +10,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.widget.LinearLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,6 +44,10 @@ class UnionNoteFragment : UnionAbstractFragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         binding.selectTypeShowing.setTypeShowing(viewModel.showing.typeShowing)
+        if (viewModel.showing.typeShowing != -1) {
+            binding.selectTypeShowing.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+            binding.selectTypeShowing.requestLayout()
+        }
         binding.selectTypeShowing.setSelectTypeShowingListener{
             binding.loadingView.visibility = View.VISIBLE
             viewModel.showing.setTypeShowing(it)
@@ -51,11 +57,11 @@ class UnionNoteFragment : UnionAbstractFragment() {
             (binding.recyclerView.adapter as Adapter).updateData(it)
         })
 
-        binding.editMore.setOnClickListener {
-            val bundle = Bundle().apply{
-                putSerializable("note", viewModel.parent.value!!)
-            }
-            it.findNavController().navigate(R.id.action_global_navigation_note, bundle)
+        binding.toolBar.setOnClickListener {
+            if (binding.selectTypeShowing.height == 0)
+                binding.selectTypeShowing.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+            else binding.selectTypeShowing.layoutParams.height = 0
+            binding.selectTypeShowing.requestLayout()
         }
 
         binding.fab.setOnClickListener{
@@ -71,6 +77,13 @@ class UnionNoteFragment : UnionAbstractFragment() {
         }
         binding.toolBar.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.edit -> {
+                    val bundle = Bundle().apply{
+                        putSerializable("note", viewModel.parent.value!!)
+                    }
+                    requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.action_global_navigation_note, bundle)
+                    true
+                }
                 R.id.delete -> {
                     AlertDialog.Builder(context, R.style.App_AlertDialog)
                         .setTitle(resources.getString(R.string.are_you_sure))

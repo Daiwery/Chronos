@@ -1,89 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:scrollbars="none">
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
 
-        <TextView
-            android:id="@+id/all"
-            style="@style/Text.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/drawable_select_type_showing"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:text="@string/all"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
+        <ImageView
             android:id="@+id/note"
-            style="@style/Text.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/drawable_select_type_showing"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:text="@string/note"
-            app:layout_constraintStart_toEndOf="@+id/all"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_note"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
-        <TextView
+        <ImageView
             android:id="@+id/reminder"
-            style="@style/Text.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/drawable_select_type_showing"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:text="@string/reminder"
+            android:src="@drawable/ic_reminder"
             app:layout_constraintStart_toEndOf="@+id/note"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
-        <TextView
+        <ImageView
             android:id="@+id/goal"
-            style="@style/Text.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/drawable_select_type_showing"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:text="@string/goal"
+            android:src="@drawable/ic_goal"
             app:layout_constraintStart_toEndOf="@+id/reminder"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
-        <TextView
+        <ImageView
             android:id="@+id/schedule"
-            style="@style/Text.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/drawable_select_type_showing"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:text="@string/schedule"
+            android:src="@drawable/ic_schedule"
             app:layout_constraintStart_toEndOf="@+id/goal"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
-        <TextView
+        <ImageView
             android:id="@+id/action_type"
-            style="@style/Text.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/drawable_select_type_showing"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:text="@string/action_type"
+            android:src="@drawable/ic_action_type"
             app:layout_constraintStart_toEndOf="@+id/schedule"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</HorizontalScrollView>
+</FrameLayout>

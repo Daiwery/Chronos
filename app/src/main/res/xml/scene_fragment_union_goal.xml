@@ -14,11 +14,6 @@
     </Transition>
 
     <ConstraintSet android:id="@+id/start">
-        <Constraint android:id="@+id/selectTypeShowing"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolBar" />
         <Constraint android:id="@+id/loading_view">
             <PropertySet
                 app:visibilityMode="ignore" />
@@ -31,24 +26,19 @@
             android:id="@+id/textView21"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/selectTypeShowing"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
             android:layout_marginStart="8dp"
             app:layout_constraintStart_toStartOf="parent" />
         <Constraint
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/selectTypeShowing"
             app:layout_constraintStart_toEndOf="@+id/textView21"
             android:layout_marginStart="8dp"
-            android:id="@+id/progressTextView" />
+            android:id="@+id/progressTextView"
+            app:layout_constraintTop_toTopOf="@+id/textView21" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
-        <Constraint android:id="@+id/selectTypeShowing"
-            android:layout_height="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolBar"/>
         <Constraint android:id="@+id/loading_view">
             <PropertySet
                 app:visibilityMode="ignore" />

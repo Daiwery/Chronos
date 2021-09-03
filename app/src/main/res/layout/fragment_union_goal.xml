@@ -12,25 +12,28 @@
         android:layout_height="match_parent"
         app:layoutDescription="@xml/scene_fragment_union_goal">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolBar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_collapseMode="pin"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:menu="@menu/menu_edit_delete"
-            app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24"
-            app:titleCentered="true" />
-
-        <com.daiwerystudio.chronos.ui.widgets.SelectTypeShowing
-            android:id="@+id/selectTypeShowing"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolBar" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:menu="@menu/menu_edit_delete"
+                app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24"
+                app:titleCentered="true" />
+
+            <com.daiwerystudio.chronos.ui.widgets.SelectTypeShowing
+                android:id="@+id/selectTypeShowing"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginBottom="4dp" />
+        </com.google.android.material.appbar.AppBarLayout>
 
         <TextView
             android:id="@+id/textView21"
@@ -60,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             app:layout_constraintStart_toEndOf="@+id/textView21"
-            app:layout_constraintTop_toBottomOf="@+id/toolBar"
+            app:layout_constraintTop_toTopOf="@+id/textView21"
             tools:text="50%" />
 
         <androidx.recyclerview.widget.RecyclerView

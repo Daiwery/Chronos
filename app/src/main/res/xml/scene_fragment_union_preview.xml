@@ -5,20 +5,20 @@
     <Transition
         app:constraintSetStart="@+id/start"
         app:constraintSetEnd="@id/end"
-        app:duration="1000">
+        app:duration="300">
 
-        <OnSwipe
-            app:dragDirection="dragUp"
-            app:touchAnchorId="@id/recyclerView"
-            app:touchAnchorSide="top" />
+        <OnClick
+            app:targetId="@id/toolBar"/>
     </Transition>
 
     <ConstraintSet android:id="@+id/start">
-        <Constraint android:id="@+id/selectTypeShowing"
-            android:layout_height="wrap_content"
+        <Constraint
+            android:id="@+id/appBarLayout"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolBar" />
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
         <Constraint android:id="@+id/loading_view">
             <PropertySet
                 app:visibilityMode="ignore" />
@@ -30,11 +30,6 @@
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
-        <Constraint android:id="@+id/selectTypeShowing"
-            android:layout_height="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolBar"/>
         <Constraint android:id="@+id/loading_view">
             <PropertySet
                 app:visibilityMode="ignore" />

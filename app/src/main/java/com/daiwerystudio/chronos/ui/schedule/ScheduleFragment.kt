@@ -15,13 +15,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.daiwerystudio.chronos.R
-import com.daiwerystudio.chronos.databinding.FragmentPeriodicScheduleBinding
+import com.daiwerystudio.chronos.databinding.FragmentScheduleBinding
 import com.google.android.material.tabs.TabLayoutMediator
 
 class ScheduleFragment : Fragment() {
     private val viewModel: ScheduleViewModel
         by lazy { ViewModelProvider(this).get(ScheduleViewModel::class.java) }
-    private lateinit var binding: FragmentPeriodicScheduleBinding
+    private lateinit var binding: FragmentScheduleBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +32,7 @@ class ScheduleFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        binding = FragmentPeriodicScheduleBinding.inflate(inflater, container, false)
+        binding = FragmentScheduleBinding.inflate(inflater, container, false)
         val view = binding.root
 
         binding.viewPager2.adapter = PagerAdapter(this)
@@ -53,6 +53,20 @@ class ScheduleFragment : Fragment() {
 
         binding.toolBar.setNavigationOnClickListener {
             it.findNavController().navigateUp()
+        }
+        binding.toolBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.edit -> {
+                    val dialog = ScheduleDialog()
+                    dialog.arguments = Bundle().apply{
+                        putSerializable("schedule", viewModel.schedule.value!!)
+                        putBoolean("isCreated", false)
+                    }
+                    dialog.show(requireActivity().supportFragmentManager, "ScheduleDialog")
+                    true
+                }
+                else -> false
+            }
         }
 
         return view

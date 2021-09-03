@@ -23,32 +23,22 @@
             android:layout_height="wrap_content"
             android:paddingBottom="5dp">
 
+
             <TextView
                 android:id="@+id/text"
                 style="@style/Text.Item"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="8dp"
                 android:paddingBottom="0dp"
                 android:singleLine="false"
                 android:text="@{reminder.text}"
-                app:layout_constraintEnd_toStartOf="@+id/imageView5"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="5645645555555555555555555555" />
-
-            <ImageView
-                android:id="@+id/imageView5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_baseline_drag_indicator_24"
-                tools:ignore="ContentDescription" />
-
 
             <com.daiwerystudio.chronos.ui.widgets.TimeTextView
                 android:id="@+id/time"
@@ -75,7 +65,7 @@
                 app:layout_constraintStart_toEndOf="@+id/time"
                 app:layout_constraintTop_toBottomOf="@+id/text"
                 custom:timeLocal="local"
-                custom:timeStyle="longFormat"
+                custom:timeStyle="fullFormat"
                 custom:timeType="date"
                 tools:text="8 августа" />
 

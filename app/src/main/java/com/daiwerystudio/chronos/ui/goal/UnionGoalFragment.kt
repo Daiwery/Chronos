@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,6 +40,10 @@ class UnionGoalFragment : UnionAbstractFragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         binding.selectTypeShowing.setTypeShowing(viewModel.showing.typeShowing)
+        if (viewModel.showing.typeShowing != -1) {
+            binding.selectTypeShowing.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+            binding.selectTypeShowing.requestLayout()
+        }
         binding.selectTypeShowing.setSelectTypeShowingListener{
             binding.loadingView.visibility = View.VISIBLE
             viewModel.showing.setTypeShowing(it)
@@ -54,6 +59,13 @@ class UnionGoalFragment : UnionAbstractFragment() {
                 binding.progressTextView.text = ("$it%")
             })
         })
+
+        binding.toolBar.setOnClickListener {
+            if (binding.selectTypeShowing.height == 0)
+                binding.selectTypeShowing.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+            else binding.selectTypeShowing.layoutParams.height = 0
+            binding.selectTypeShowing.requestLayout()
+        }
 
         viewModel.data.observe(viewLifecycleOwner, {
             (binding.recyclerView.adapter as Adapter).updateData(it)
