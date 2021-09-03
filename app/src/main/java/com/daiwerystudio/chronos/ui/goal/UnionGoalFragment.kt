@@ -30,7 +30,6 @@ class UnionGoalFragment : UnionAbstractFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentUnionGoalBinding.inflate(inflater, container, false)
-        val view = binding.root
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -50,7 +49,7 @@ class UnionGoalFragment : UnionAbstractFragment() {
         }
 
         viewModel.parent.observe(viewLifecycleOwner, { goal ->
-            binding.toolBar.title = goal.name
+            binding.goal = goal
 
             // Percent удаляется, так как это не RoomLiveData.
             val percent = viewModel.getPercentAchieved(goal.id)
@@ -110,7 +109,7 @@ class UnionGoalFragment : UnionAbstractFragment() {
             }
         }
 
-        return view
+        return binding.root
     }
 
     private fun setEmptyView(){

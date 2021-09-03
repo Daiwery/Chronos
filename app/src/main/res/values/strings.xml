@@ -46,4 +46,7 @@
     <string name="periodic_schedule">Периодическое</string>
     <string name="once_schedule">На один день</string>
     <string name="all">Все</string>
+    <string name="indefinitely">Бессрочно</string>
+    <string name="deadline">Дедлайн</string>
+    <string name="deadline_">Дедлайн:</string>
 </resources>

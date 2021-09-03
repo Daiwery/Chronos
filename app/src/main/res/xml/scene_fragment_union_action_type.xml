@@ -14,13 +14,6 @@
     </Transition>
 
     <ConstraintSet android:id="@+id/start">
-        <Constraint android:id="@+id/imageView2"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
-            android:layout_marginTop="8dp" />
         <Constraint android:id="@+id/loading_view">
             <PropertySet
                 app:visibilityMode="ignore" />
@@ -29,15 +22,17 @@
             <PropertySet
                 app:visibilityMode="ignore" />
         </Constraint>
+        <Constraint
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="0dp"
+            android:id="@+id/recyclerView"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
-        <Constraint android:id="@+id/imageView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolBar"/>
         <Constraint android:id="@+id/loading_view">
             <PropertySet
                 app:visibilityMode="ignore" />
@@ -51,7 +46,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView2"
+            app:layout_constraintTop_toBottomOf="@id/appBarLayout"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="0dp"
             android:id="@+id/recyclerView" />

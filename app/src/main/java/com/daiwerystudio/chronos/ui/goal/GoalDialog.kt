@@ -23,6 +23,10 @@ import com.daiwerystudio.chronos.database.UnionRepository
 import com.daiwerystudio.chronos.databinding.DialogGoalBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
+import java.util.*
 
 /**
  * Ключевой особенностью является тот факт, что диалог всегда получает цель.
@@ -39,6 +43,8 @@ class GoalDialog : BottomSheetDialogFragment() {
     private lateinit var goal: Goal
     var isCreated: Boolean = false
     private var union: Union? = null
+
+    private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,13 +66,59 @@ class GoalDialog : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DialogGoalBinding.inflate(inflater, container, false)
-        val view = binding.root
         binding.goal = goal
+        if (goal.deadline == 0L) binding.checkBox.isChecked = true
 
         binding.goalName.addTextChangedListener{
             goal.name = it.toString()
             if (goal.name != "") binding.error.visibility = View.INVISIBLE
             else binding.error.visibility = View.VISIBLE
+        }
+
+        binding.goalNote.addTextChangedListener {
+            goal.note = it.toString()
+        }
+
+        binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) goal.deadline = 0L
+            else goal.deadline = System.currentTimeMillis()
+            binding.goal = goal
+        }
+
+        binding.deadlineTime.setOnClickListener{
+            val localTime = goal.deadline+local
+            val day = localTime/(1000*60*60*24)
+            val time = (localTime%(1000*60*60*24)).toInt()
+            val hour = time/(1000*60*60)
+            val minute = (time-hour*1000*60*60)/(1000*60)
+
+            val dialog = MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour)
+                .setMinute(minute)
+                .setTitleText("")
+                .build()
+
+            dialog.addOnPositiveButtonClickListener {
+                goal.deadline = day*1000*60*60*24+(dialog.hour*60+dialog.minute)*1000*60-local
+                binding.goal = goal
+            }
+            dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
+        }
+
+        binding.deadlineDay.setOnClickListener{
+            val localTime = goal.deadline+local
+            val time = localTime%(1000*60*60*24)
+
+            val dialog = MaterialDatePicker.Builder.datePicker()
+                .setSelection(localTime)
+                .build()
+
+            dialog.addOnPositiveButtonClickListener {
+                goal.deadline = it+time-local
+                binding.goal = goal
+            }
+            dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")
         }
 
         if (isCreated) binding.button.text = resources.getString(R.string.add)
@@ -87,7 +139,7 @@ class GoalDialog : BottomSheetDialogFragment() {
             }
         }
 
-        return view
+        return binding.root
     }
 
     override fun onDestroy() {

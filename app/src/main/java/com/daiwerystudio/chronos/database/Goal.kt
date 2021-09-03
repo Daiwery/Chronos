@@ -29,6 +29,7 @@ data class Goal(
     @PrimaryKey override val id: String,
     var name: String = "",
     var note: String = "",
+    var deadline: Long = 0,
     var isAchieved: Boolean = false,
 ) : Serializable, ID
 

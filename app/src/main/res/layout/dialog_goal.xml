@@ -2,6 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.goal.GoalDialog">
 
     <data>
@@ -38,6 +39,7 @@
             android:hint="@string/goal_name_hint"
             android:singleLine="true"
             android:text="@{goal.name}"
+            android:inputType="textAutoCorrect|textCapSentences"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView3"
             app:layout_constraintTop_toTopOf="parent" />
@@ -47,10 +49,11 @@
             style="@style/Widget.BottomDialog.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:text="@string/add"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/goal_name" />
+            app:layout_constraintTop_toBottomOf="@+id/deadlineDay" />
 
         <ImageView
             android:id="@+id/error"
@@ -63,6 +66,110 @@
             app:layout_constraintTop_toTopOf="@+id/goal_name"
             app:srcCompat="@drawable/ic_baseline_error_24"
             tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/textView15"
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/note"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/goal_name" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/goal_note"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:autofillHints="true"
+            android:ems="5"
+            android:hint="@string/text"
+            android:inputType="textMultiLine|textAutoCorrect|textCapSentences"
+            android:maxLines="8"
+            android:text="@{goal.note}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView15" />
+
+        <TextView
+            android:id="@+id/textView17"
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/deadline"
+            app:layout_constraintBottom_toBottomOf="@+id/checkBox"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/checkBox" />
+
+        <CheckBox
+            android:id="@+id/checkBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/indefinitely"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/goal_note" />
+
+        <TextView
+            android:id="@+id/textView"
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/time_"
+            android:booleanVisibility="@{goal.deadline != 0}"
+            app:layout_constraintBottom_toBottomOf="@+id/deadlineTime"
+            app:layout_constraintEnd_toStartOf="@+id/deadlineTime"
+            app:layout_constraintTop_toTopOf="@+id/deadlineTime" />
+
+        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
+            android:id="@+id/deadlineTime"
+            style="@style/Text.Item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/checkBox"
+            android:textTime="@{goal.deadline}"
+            android:booleanVisibility="@{goal.deadline != 0}"
+            custom:timeLocal="local"
+            custom:timeStyle="shortFormat"
+            custom:timeType="time"
+            tools:text="0:10" />
+
+        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
+            android:id="@+id/deadlineDay"
+            style="@style/Text.Item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toEndOf="@+id/textView14"
+            app:layout_constraintTop_toBottomOf="@+id/checkBox"
+            android:textTime="@{goal.deadline}"
+            android:booleanVisibility="@{goal.deadline != 0}"
+            custom:timeLocal="local"
+            custom:timeStyle="shortFormat"
+            custom:timeType="date"
+            tools:text="8 августа" />
+
+        <TextView
+            android:id="@+id/textView14"
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/day_"
+            android:booleanVisibility="@{goal.deadline != 0}"
+            app:layout_constraintBottom_toBottomOf="@+id/deadlineDay"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/deadlineDay" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
