@@ -27,6 +27,12 @@
 
     <style name="App.EditText" parent="Widget.AppCompat.EditText">
         <item name="android:inputType">textCapSentences|textAutoCorrect</item>
+        <item name="android:textAppearance">@style/Text.Widget</item>
+    </style>
+
+
+    <style name="App.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:textAppearance">@style/Text.Widget</item>
     </style>
 
 

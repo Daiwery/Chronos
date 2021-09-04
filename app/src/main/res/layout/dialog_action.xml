@@ -15,7 +15,7 @@
 
         <TextView
             android:id="@+id/textView16"
-            style="@style/Text.Title"
+            style="@style/Text.TitleDialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -26,7 +26,7 @@
 
         <TextView
             android:id="@+id/endDay"
-            style="@style/Text.Item"
+            style="@style/Text.Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -37,7 +37,7 @@
 
         <TextView
             android:id="@+id/startDay"
-            style="@style/Text.Item"
+            style="@style/Text.Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -48,7 +48,7 @@
 
         <TextView
             android:id="@+id/textView14"
-            style="@style/Text.Title"
+            style="@style/Text.TitleDialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -59,7 +59,7 @@
 
         <TextView
             android:id="@+id/endTime"
-            style="@style/Text.Item"
+            style="@style/Text.Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -69,7 +69,7 @@
 
         <TextView
             android:id="@+id/textView"
-            style="@style/Text.Title"
+            style="@style/Text.TitleDialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -80,7 +80,7 @@
 
         <TextView
             android:id="@+id/startTime"
-            style="@style/Text.Item"
+            style="@style/Text.Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -91,7 +91,7 @@
 
         <TextView
             android:id="@+id/textView4"
-            style="@style/Text.Title"
+            style="@style/Text.TitleDialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/end_"

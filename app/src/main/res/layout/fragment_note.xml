@@ -19,6 +19,7 @@
             android:id="@+id/toolBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:titleTextAppearance="@style/Text.TitleToolbar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -26,6 +27,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/nameEditTextView"
+            style="@style/Widget.NoteEditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -35,13 +37,14 @@
             android:inputType="textAutoCorrect|textCapSentences"
             android:singleLine="true"
             android:text="@{note.name}"
-            android:textSize="22sp"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolBar" />
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/noteEditTextView"
+            style="@style/Widget.NoteEditText"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"

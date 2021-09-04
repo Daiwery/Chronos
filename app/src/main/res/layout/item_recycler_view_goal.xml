@@ -26,7 +26,7 @@
 
             <TextView
                 android:id="@+id/name"
-                style="@style/Text.Item"
+                style="@style/Text.NameItem"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -37,7 +37,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/checkBox"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Dream gjjgf gfnfh  fghggfh fghfg gfhfkr trhih r hrthi" />
+                tools:text="Пойти на тренировку 10 раз" />
 
             <ImageView
                 android:id="@+id/edit"
@@ -72,7 +72,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
                 android:booleanVisibility="@{!isAchieved}"
                 android:text="@string/progress_"
                 app:layout_constraintStart_toStartOf="parent"
@@ -83,7 +82,7 @@
                 style="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 android:booleanVisibility="@{!isAchieved}"
                 app:layout_constraintStart_toEndOf="@+id/textView21"
                 app:layout_constraintTop_toTopOf="@+id/textView21"

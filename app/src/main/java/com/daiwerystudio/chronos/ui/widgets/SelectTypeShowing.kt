@@ -48,7 +48,7 @@ class SelectTypeShowing(context: Context, attrs: AttributeSet): FrameLayout(cont
 
     private fun select(view: ImageView){
         // В selectView ссылка на выбранный view.
-        selectedView?.setColorFilter(ContextCompat.getColor(context, R.color.white_300))
+        selectedView?.setColorFilter(ContextCompat.getColor(context, R.color.black))
         // Если выбрали тоже самое, то ставим null.
         if (selectedView == view) selectedView = null
         else {

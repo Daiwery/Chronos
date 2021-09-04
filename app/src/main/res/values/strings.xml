@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Chronos</string>
-    <string name="title_union_preview">Жизнь</string>
+    <string name="title_union_preview">Распорядок</string>
     <string name="it_s_empty">Здесь пусто</string>
     <string name="action_type">Тип действия</string>
     <string name="goal">Цель</string>

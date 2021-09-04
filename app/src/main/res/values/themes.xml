@@ -14,6 +14,7 @@
         <item name="materialCardViewStyle">@style/App.CardView</item>
         <item name="bottomSheetDialogTheme">@style/App.BottomDialog</item>
         <item name="editTextStyle">@style/App.EditText</item>
+        <item name="checkboxStyle">@style/App.CheckBox</item>
         <item name="tabStyle">@style/App.TabLayout</item>
         <item name="spinnerStyle">@style/App.Spinner</item>
         <item name="materialTimePickerTheme">@style/ThemeOverlay.TimePicker</item>

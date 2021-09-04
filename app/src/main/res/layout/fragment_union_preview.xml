@@ -24,14 +24,18 @@
                 android:id="@+id/toolBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:title="@string/title_union_preview"/>
-
-            <com.daiwerystudio.chronos.ui.widgets.SelectTypeShowing
-                android:id="@+id/selectTypeShowing"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"/>
+                app:titleTextAppearance="@style/Text.TitleToolbar"
+                app:title="@string/title_union_preview" />
         </com.google.android.material.appbar.AppBarLayout>
+
+        <com.daiwerystudio.chronos.ui.widgets.SelectTypeShowing
+            android:id="@+id/selectTypeShowing"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -41,7 +45,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+            app:layout_constraintTop_toBottomOf="@+id/selectTypeShowing" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
@@ -76,6 +80,6 @@
             app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
             app:layout_constraintEnd_toEndOf="@+id/recyclerView"
             app:layout_constraintStart_toStartOf="@+id/recyclerView"
-            app:layout_constraintTop_toTopOf="@+id/recyclerView"/>
+            app:layout_constraintTop_toTopOf="@+id/recyclerView" />
     </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>
