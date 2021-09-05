@@ -43,6 +43,7 @@ class GoalDialog : BottomSheetDialogFragment() {
     private lateinit var goal: Goal
     var isCreated: Boolean = false
     private var union: Union? = null
+    private var isTemporal: Boolean? = null
 
     private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
@@ -56,8 +57,10 @@ class GoalDialog : BottomSheetDialogFragment() {
         // Это нужно, чтобы RecyclerView смог засечь изменение данных и перерисовал holder.
         goal = goal.copy()
 
-        // Значение равно null только при isCreated = false.
+        // Значение равно null, если isCreated = false или отправитель не хочет создавать union.
         union = arguments?.getSerializable("union") as Union?
+        // Если true, то нужно убрать checkBox.
+        isTemporal = arguments?.getBoolean("isTemporal")
 
         // Восстанавливаем значение, если оно есть.
         if (viewModel.data != null) goal = viewModel.data as Goal
@@ -68,6 +71,7 @@ class GoalDialog : BottomSheetDialogFragment() {
         binding = DialogGoalBinding.inflate(inflater, container, false)
         binding.goal = goal
         if (goal.deadline == 0L) binding.checkBox.isChecked = true
+        if (isTemporal == true) binding.checkBox.visibility = View.GONE
 
         binding.goalName.addTextChangedListener{
             goal.name = it.toString()
@@ -125,11 +129,10 @@ class GoalDialog : BottomSheetDialogFragment() {
         else binding.button.text = resources.getString(R.string.edit)
         binding.button.setOnClickListener{
             if (goal.name != ""){
-                if (isCreated) {
-                    mGoalRepository.addGoal(goal)
-                    mUnionRepository.addUnion(union!!)
-                }
+                if (isCreated) mGoalRepository.addGoal(goal)
                 else mGoalRepository.updateGoal(goal)
+
+                if (union != null) mUnionRepository.addUnion(union!!)
 
                 this.dismiss()
             } else {

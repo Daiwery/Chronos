@@ -44,36 +44,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     custom:colorColumn="@color/white_1000"
-                    custom:colorError="#4B930000"
                     custom:corner="10dp"
                     custom:spaceWidth="0dp"
-                    custom:stripWidth="15dp" />
-            </FrameLayout>
-        </HorizontalScrollView>
-
-        <HorizontalScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:scrollbars="none"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/scrollView1"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_max="45dp">
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <com.daiwerystudio.chronos.ui.widgets.ActionsView
-                    android:id="@+id/actionsView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    custom:colorColumn="@color/white_1000"
-                    custom:corner="10dp"
-                    custom:spaceWidth="0dp"
-                    custom:stripWidth="15dp" />
+                    custom:stripWidth="15dp"
+                    custom:sizeDrawable="24dp"
+                    custom:drawableGoal="@drawable/ic_goal"
+                    custom:drawableReminder="@drawable/ic_reminder"/>
             </FrameLayout>
         </HorizontalScrollView>
 

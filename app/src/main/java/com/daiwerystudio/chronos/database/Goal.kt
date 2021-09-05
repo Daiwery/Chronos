@@ -39,6 +39,9 @@ interface GoalTypeDao {
     @Query("SELECT * FROM goal_table WHERE id IN (:ids) ORDER BY name")
     fun getGoals(ids: List<String>): LiveData<List<Goal>>
 
+    @Query("SELECT * FROM goal_table WHERE deadline >= (:time1) AND deadline <= (:time2)")
+    fun getGoalsFromTimeInterval(time1: Long, time2: Long): LiveData<List<Goal>>
+
     @Query("SELECT * FROM goal_table WHERE id=(:id)")
     fun getGoal(id: String): LiveData<Goal>
 
@@ -50,6 +53,9 @@ interface GoalTypeDao {
 
     @Query("DELETE FROM goal_table WHERE id IN (:ids)")
     fun deleteGoals(ids: List<String>)
+
+    @Delete
+    fun deleteGoal(goal: Goal)
 
     @Update
     fun updateGoal(goal: Goal)
@@ -84,6 +90,9 @@ class GoalRepository private constructor(context: Context) {
 
     fun getGoals(ids: List<String>): LiveData<List<Goal>> = mDao.getGoals(ids)
 
+    fun getGoalsFromTimeInterval(time1: Long, time2: Long): LiveData<List<Goal>> =
+        mDao.getGoalsFromTimeInterval(time1, time2)
+
     fun getGoal(id: String): LiveData<Goal> = mDao.getGoal(id)
 
     fun getPercentAchieved(ids: List<String>): Int = mDao.getPercentAchieved(ids)
@@ -94,6 +103,10 @@ class GoalRepository private constructor(context: Context) {
 
     fun deleteGoals(ids: List<String>){
         mHandler.post { mDao.deleteGoals(ids) }
+    }
+
+    fun deleteGoal(goal: Goal){
+        mHandler.post { mDao.deleteGoal(goal) }
     }
 
     fun updateGoal(goal: Goal) {

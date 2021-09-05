@@ -35,7 +35,9 @@ import java.util.concurrent.Executors
  * общие данные.
  */
 open class UnionViewModel : ViewModel() {
-    private val mRepository = UnionRepository.get()
+    private val mUnionRepository = UnionRepository.get()
+    private val mScheduleRepository = ScheduleRepository.get()
+    private val mGoalRepository = GoalRepository.get()
     private val mExecutor = Executors.newSingleThreadExecutor()
 
     /**
@@ -65,30 +67,30 @@ open class UnionViewModel : ViewModel() {
     private var mUnions: LiveData<List<Union>> =
         Transformations.switchMap(showing) {
             Log.d("TEST", "${it.second}")
-            if (it.second == -1)  mRepository.getUnionsFromParent(it.first)
-            else mRepository.getUnionsFromParentAndType(it.first, it.second)
+            if (it.second == -1)  mUnionRepository.getUnionsFromParent(it.first)
+            else mUnionRepository.getUnionsFromParentAndType(it.first, it.second)
         }
 
 
     /*                         Второй этап наблюдения                        */
     private var mActionTypesLiveData: LiveData<List<ActionType>> =
-        Transformations.switchMap(mUnions) { mRepository.getActionTypes(it) }
+        Transformations.switchMap(mUnions) { mUnionRepository.getActionTypes(it) }
     private var mActionTypes: List<ActionType> = emptyList()
 
     private var mGoalsLiveData: LiveData<List<Goal>> =
-        Transformations.switchMap(mUnions) { mRepository.getGoals(it) }
+        Transformations.switchMap(mUnions) { mUnionRepository.getGoals(it) }
     private var mGoals: List<Goal> = emptyList()
 
     private var mSchedulesLiveData: LiveData<List<Schedule>> =
-        Transformations.switchMap(mUnions) { mRepository.getSchedules(it) }
+        Transformations.switchMap(mUnions) { mUnionRepository.getSchedules(it) }
     private var mSchedules: List<Schedule> = emptyList()
 
     private var mNotesLiveData: LiveData<List<Note>> =
-        Transformations.switchMap(mUnions) { mRepository.getNotes(it) }
+        Transformations.switchMap(mUnions) { mUnionRepository.getNotes(it) }
     private var mNotes: List<Note> = emptyList()
 
     private var mRemindersLiveData: LiveData<List<Reminder>> =
-        Transformations.switchMap(mUnions) { mRepository.getReminders(it) }
+        Transformations.switchMap(mUnions) { mUnionRepository.getReminders(it) }
     private var mReminders: List<Reminder> = emptyList()
 
 
@@ -134,7 +136,7 @@ open class UnionViewModel : ViewModel() {
 
     /*                        Доп. функции                        */
     fun deleteUnionWithChild(id: String){
-        mRepository.deleteUnionWithChild(id)
+        mUnionRepository.deleteUnionWithChild(id)
     }
 
     fun editParentUnion(from: Int, to: Int){
@@ -145,25 +147,29 @@ open class UnionViewModel : ViewModel() {
             // Если to == -1, то перемещаем union вверх по иерархии.
             if (to == -1) {
                 // Не является LiveData, поэтому выполняем в отдельном потоке.
-                val parent = mRepository.getParentUnion(showing.parentID)
+                val parent = mUnionRepository.getParentUnion(showing.parentID)
                 if (parent != null) {
                     union.parent = parent
-                    mRepository.updateUnion(union)
+                    mUnionRepository.updateUnion(union)
                 }
             } else {
                 union.parent = data.value!![to].second.id
-                mRepository.updateUnion(union)
+                mUnionRepository.updateUnion(union)
             }
         }
     }
 
-    fun setAchievedGoalWithChild(id: String, isAchieved: Boolean){
-        mRepository.setAchievedGoalWithChild(id, isAchieved)
+    fun setAchievedGoalWithChild(id: String){
+        mUnionRepository.setAchievedGoalWithChild(id, true)
     }
 
     fun updateSchedule(schedule: Schedule) {
-        mRepository.updateSchedule(schedule)
+        mScheduleRepository.updateSchedule(schedule)
     }
 
-    fun getPercentAchieved(id: String): LiveData<Int> = mRepository.getPercentAchieved(id)
+    fun updateGoal(goal: Goal){
+        mGoalRepository.updateGoal(goal)
+    }
+
+    fun getPercentAchieved(id: String): LiveData<Int> = mUnionRepository.getPercentAchieved(id)
 }

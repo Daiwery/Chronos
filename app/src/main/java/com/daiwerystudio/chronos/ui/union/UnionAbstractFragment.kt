@@ -73,7 +73,11 @@ abstract class UnionAbstractFragment : Fragment() {
         GoalAbstractHolder(binding, requireActivity().supportFragmentManager){
 
         override fun onAchieved() {
-            viewModel.setAchievedGoalWithChild(goal.id, !goal.isAchieved)
+            // Копируем, чтобы recyclerView смог засечь изменения.
+            val mGoal = goal.copy()
+            mGoal.isAchieved = binding.checkBox.isChecked
+            if (binding.checkBox.isChecked) viewModel.setAchievedGoalWithChild(goal.id)
+            else viewModel.updateGoal(mGoal)
         }
 
         override fun setPercentAchieved() {

@@ -48,7 +48,7 @@ class ReminderDialog : BottomSheetDialogFragment() {
         // Это нужно, чтобы RecyclerView смог засечь изменение данных и перерисовал holder.
         reminder = reminder.copy()
 
-        // Значение равно null только при isCreated = false.
+        // Значение равно null, если isCreated = false или отправитель не хочет создавать union.
         union = arguments?.getSerializable("union") as Union?
 
         // Восстанавливаем значение, если оно есть.
@@ -110,10 +110,10 @@ class ReminderDialog : BottomSheetDialogFragment() {
             if (reminder.time < System.currentTimeMillis()) permission = false
 
             if (permission) {
-                if (isCreated) {
-                    mReminderRepository.addReminder(reminder)
-                    mUnionRepository.addUnion(union!!)
-                } else mReminderRepository.updateReminder(reminder)
+                if (isCreated) mReminderRepository.addReminder(reminder)
+                else mReminderRepository.updateReminder(reminder)
+
+                if (union != null) mUnionRepository.addUnion(union!!)
 
                 this.dismiss()
             }

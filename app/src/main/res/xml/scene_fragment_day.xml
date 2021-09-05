@@ -6,6 +6,11 @@
         app:constraintSetStart="@+id/start"
         app:constraintSetEnd="@id/end"
         app:duration="500">
+
+        <OnSwipe
+            app:dragDirection="dragUp"
+            app:touchAnchorId="@id/recyclerView"
+            app:touchAnchorSide="top" />
     </Transition>
 
     <ConstraintSet android:id="@+id/start">
@@ -36,5 +41,12 @@
             <PropertySet
                 app:visibilityMode="ignore" />
         </Constraint>
+        <Constraint
+            android:id="@+id/appBarLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
     </ConstraintSet>
 </MotionScene>

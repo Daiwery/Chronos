@@ -8,5 +8,5 @@
     <item
         android:id="@+id/navigation_day"
         android:icon="@drawable/ic_baseline_home_24"
-        android:title="@string/day" />
+        android:title="@string/main" />
 </menu>

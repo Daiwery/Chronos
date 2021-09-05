@@ -10,40 +10,89 @@
 package com.daiwerystudio.chronos.ui.day
 
 import android.icu.util.TimeZone
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.*
+import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
+import com.daiwerystudio.chronos.ui.union.ID
 import java.lang.IllegalArgumentException
 import java.util.concurrent.Executors
+import kotlin.math.abs
 
 /**
- * Схема наблюдения следующая. Начальная точка - это номер дня. На него подписаны две LiveData:
- * actions - действия в этом дне, и mActiveSchedules - активные расписания. На mActiveSchedules
- * подписан mDaysSchedule, который получает список дней, активных сегодня. Предупреждение:
- * он не имеет подписку на базу данных. На mDaysSchedule подписан actionsSchedule, который
- * получает список типов действий.
+ * Схема наблюдения следующая. Начальная точка - это номер дня day. На него подписан mActiveSchedules
+ * - активные расписания. На mActiveSchedules подписан mDaysSchedule, который получает список дней,
+ * активных сегодня. Предупреждение: он не имеет подписку на базу данных.
+ * На mDaysSchedule подписан actionsSchedule, который получает список типов действий.
+ *
+ * Также на day подписаны две LiveData: mLiveGoals и mLiveReminders, которые объеденяются
+ * с помощью MediatorLiveData.
  */
 class DayViewModel: ViewModel() {
-    private val mActionRepository = ActionRepository.get()
     private val mScheduleRepository = ScheduleRepository.get()
+    private val mGoalRepository = GoalRepository.get()
+    private val mReminderRepository = ReminderRepository.get()
     private val mExecutor = Executors.newSingleThreadExecutor()
     val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
     // Локальный день.
     val day: MutableLiveData<Long> = MutableLiveData()
 
-    /*  Получение действий в этом дне. */
-    val actions: LiveData<List<Action>> = Transformations.switchMap(day) {
+    // Массив с целями.
+    private val mLiveGoals: LiveData<List<Goal>> = Transformations.switchMap(day){
         // Нужно не забыть перевести время из локального в глобальное.
-        mActionRepository.getActionsFromInterval(it*1000*60*60*24-local,
+        mGoalRepository.getGoalsFromTimeInterval(it*1000*60*60*24-local,
             (it+1)*1000*60*60*24-local)
     }
+    private var mGoals: List<Goal> = emptyList()
+
+    // Массив с напоминаниями.
+    private val mLiveReminders: LiveData<List<Reminder>> = Transformations.switchMap(day){
+        // Нужно не забыть перевести время из локального в глобальное.
+        mReminderRepository.getRemindersFromTimeInterval(it*1000*60*60*24-local,
+            (it+1)*1000*60*60*24-local)
+    }
+    private var mReminders: List<Reminder> = emptyList()
+
+    /*  Соединяем массив с целями и напоминаниями.  */
+    val data: MediatorLiveData<List<Pair<Int, ID>>> = MediatorLiveData()
+    init {
+        data.addSource(mLiveGoals){ goals ->
+            mGoals = goals
+
+            val newData = mutableListOf<Pair<Int, ID>>()
+            newData.addAll(mReminders.map { Pair(TYPE_REMINDER, it) })
+            newData.addAll(mGoals.map { Pair(TYPE_GOAL, it) })
+            newData.sortBy {
+                when (it.first){
+                    TYPE_GOAL -> (it.second as Goal).deadline
+                    TYPE_REMINDER -> (it.second as Reminder).time
+                    else -> throw IllegalArgumentException("Invalid type")
+                }
+            }
+            data.value = newData
+        }
+        data.addSource(mLiveReminders){ reminders ->
+            mReminders = reminders
+
+            val newData = mutableListOf<Pair<Int, ID>>()
+            newData.addAll(mReminders.map { Pair(TYPE_REMINDER, it) })
+            newData.addAll(mGoals.map { Pair(TYPE_GOAL, it) })
+            newData.sortBy {
+                when (it.first){
+                    TYPE_GOAL -> (it.second as Goal).deadline
+                    TYPE_REMINDER -> (it.second as Reminder).time
+                    else -> throw IllegalArgumentException("Invalid type")
+                }
+            }
+            data.value = newData
+        }
+    }
+
 
     /*  Первый этап наблюдения. Получение активных расписаний.  */
     private val mActiveSchedules: LiveData<List<Schedule>> = Transformations.switchMap(day) {
-        // Расписание показывается, только когда мы в настоящем или будущем.
-        if (it-(System.currentTimeMillis()+local)/(1000*60*60*24) >= 0)
-            mScheduleRepository.getActiveSchedules()
-        else MutableLiveData()
+        mScheduleRepository.getActiveSchedules()
     }
 
     /*  Второй этап наблюдения. Получение дней в расписании, которые активны сегодня.  */
@@ -64,10 +113,15 @@ class DayViewModel: ViewModel() {
                         TYPE_SCHEDULE_PERIODIC -> {
                             val dayIndex = (day.value!!-(it.start+local)/(1000*60*60*24)).toInt()
                             // Сначала берем нынешний день.
-                            daysSchedule.add(mScheduleRepository.getDaySchedule(it.id, dayIndex%it.countDays))
+                            // abs нужен для ситуации, когда dayIndex<0.
+                            var daySchedule = mScheduleRepository.getDaySchedule(it.id, abs(dayIndex)%it.countDays)
+                            if (!daySchedule.isCorrupted)
+                                daysSchedule.add(daySchedule)
                             // А после берем прошлый день, так как действия из прошлого "дня" могут
                             // быть ночью этого.
-                            daysSchedule.add(mScheduleRepository.getDaySchedule(it.id, (dayIndex-1)%it.countDays))
+                            daySchedule = mScheduleRepository.getDaySchedule(it.id, abs((dayIndex-1))%it.countDays)
+                            if (!daySchedule.isCorrupted)
+                                daysSchedule.add(mScheduleRepository.getDaySchedule(it.id, abs((dayIndex-1))%it.countDays))
                         }
                         else -> throw IllegalArgumentException("Invalid type")
                     }
@@ -85,10 +139,17 @@ class DayViewModel: ViewModel() {
         }
 
 
-    fun deleteAction(action: Action){
-        mActionRepository.deleteAction(action)
+    /*                        Доп. функции                        */
+    fun updateGoal(goal: Goal){
+        mGoalRepository.updateGoal(goal)
     }
 
-    private val mActionTypeRepository = ActionTypeRepository.get()
-    fun getActionType(id: String): LiveData<ActionType> = mActionTypeRepository.getActionType(id)
+    fun deleteItem(position: Int){
+        val item = data.value!![position]
+        when(item.first){
+            TYPE_GOAL -> mGoalRepository.deleteGoal(item.second as Goal)
+            TYPE_REMINDER -> mReminderRepository.deleteReminder(item.second as Reminder)
+            else -> throw IllegalArgumentException("Invalid type")
+        }
+    }
 }

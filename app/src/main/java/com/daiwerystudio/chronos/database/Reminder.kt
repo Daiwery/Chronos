@@ -33,8 +33,14 @@ interface ReminderDao {
     @Query("SELECT * FROM reminder_table WHERE id IN (:ids) ORDER BY text")
     fun getReminders(ids: List<String>): LiveData<List<Reminder>>
 
+    @Query("SELECT * FROM reminder_table WHERE time >= (:time1) AND time <= (:time2)")
+    fun getRemindersFromTimeInterval(time1: Long, time2: Long): LiveData<List<Reminder>>
+
     @Query("DELETE FROM reminder_table WHERE id IN (:ids)")
     fun deleteReminders(ids: List<String>)
+
+    @Delete
+    fun deleteReminder(reminder: Reminder)
 
     @Update
     fun updateReminder(reminder: Reminder)
@@ -71,8 +77,15 @@ class ReminderRepository private constructor(context: Context) {
 
     fun getReminders(ids: List<String>): LiveData<List<Reminder>> = mDao.getReminders(ids)
 
+    fun getRemindersFromTimeInterval(time1: Long, time2: Long): LiveData<List<Reminder>> =
+        mDao.getRemindersFromTimeInterval(time1, time2)
+
     fun deleteReminders(ids: List<String>) {
         mHandler.post { mDao.deleteReminders(ids) }
+    }
+
+    fun deleteReminder(reminder: Reminder){
+        mHandler.post { mDao.deleteReminder(reminder) }
     }
 
     fun updateReminder(reminder: Reminder){

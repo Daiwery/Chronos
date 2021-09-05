@@ -47,7 +47,7 @@ class ScheduleFragment : Fragment() {
         })
         viewModel.daysScheduleIDs.observe(viewLifecycleOwner, {
             (binding.viewPager2.adapter as PagerAdapter).setDaysScheduleIDs(it)
-            // if (it.size == 1) binding.tabLayout.visibility = View.GONE
+            if (it.size == 1) binding.tabLayout.visibility = View.GONE
         })
 
 

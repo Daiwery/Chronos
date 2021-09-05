@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -62,9 +63,51 @@
                 android:singleLine="true"
                 android:text="@{goal.note}"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/name"
                 tools:text="gfhklfgkljhg\nijgifghi\ngffgh34534534535666666666664\n56546456" />
+
+            <TextView
+                android:id="@+id/textView13"
+                style="@style/Text.Caption"
+                android:booleanVisibility="@{goal.deadline != 0}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="4dp"
+                android:text="@string/deadline_"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/note" />
+
+            <com.daiwerystudio.chronos.ui.widgets.TimeTextView
+                android:id="@+id/time"
+                style="@style/Text.Caption"
+                android:booleanVisibility="@{goal.deadline != 0}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textTime="@{goal.deadline}"
+                app:layout_constraintStart_toEndOf="@+id/textView13"
+                app:layout_constraintTop_toTopOf="@+id/textView13"
+                custom:timeLocal="local"
+                custom:timeStyle="shortFormat"
+                custom:timeType="time"
+                tools:text="14:00" />
+
+            <com.daiwerystudio.chronos.ui.widgets.TimeTextView
+                android:id="@+id/day"
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textTime="@{goal.deadline}"
+                app:layout_constraintStart_toEndOf="@+id/time"
+                app:layout_constraintTop_toTopOf="@+id/time"
+                custom:timeLocal="local"
+                custom:timeStyle="fullFormat"
+                custom:timeType="date"
+                tools:text="8 августа" />
 
             <TextView
                 android:id="@+id/textView21"
@@ -75,7 +118,7 @@
                 android:booleanVisibility="@{!isAchieved}"
                 android:text="@string/progress_"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/note" />
+                app:layout_constraintTop_toBottomOf="@+id/textView13" />
 
             <TextView
                 android:id="@+id/progressTextView"

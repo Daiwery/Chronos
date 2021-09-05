@@ -153,6 +153,10 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
         binding.goal = goal
         binding.isAchieved = goal.isAchieved
 
+        // Так нужно сделать из-за класса в DayFragment, который наследует этот класс.
+        if (goal.deadline != 0L) binding.day.visibility = View.VISIBLE
+        else binding.day.visibility = View.GONE
+
         // Percent удаляется, так как это не RoomLiveData.
         setPercentAchieved()
     }

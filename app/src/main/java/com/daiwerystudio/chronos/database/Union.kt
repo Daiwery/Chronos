@@ -178,10 +178,6 @@ class UnionRepository private constructor(context: Context) {
         mHandler.post { mDao.addUnion(union) }
     }
 
-    fun updateSchedule(schedule: Schedule) {
-        mScheduleRepository.updateSchedule(schedule)
-    }
-
 
     companion object {
         private var INSTANCE: UnionRepository? = null

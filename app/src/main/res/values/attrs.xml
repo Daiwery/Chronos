@@ -20,13 +20,13 @@
     <declare-styleable name="SelectTypeShowing">
     </declare-styleable>
 
+    <declare-styleable name="SelectActionTypeView">
+    </declare-styleable>
+
     <attr name="stripWidth" format="dimension" />
     <attr name="spaceWidth" format="dimension" />
     <attr name="corner" format="dimension" />
     <attr name="colorColumn" format="color" />
-
-    <declare-styleable name="SelectActionTypeView">
-    </declare-styleable>
 
     <declare-styleable name="ScheduleView">
         <attr name="stripWidth"/>
@@ -40,7 +40,9 @@
         <attr name="spaceWidth"/>
         <attr name="corner"/>
         <attr name="colorColumn"/>
-        <attr name="colorError" format="color" />
+        <attr name="sizeDrawable" format="dimension"/>
+        <attr name="drawableGoal" format="reference" />
+        <attr name="drawableReminder" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="ActionsView">
@@ -58,6 +60,6 @@
     <declare-styleable name="ScheduleClockView">
     </declare-styleable>
 
-    <declare-styleable name="ActionsClockView">
+    <declare-styleable name="DayClockView">
     </declare-styleable>
 </resources>

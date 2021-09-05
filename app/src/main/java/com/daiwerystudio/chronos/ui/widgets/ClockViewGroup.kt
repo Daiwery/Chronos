@@ -5,15 +5,21 @@
 * Дата изменения: 29.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 * Изменения: рефакторинг.
+*
+* Дата изменения: 04.09.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: добавлено визуализация времени для целей и напоминаний.
 */
 
 package com.daiwerystudio.chronos.ui.widgets
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.icu.util.TimeZone
 import android.os.Handler
 import android.os.Looper
@@ -21,6 +27,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ScrollView
+import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.DiffUtil
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Action
@@ -382,7 +389,7 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
  * Тоже самое, что и ScheduleView, но используется для нескольких расписаний одновременно.
  * Использует для расчета индекса в Interval тот факт, что в одном расписании нет
  * пересечений. В пределах одного пересечения один столбец имеет действия только от
- * одного расписания.
+ * одного расписания. Также показывает цели и напоминания на день.
  *
  * Используется для показа расписания на один день, которое составляется из множества расписаний.
  */
@@ -391,7 +398,12 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
     private var spaceWidth: Float
     private var corner: Float
     private var colorColumn: Int
-    private var colorError: Int
+    private var sizeDrawable: Float
+    private var drawableGoal: Drawable?
+    private var drawableReminder: Drawable?
+
+    private var bitmapGoal: Bitmap?
+    private var bitmapReminder: Bitmap?
     private var mActionDrawables: List<ActionDrawable> = emptyList()
     private var mCount: Int = 1
     private val mPaint: Paint = Paint()
@@ -405,7 +417,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
 
     /**
      * Репозиторий для связи с базой данных типов действий. Необходим для получения цвета.
-     * Получает не LiveData, а напрямую значению., поэтому наблюдателей нет.
+     * Получает не LiveData, а напрямую значение, поэтому наблюдателей нет.
      */
     private val mRepository = ActionTypeRepository.get()
 
@@ -414,6 +426,16 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
      * какое сейчас действие необходимо выполнять.
      */
     private var mActionTypesTime: List<ActionTypeTime> = emptyList()
+
+    /**
+     * Массив с временами целей. Время от начала дня.
+     */
+    private var mGoalsTimes: List<Float> = emptyList()
+
+    /**
+     * Массив с временами напоминаний. Время от начала дня.
+     */
+    private var mRemindersTimes: List<Float> = emptyList()
 
     /**
      * Timer. Каждую минуту проверяет, какой тип действие нужно выполнить, и
@@ -430,11 +452,16 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                 spaceWidth = getDimensionPixelSize(R.styleable.MultiScheduleView_spaceWidth, 0).toFloat()
                 corner = getDimensionPixelSize(R.styleable.MultiScheduleView_corner, 0).toFloat()
                 colorColumn = getColor(R.styleable.MultiScheduleView_colorColumn, 0)
-                colorError = getColor(R.styleable.MultiScheduleView_colorError, 0)
+                sizeDrawable = getDimensionPixelSize(R.styleable.MultiScheduleView_sizeDrawable, 0).toFloat()
+                drawableGoal = getDrawable(R.styleable.MultiScheduleView_drawableGoal)
+                drawableReminder = getDrawable(R.styleable.MultiScheduleView_drawableReminder)
             } finally {
                 recycle()
             }
         }
+        // Создаем bitmap.
+        bitmapGoal = drawableGoal?.toBitmap(sizeDrawable.toInt(), sizeDrawable.toInt())
+        bitmapReminder = drawableReminder?.toBitmap(sizeDrawable.toInt(), sizeDrawable.toInt())
 
         // Сглаживание.
         mPaint.isAntiAlias = true
@@ -466,12 +493,12 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
     }
 
     /* Интерфейс, который сообщает количество испорченных секций.  */
-    private var mCorruptedListener: CorruptedListener? = null
-    fun interface CorruptedListener{
+    private var mCountSectionsListener: CountSectionsListener? = null
+    fun interface CountSectionsListener{
         fun getCount(countCorrupted: Int)
     }
-    fun setCorruptedListener(corruptedListener: CorruptedListener){
-        mCorruptedListener = corruptedListener
+    fun setCountSectionsListener(countSectionsListener: CountSectionsListener){
+        mCountSectionsListener = countSectionsListener
     }
 
     /*  Интерфейс, который сообщает о типе действии, которое нужно выполнить.  */
@@ -676,12 +703,22 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
             // Это нужно сделать, так как мы не в основном потоке.
             mHandler.post{ requestLayout() }
             mHandler.post{ mFinishedListener?.finish() }
-            mHandler.post{ mCorruptedListener?.getCount(mSections.size) }
+            mHandler.post{ mCountSectionsListener?.getCount(mSections.size) }
             mHandler.post{
                 val time = (System.currentTimeMillis()+TimeZone.getDefault().getOffset(System.currentTimeMillis()))/1000
                 mMustActionTypeListener?.getMustActionType(getMustActionType(time))
             }
         }
+    }
+
+    fun setGoalsTimes(goalsTimes: List<Long>){
+        mGoalsTimes = goalsTimes.map{ it/(1000*60*60*24f) }
+        requestLayout()
+    }
+
+    fun setRemindersTimes(remindersTimes: List<Long>){
+        mRemindersTimes = remindersTimes.map{ it/(1000*60*60*24f) }
+        requestLayout()
     }
 
     /**
@@ -724,7 +761,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         val requestedHeight = MeasureSpec.getSize(heightMeasureSpec)
 
-        val desiredWidth = (stripWidth*mCount+spaceWidth*(mCount-1)).toInt()
+        val desiredWidth = (stripWidth*mCount+spaceWidth*(mCount-1)+sizeDrawable).toInt()
 
         val width = when (widthMode) {
             MeasureSpec.EXACTLY -> requestedWidth
@@ -745,21 +782,33 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
         super.onDraw(canvas)
 
         val height = height.toFloat()
-        val width = width.toFloat()
 
         mPaint.color = colorColumn
-        canvas?.drawRoundRect(0f, 0f,
-            (stripWidth+spaceWidth)-spaceWidth, height, corner, corner, mPaint)
+        canvas?.drawRoundRect(0f+sizeDrawable, 0f,
+            (stripWidth+spaceWidth)-spaceWidth+sizeDrawable, height, corner, corner, mPaint)
 
         mActionDrawables.forEach {
             mPaint.color = it.color
-            canvas?.drawRoundRect((stripWidth+spaceWidth)*it.left, height*it.start,
-                (stripWidth+spaceWidth)*it.right-spaceWidth, height*it.end, corner, corner, mPaint)
+            canvas?.drawRoundRect((stripWidth+spaceWidth)*it.left+sizeDrawable, height*it.start,
+                (stripWidth+spaceWidth)*it.right-spaceWidth+sizeDrawable, height*it.end, corner, corner, mPaint)
         }
 
-        mPaint.color = colorError
-        mSections.forEach {
-            canvas?.drawRect(0f, it.start*height, width, it.end*height, mPaint)
+        mGoalsTimes.forEach {
+            mPaint.color = Color.BLACK
+            bitmapGoal?.also { bitmap ->
+                canvas?.drawBitmap(bitmap, 0f, height*it-sizeDrawable/2, mPaint)
+            }
+            canvas?.drawLine(sizeDrawable, height*it,
+                (stripWidth+spaceWidth)*mCount-spaceWidth+sizeDrawable, height*it, mPaint)
+        }
+
+        mRemindersTimes.forEach {
+            mPaint.color = Color.BLACK
+            bitmapReminder?.also { bitmap ->
+                canvas?.drawBitmap(bitmap, 0f, height*it-sizeDrawable/2, mPaint)
+            }
+            canvas?.drawLine(sizeDrawable, height*it,
+                (stripWidth+spaceWidth)*mCount-spaceWidth+sizeDrawable, height*it, mPaint)
         }
     }
 }
@@ -963,9 +1012,9 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
  * в начале циферблата. Показываем 24 часа.
  */
 class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs){
-    private var textSize: Int
+    private var textSize: Float
     private var spaceHeight: Int
-    private var paint: Paint = Paint()
+    private var mPaint: Paint = Paint()
     private val mHandler: Handler = Handler(Looper.getMainLooper())
 
     /**
@@ -986,16 +1035,18 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
         context.theme.obtainStyledAttributes(attrs, R.styleable.ClockFaceView,
             0, 0).apply {
             try {
-                textSize = getDimensionPixelSize(R.styleable.ClockFaceView_textSize, 0)
+                textSize = getDimensionPixelSize(R.styleable.ClockFaceView_textSize, 0).toFloat()
                 spaceHeight = getDimensionPixelSize(R.styleable.ClockFaceView_spaceHeight , 0)
             } finally {
                 recycle()
             }
         }
 
-        paint.color = Color.BLACK
-        paint.textSize = textSize.toFloat()
-        paint.isAntiAlias = true
+        mPaint.color = Color.BLACK
+        mPaint.textSize = textSize
+        mPaint.isAntiAlias = true
+
+        setStartTime(0)
     }
 
     /**
@@ -1018,7 +1069,7 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
             val text = if (i < 10) "0$i:00"
             else "$i:00"
 
-            val width = paint.measureText(text)
+            val width = mPaint.measureText(text)
 
             var y = i/24f
             y -= startTime/(1000f*60*60*24)
@@ -1043,7 +1094,7 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         val requestedHeight = MeasureSpec.getSize(heightMeasureSpec)
 
-        val desiredHeight = (textSize+spaceHeight)*24
+        val desiredHeight = ((textSize+spaceHeight+textSize)*24).toInt()
 
         val width = when (widthMode) {
             MeasureSpec.EXACTLY -> requestedWidth
@@ -1068,7 +1119,20 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
         val width = width.toFloat()
 
         hours.forEach {
-            canvas?.drawText(it.text, (width-it.width)/2, height*it.y+textSize, paint)
+            canvas?.drawText(it.text, (width-it.width)/2, height*it.y, mPaint)
+            canvas?.drawLine(0f, height*it.y, width , height*it.y, mPaint)
+
+            var position = it.y+1/48f
+            if (position > 1f) position -= 1f
+            canvas?.drawLine(width/4f, height*position, 3*width/4f, height*position, mPaint)
+
+            position = it.y+1/(2*48f)
+            if (position > 1f) position -= 1f
+            canvas?.drawLine(3*width/8f, height*position, 5*width/8f, height*position, mPaint)
+
+            position = it.y+3/(2*48f)
+            if (position > 1f) position -= 1f
+            canvas?.drawLine(3*width/8f, height*position, 5*width/8f, height*position, mPaint)
         }
     }
 }
@@ -1138,9 +1202,8 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): ScrollView(conte
  * ViewGroup. Соединение виджетов выше с ScrollView. Используется в DayFragment.
  * Высота определяется ClockFaceView.
  */
-class ActionsClockView(context: Context, attrs: AttributeSet): ScrollView(context, attrs) {
+class DayClockView(context: Context, attrs: AttributeSet): ScrollView(context, attrs) {
     private val multiScheduleView: MultiScheduleView
-    private val actionsView: ActionsView
     private val clockFaceView: ClockFaceView
 
 
@@ -1149,12 +1212,12 @@ class ActionsClockView(context: Context, attrs: AttributeSet): ScrollView(contex
         isVerticalScrollBarEnabled = false
 
         clockFaceView = findViewById(R.id.clockFaceView)
+
         multiScheduleView = findViewById(R.id.multiScheduleView)
         multiScheduleView.setFinishedListener{ mFinishedListener?.finish() }
         multiScheduleView.setClickSectionListener{ mClickSectionListener?.onClick(it) }
-        multiScheduleView.setCorruptedListener{ mCorruptedListener?.getCount(it) }
+        multiScheduleView.setCountSectionsListener{ mCountSectionsListener?.getCount(it) }
         multiScheduleView.setMustActionTypeListener{ mMustActionTypeListener?.getMustActionType(it) }
-        actionsView = findViewById(R.id.actionsView)
     }
 
     /*  Интерфейс, который сообщает, что заверешна обработка данных.  */
@@ -1176,12 +1239,12 @@ class ActionsClockView(context: Context, attrs: AttributeSet): ScrollView(contex
     }
 
     /*  Интерфейс, который сообщает количество испорченных секций.  */
-    private var mCorruptedListener: CorruptedListener? = null
-    fun interface CorruptedListener{
+    private var mCountSectionsListener: CountSectionsListener? = null
+    fun interface CountSectionsListener{
         fun getCount(countCorrupted: Int)
     }
-    fun setCorruptedListener(corruptedListener: CorruptedListener){
-        mCorruptedListener = corruptedListener
+    fun setCountSectionsListener(countSectionsListener: CountSectionsListener){
+        mCountSectionsListener = countSectionsListener
     }
 
     /*  Интерфейс, который сообщает о типе действии, которое нужно выполнить.  */
@@ -1198,22 +1261,11 @@ class ActionsClockView(context: Context, attrs: AttributeSet): ScrollView(contex
         multiScheduleView.setActionsSchedule(actionsSchedule)
     }
 
-    fun setActions(actions: List<Action>, local: Int, day: Long){
-        actionsView.setActions(actions, local, day)
+    fun setGoalsTimes(goalsTimes: List<Long>){
+        multiScheduleView.setGoalsTimes(goalsTimes)
     }
 
-    fun setFuture(){
-        actionsView.visibility = View.GONE
-        multiScheduleView.visibility = View.VISIBLE
-    }
-
-    fun setPast(){
-        actionsView.visibility = View.VISIBLE
-        multiScheduleView.visibility = View.GONE
-    }
-
-    fun setPresent(){
-        actionsView.visibility = View.VISIBLE
-        multiScheduleView.visibility = View.VISIBLE
+    fun setRemindersTimes(remindersTimes: List<Long>){
+        multiScheduleView.setRemindersTimes(remindersTimes)
     }
 }
