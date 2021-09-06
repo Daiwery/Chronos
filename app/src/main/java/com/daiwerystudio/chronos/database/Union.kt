@@ -22,6 +22,7 @@ const val TYPE_GOAL = 1
 const val TYPE_SCHEDULE = 2
 const val TYPE_NOTE = 3
 const val TYPE_REMINDER = 4
+const val TYPE_FOLDER = 5
 
 /**
  * Данный класс представляет из себя соединение ActionType, Goal и др. в древовидную структуру.
@@ -106,6 +107,7 @@ class UnionRepository private constructor(context: Context) {
     private val mScheduleRepository = ScheduleRepository.get()
     private val mNoteRepository = NoteRepository.get()
     private val mReminderRepository = ReminderRepository.get()
+    private val mFolderRepository = FolderRepository.get()
     private val mHandlerThread = HandlerThread("UnionRepository")
     private var mHandler: Handler
 
@@ -122,20 +124,23 @@ class UnionRepository private constructor(context: Context) {
 
     fun getParentUnion(id: String): String? = mDao.getParentUnion(id)
 
-    fun getActionTypes(union: List<Union>): LiveData<List<ActionType>> =
-        mActionTypeRepository.getActionTypes(union.filter { it.type == TYPE_ACTION_TYPE }.map { it.id })
+    fun getActionTypes(unions: List<Union>): LiveData<List<ActionType>> =
+        mActionTypeRepository.getActionTypes(unions.filter { it.type == TYPE_ACTION_TYPE }.map { it.id })
 
-    fun getGoals(union: List<Union>): LiveData<List<Goal>> =
-        mGoalRepository.getGoals(union.filter { it.type == TYPE_GOAL }.map { it.id })
+    fun getGoals(unions: List<Union>): LiveData<List<Goal>> =
+        mGoalRepository.getGoals(unions.filter { it.type == TYPE_GOAL }.map { it.id })
 
-    fun getSchedules(union: List<Union>): LiveData<List<Schedule>> =
-        mScheduleRepository.getSchedules(union.filter { it.type == TYPE_SCHEDULE }.map { it.id })
+    fun getSchedules(unions: List<Union>): LiveData<List<Schedule>> =
+        mScheduleRepository.getSchedules(unions.filter { it.type == TYPE_SCHEDULE }.map { it.id })
 
-    fun getNotes(union: List<Union>): LiveData<List<Note>> =
-        mNoteRepository.getNotes(union.filter { it.type == TYPE_NOTE }.map { it.id })
+    fun getNotes(unions: List<Union>): LiveData<List<Note>> =
+        mNoteRepository.getNotes(unions.filter { it.type == TYPE_NOTE }.map { it.id })
 
-    fun getReminders(union: List<Union>): LiveData<List<Reminder>> =
-        mReminderRepository.getReminders(union.filter { it.type == TYPE_REMINDER }.map { it.id })
+    fun getReminders(unions: List<Union>): LiveData<List<Reminder>> =
+        mReminderRepository.getReminders(unions.filter { it.type == TYPE_REMINDER }.map { it.id })
+
+    fun getFolders(unions: List<Union>): LiveData<List<Folder>> =
+        mFolderRepository.getFolders(unions.filter { it.type == TYPE_FOLDER }.map { it.id })
 
     fun deleteUnionWithChild(id: String){
         mHandler.post {
@@ -147,6 +152,7 @@ class UnionRepository private constructor(context: Context) {
             mScheduleRepository.deleteCompletelySchedules(unions.filter { it.type == TYPE_SCHEDULE }.map { it.id })
             mNoteRepository.deleteNotes(unions.filter { it.type == TYPE_NOTE }.map { it.id })
             mReminderRepository.deleteReminders(unions.filter { it.type == TYPE_REMINDER }.map { it.id })
+            mFolderRepository.deleteFolders(unions.filter { it.type == TYPE_FOLDER }.map { it.id })
         }
     }
 

@@ -93,6 +93,10 @@ open class UnionViewModel : ViewModel() {
         Transformations.switchMap(mUnions) { mUnionRepository.getReminders(it) }
     private var mReminders: List<Reminder> = emptyList()
 
+    private var mFoldersLiveData: LiveData<List<Folder>> =
+        Transformations.switchMap(mUnions) { mUnionRepository.getFolders(it) }
+    private var mFolders: List<Folder> = emptyList()
+
 
     /*                        Третий этап наблюдения                        */
     var data: MediatorLiveData<List<Pair<Int, ID>>> = MediatorLiveData()
@@ -119,11 +123,16 @@ open class UnionViewModel : ViewModel() {
             mReminders = it
             mExecutor.execute { data.postValue(updateData()) }
         }
+        data.addSource(mFoldersLiveData){
+            mFolders = it
+            mExecutor.execute { data.postValue(updateData()) }
+        }
     }
     private fun updateData(): List<Pair<Int, ID>>{
         val newData = mutableListOf<Pair<Int, ID>>()
 
         /*  Липового сортируем вывод по типу.  */
+        newData.addAll(mFolders.map { Pair(TYPE_FOLDER, it) })
         newData.addAll(mNotes.map { Pair(TYPE_NOTE, it) })
         newData.addAll(mReminders.map { Pair(TYPE_REMINDER, it) })
         newData.addAll(mGoals.map { Pair(TYPE_GOAL, it) })

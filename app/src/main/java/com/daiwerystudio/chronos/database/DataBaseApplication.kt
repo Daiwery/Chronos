@@ -21,6 +21,7 @@ class DataBaseApplication: Application() {
         ScheduleRepository.initialize(this)
         NoteRepository.initialize(this)
         ReminderRepository.initialize(this)
+        FolderRepository.initialize(this)
         UnionRepository.initialize(this)
 
         ActionRepository.initialize(this)

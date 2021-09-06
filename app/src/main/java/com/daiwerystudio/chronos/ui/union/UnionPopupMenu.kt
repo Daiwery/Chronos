@@ -15,6 +15,7 @@ import androidx.navigation.findNavController
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.ui.action_type.ActionTypeDialog
+import com.daiwerystudio.chronos.ui.folder.FolderDialog
 import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.schedule.ScheduleDialog
@@ -119,6 +120,22 @@ class UnionPopupMenu(val fragmentManager: FragmentManager,
                             putBoolean("isCreated", true)
                         }
                         dialog.show(fragmentManager, "ReminderDialog")
+
+                        return true
+                    }
+
+                    R.id.create_folder -> {
+                        val id = UUID.randomUUID().toString()
+                        val folder = Folder(id=id)
+                        val union = Union(id=id, parent=mUnionBuilder?.getParent() ?: "", type=TYPE_FOLDER)
+
+                        val dialog = FolderDialog()
+                        dialog.arguments = Bundle().apply{
+                            putSerializable("folder", folder)
+                            putSerializable("union", union)
+                            putBoolean("isCreated", true)
+                        }
+                        dialog.show(fragmentManager, "FolderDialog")
 
                         return true
                     }

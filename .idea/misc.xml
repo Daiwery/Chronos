@@ -43,11 +43,12 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/font/roboto.xml" value="0.264" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/font/roboto_thin.xml" value="0.284375" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/activity_main.xml" value="0.264" />
-        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action.xml" value="0.4" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action.xml" value="0.1" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_absolute_schedule.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_schedule.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_type.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_doing_action.xml" value="0.4" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_folder.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_goal.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_reminder.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_schedule.xml" value="0.4" />
@@ -57,6 +58,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_day.xml" value="0.264" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_day_container.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_day_schedule.xml" value="0.4" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_folder.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_goal.xml" value="0.264" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_goal_preview.xml" value="0.264" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_not_achieved_goal.xml" value="0.25416666666666665" />
@@ -79,6 +81,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_action_schedule.xml" value="0.264" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_action_type.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_active_schedule.xml" value="0.4" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_folder.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_goal.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_not_achieved_goal.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_not_active_schedule.xml" value="0.4" />

@@ -51,4 +51,6 @@
     <string name="deadline_">Дедлайн:</string>
     <string name="main">Главная</string>
     <string name="time_tracker">Тайм трекер</string>
+    <string name="folder_name_hint">Общее</string>
+    <string name="folder">Папка</string>
 </resources>

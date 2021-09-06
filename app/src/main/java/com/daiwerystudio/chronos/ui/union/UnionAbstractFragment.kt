@@ -128,6 +128,16 @@ abstract class UnionAbstractFragment : Fragment() {
     open inner class ReminderHolder(binding: ItemRecyclerViewReminderBinding):
         ReminderAbstractHolder(binding, requireActivity().supportFragmentManager)
 
+    open inner class FolderHolder(binding: ItemRecyclerViewFolderBinding):
+        FolderAbstractHolder(binding, requireActivity().supportFragmentManager) {
+        override fun onClicked() {
+            val bundle = Bundle().apply {
+                putString("parentID", folder.id)
+                putInt("typeShowing", viewModel.showing.typeShowing)
+            }
+            itemView.findNavController().navigate(R.id.action_global_navigation_union_folder, bundle)
+        }
+    }
 
     open inner class UnionAdapter: UnionAbstractAdapter(emptyList(), layoutInflater){
         override fun createActionTypeHolder(binding: ItemRecyclerViewActionTypeBinding): RawHolder =
@@ -144,5 +154,8 @@ abstract class UnionAbstractFragment : Fragment() {
 
         override fun createReminderHolder(binding: ItemRecyclerViewReminderBinding): RawHolder =
             ReminderHolder(binding)
+
+        override fun createFolderHolder(binding: ItemRecyclerViewFolderBinding): RawHolder =
+            FolderHolder(binding)
     }
 }

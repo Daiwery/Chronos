@@ -75,7 +75,7 @@
     <fragment
         android:id="@+id/navigation_union_note"
         android:name="com.daiwerystudio.chronos.ui.note.UnionNoteFragment"
-        android:label="fragment_union_note"
+        android:label=""
         tools:layout="@layout/fragment_union_note" />
     <action
         android:id="@+id/action_global_navigation_union_note"
@@ -87,6 +87,17 @@
     <fragment
         android:id="@+id/navigation_time_tracker"
         android:name="com.daiwerystudio.chronos.ui.time_tracker.TimeTrackerFragment"
-        android:label="fragment_time_tracker"
+        android:label=""
         tools:layout="@layout/fragment_time_tracker" />
+    <fragment
+        android:id="@+id/navigation_union_folder"
+        android:name="com.daiwerystudio.chronos.ui.folder.UnionFolderFragment"
+        android:label="" />
+    <action
+        android:id="@+id/action_global_navigation_union_folder"
+        app:destination="@id/navigation_union_folder"
+        app:enterAnim="@android:anim/fade_in"
+        app:exitAnim="@android:anim/fade_out"
+        app:popEnterAnim="@android:anim/fade_in"
+        app:popExitAnim="@android:anim/fade_out"/>
 </navigation>

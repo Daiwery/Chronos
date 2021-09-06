@@ -21,6 +21,7 @@ import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.*
 import com.daiwerystudio.chronos.ui.action_type.ActionTypeDialog
+import com.daiwerystudio.chronos.ui.folder.FolderDialog
 import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.schedule.ScheduleDialog
@@ -278,6 +279,41 @@ abstract class ReminderAbstractHolder(private val binding: ItemRecyclerViewRemin
 }
 
 /**
+ * Абстрактный класс для холдера Folder с инициализацией UI и слушателей.
+ */
+abstract class FolderAbstractHolder(val binding: ItemRecyclerViewFolderBinding,
+                                        private val fragmentManager: FragmentManager):
+    RawHolder(binding.root) {
+    lateinit var folder: Folder
+
+    init {
+        itemView.setOnClickListener{ onClicked() }
+        binding.edit.setOnClickListener{
+            val dialog = FolderDialog()
+            dialog.arguments = Bundle().apply{
+                putSerializable("folder", folder)
+                putBoolean("isCreated", false)
+            }
+            dialog.show(fragmentManager, "FolderDialog")
+        }
+    }
+
+    override fun bind(item: ID) {
+        this.folder = item as Folder
+        binding.folder = folder
+    }
+
+    override fun updateUI(old: ID, new: ID) {
+        new as Folder
+        old as Folder
+        this.folder = new
+        if (old.name != new.name) binding.name.text = new.name
+    }
+
+    abstract fun onClicked()
+}
+
+/**
  * Абстрактный класс для адаптера RecyclerView. Он сам определяет, какой тип холдера нужно
  * создать и чем его заполнить. Но обертка каким классом холдера решается в реализации
  * этого класса в конкретных методах.
@@ -318,6 +354,10 @@ abstract class UnionAbstractAdapter(var data: List<Pair<Int, ID>>,
                 DataBindingUtil.inflate(layoutInflater,
                     R.layout.item_recycler_view_reminder,
                     parent, false))
+            TYPE_FOLDER -> createFolderHolder(
+                DataBindingUtil.inflate(layoutInflater,
+                    R.layout.item_recycler_view_folder,
+                    parent, false))
             else -> throw IllegalArgumentException("Invalid type")
         }
     }
@@ -326,6 +366,7 @@ abstract class UnionAbstractAdapter(var data: List<Pair<Int, ID>>,
     abstract fun createScheduleHolder(binding: ItemRecyclerViewScheduleBinding): RawHolder
     abstract fun createNoteHolder(binding: ItemRecyclerViewNoteBinding): RawHolder
     abstract fun createReminderHolder(binding: ItemRecyclerViewReminderBinding): RawHolder
+    abstract fun createFolderHolder(binding: ItemRecyclerViewFolderBinding): RawHolder
 
     override fun onBindViewHolder(holder: RawHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty()) onBindViewHolder(holder, position)
