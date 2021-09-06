@@ -852,6 +852,15 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
         mPaint.isAntiAlias = true
     }
 
+    /*  Интерфейс, который сообщает, что завершена обработка данных.  */
+    private var mFinishedListener: FinishedListener? = null
+    fun interface FinishedListener{
+        fun finish()
+    }
+    fun setFinishedListener(finishedListener: FinishedListener){
+        mFinishedListener = finishedListener
+    }
+
     /**
      * Вспомогательный класс. Хранит информацию об временном интервале.
      * Нужен в алгоритме для обработки данных.
@@ -958,6 +967,7 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
 
             // Это нужно сделать, так как мы не в основном потоке.
             mHandler.post{ requestLayout() }
+            mHandler.post{ mFinishedListener?.finish() }
         }
     }
 
@@ -1147,7 +1157,7 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): ScrollView(conte
 
 
     init {
-        inflate(context, R.layout.layout_schedule_clock_view, this)
+        inflate(context, R.layout.layout_clock_schedule, this)
         isVerticalScrollBarEnabled = false
 
         scheduleView = findViewById(R.id.scheduleView)
@@ -1208,7 +1218,7 @@ class DayClockView(context: Context, attrs: AttributeSet): ScrollView(context, a
 
 
     init {
-        inflate(context, R.layout.layout_day_clock_view, this)
+        inflate(context, R.layout.layout_clock_day, this)
         isVerticalScrollBarEnabled = false
 
         clockFaceView = findViewById(R.id.clockFaceView)
@@ -1267,5 +1277,37 @@ class DayClockView(context: Context, attrs: AttributeSet): ScrollView(context, a
 
     fun setRemindersTimes(remindersTimes: List<Long>){
         multiScheduleView.setRemindersTimes(remindersTimes)
+    }
+}
+
+
+/**
+ * ViewGroup. Соединение виджетов выше с ScrollView. Используется в TimeTrackerFragment.
+ * Высота определяется ClockFaceView.
+ */
+class TimeTrackerClockView(context: Context, attrs: AttributeSet): ScrollView(context, attrs) {
+    private val actionsView: ActionsView
+    private val clockFaceView: ClockFaceView
+
+    init {
+        inflate(context, R.layout.layout_clock_time_tracker, this)
+        isVerticalScrollBarEnabled = false
+
+        clockFaceView = findViewById(R.id.clockFaceView)
+        actionsView = findViewById(R.id.actionsView)
+        actionsView.setFinishedListener{ mFinishedListener?.finish() }
+    }
+
+    /*  Интерфейс, который сообщает, что заверешна обработка данных.  */
+    private var mFinishedListener: FinishedListener? = null
+    fun interface FinishedListener{
+        fun finish()
+    }
+    fun setFinishedListener(finishedListener: FinishedListener){
+        mFinishedListener = finishedListener
+    }
+
+    fun setActions(actions: List<Action>, local: Int, day: Long){
+        actionsView.setActions(actions, local, day)
     }
 }

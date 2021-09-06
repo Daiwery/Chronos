@@ -62,4 +62,7 @@
 
     <declare-styleable name="DayClockView">
     </declare-styleable>
+
+    <declare-styleable name="TimeTrackerClockView">
+    </declare-styleable>
 </resources>

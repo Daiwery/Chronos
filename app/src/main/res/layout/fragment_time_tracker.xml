@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.day.DayFragment">
+    tools:context=".ui.time_tracker.TimeTrackerFragment">
 
     <data>
     </data>
@@ -11,7 +11,7 @@
         android:id="@+id/motionLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutDescription="@xml/scene_fragment_day">
+        app:layoutDescription="@xml/scene_fragment_time_tracker">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
@@ -33,7 +33,7 @@
                 android:layout_height="wrap_content"/>
         </com.google.android.material.appbar.AppBarLayout>
 
-        <com.daiwerystudio.chronos.ui.widgets.DayClockView
+        <com.daiwerystudio.chronos.ui.widgets.TimeTrackerClockView
             android:id="@+id/clock"
             android:layout_width="wrap_content"
             android:layout_height="0dp"

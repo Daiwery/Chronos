@@ -25,7 +25,7 @@ import kotlin.math.abs
  * активных сегодня. Предупреждение: он не имеет подписку на базу данных.
  * На mDaysSchedule подписан actionsSchedule, который получает список типов действий.
  *
- * Также на day подписаны две LiveData: mLiveGoals и mLiveReminders, которые объеденяются
+ * Также на day подписаны две LiveData: mLiveGoals и mLiveReminders, которые объединяются
  * с помощью MediatorLiveData.
  */
 class DayViewModel: ViewModel() {

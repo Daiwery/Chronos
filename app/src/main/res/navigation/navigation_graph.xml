@@ -84,4 +84,9 @@
         app:exitAnim="@android:anim/fade_out"
         app:popEnterAnim="@android:anim/fade_in"
         app:popExitAnim="@android:anim/fade_out"/>
+    <fragment
+        android:id="@+id/navigation_time_tracker"
+        android:name="com.daiwerystudio.chronos.ui.time_tracker.TimeTrackerFragment"
+        android:label="fragment_time_tracker"
+        tools:layout="@layout/fragment_time_tracker" />
 </navigation>

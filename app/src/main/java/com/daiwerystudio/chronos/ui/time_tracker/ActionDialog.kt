@@ -8,7 +8,7 @@
 * SelectActionTypeViewModel.
 */
 
-package com.daiwerystudio.chronos.ui.day
+package com.daiwerystudio.chronos.ui.time_tracker
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -53,7 +53,7 @@ class ActionDialog : BottomSheetDialogFragment() {
 
         // Сперва нужно получить id родителя.
         viewModel.parentID = ""
-        if (viewModel.isAll.value == null) viewModel.isAll.value = false
+        if (viewModel.isAll.value == null) viewModel.isAll.value = true
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

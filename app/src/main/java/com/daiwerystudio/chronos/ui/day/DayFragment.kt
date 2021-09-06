@@ -87,7 +87,6 @@ class DayFragment: Fragment() {
                 .map{ item -> ((item.second as Reminder).time+viewModel.local)%(24*60*60*1000) })
         })
 
-
         binding.toolBar.setOnClickListener {
             if (binding.motionLayout.progress > 0.5) binding.motionLayout.transitionToStart()
             else binding.motionLayout.transitionToEnd()
@@ -151,10 +150,10 @@ class DayFragment: Fragment() {
         // Мы не можем изначально поставить размер appBarLayout равный ?attr/actionBarSize
         // или выполнить код ниже в функции выше, так как при этом у CalendarView не будет срабатывать
         // onClickListener.
-        val position = viewModel.day.value!!-(System.currentTimeMillis()+viewModel.local)/(1000*60*60*24)
-        if (position == 0L) binding.motionLayout.transitionToEnd()
+//        val position = viewModel.day.value!!-(System.currentTimeMillis()+viewModel.local)/(1000*60*60*24)
+//        if (position == 0L) binding.motionLayout.transitionToEnd()
 
-        // В функции выше делать нельзя, так как rootView.height там пока что равно 0.
+        // В функции выше делать нельзя, так как height там пока что равно 0.
         val currentTime = (System.currentTimeMillis()+viewModel.local)%(24*60*60*1000)-60*60*1000
         val ratio = currentTime/(24*60*60*1000f)
         val scrollY = (binding.clock.getChildAt(0).height*ratio).toInt()
@@ -210,7 +209,7 @@ class DayFragment: Fragment() {
             val diffUtilCallback = CustomDiffUtil(data.map { it.second }, newData.map { it.second })
             val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
 
-            data = newData
+            data = newData.map{ it.copy() }
             diffResult.dispatchUpdatesTo(this)
 
             if (data.isEmpty()) setEmptyView()
@@ -251,16 +250,8 @@ class DayFragment: Fragment() {
             viewModel.deleteItem(viewHolder.absoluteAdapterPosition)
         }
 
-        /**
-         * Иконка, которую рисует onChildDraw.
-         */
         var icon: Drawable? = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_delete_24_white)
-
-        /**
-         * Задний фон, который рисует onChildDraw.
-         */
         var background: Drawable? = ColorDrawable(Color.parseColor("#CA0000"))
-
         override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
                                  dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
             if (dX < 0) {

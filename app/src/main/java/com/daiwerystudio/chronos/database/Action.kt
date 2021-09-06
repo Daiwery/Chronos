@@ -17,7 +17,6 @@ import androidx.room.*
 import com.daiwerystudio.chronos.ui.union.ID
 import java.io.Serializable
 import java.util.*
-import java.util.concurrent.Executors
 
 private const val ACTION_DATABASE_NAME = "action-database"
 
@@ -41,7 +40,7 @@ interface ActionDao {
     @Query("SELECT * FROM action_table WHERE " +
             "(startTime >= (:time1) AND startTime <= (:time2)) " +
             "OR (endTime >= (:time1) AND endTime <= (:time2)) ORDER BY startTime")
-    fun getActionsFromInterval(time1: Long, time2: Long): LiveData<List<Action>>
+    fun getActionsFromTimeInterval(time1: Long, time2: Long): LiveData<List<Action>>
 
     @Update
     fun updateAction(action: Action)
@@ -77,8 +76,8 @@ class ActionRepository private constructor(context: Context) {
         mHandler = Handler(mHandlerThread.looper)
     }
 
-    fun getActionsFromInterval(time1: Long, time2: Long): LiveData<List<Action>> =
-        mDao.getActionsFromInterval(time1, time2)
+    fun getActionsFromTimeInterval(time1: Long, time2: Long): LiveData<List<Action>> =
+        mDao.getActionsFromTimeInterval(time1, time2)
 
     fun updateAction(action: Action) {
         mHandler.post { mDao.updateAction(action) }
