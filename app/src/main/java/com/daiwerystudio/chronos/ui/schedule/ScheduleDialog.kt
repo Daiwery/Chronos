@@ -17,16 +17,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.DialogScheduleBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
+import com.daiwerystudio.chronos.ui.FORMAT_DAY
+import com.daiwerystudio.chronos.ui.formatTime
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.lang.IllegalArgumentException
+import java.time.format.FormatStyle
 
 /**
  * Ключевой особенностью является тот факт, что диалог всегда получает расписание.
@@ -66,35 +69,29 @@ class ScheduleDialog : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DialogScheduleBinding.inflate(inflater, container, false)
-        val view = binding.root
         binding.schedule = schedule
+        binding.scheduleStart.editText?.setText(formatTime(schedule.start, true, FormatStyle.LONG, FORMAT_DAY))
 
-        binding.name.addTextChangedListener{
-            schedule.name = binding.name.text.toString()
-
-            if (binding.name.text.toString() != "") binding.errorName.visibility = View.INVISIBLE
-            else binding.errorName.visibility = View.VISIBLE
+        binding.scheduleName.editText?.doOnTextChanged { text, _, _, _ ->
+            schedule.name = text.toString()
+            if (schedule.name == "") binding.scheduleName.error = resources.getString(R.string.error_name)
+            else binding.scheduleName.error = null
         }
 
         if (isCreated && schedule.type == TYPE_SCHEDULE_PERIODIC) {
-            binding.countDays.addTextChangedListener {
-                if (binding.countDays.text.toString() != "") {
-                    schedule.countDays = binding.countDays.text.toString().toInt()
-                    binding.errorCountDays.visibility = View.INVISIBLE
-                } else binding.errorCountDays.visibility = View.VISIBLE
+            binding.scheduleCountDays.editText?.doOnTextChanged { text, _, _, _ ->
+                if (text.toString() != "") {
+                    schedule.countDays = text.toString().toInt()
+                    binding.scheduleCountDays.error = null
+                } else binding.scheduleCountDays.error = " "
             }
-        } else {
-            binding.countDays.visibility = View.GONE
-            binding.textView8.visibility = View.GONE
-        }
+        } else binding.scheduleCountDays.visibility = View.GONE
 
-        binding.startDay.setOnClickListener {
-            val dialog = MaterialDatePicker.Builder.datePicker()
-                .setSelection(schedule.start+local)
-                .build()
+        binding.scheduleStart.editText?.setOnClickListener {
+            val dialog = MaterialDatePicker.Builder.datePicker().setSelection(schedule.start+local).build()
             dialog.addOnPositiveButtonClickListener {
                 schedule.start = it-local
-                binding.schedule = schedule
+                binding.scheduleStart.editText?.setText(formatTime(schedule.start, true, FormatStyle.LONG, FORMAT_DAY))
             }
             dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")
         }
@@ -103,16 +100,16 @@ class ScheduleDialog : BottomSheetDialogFragment() {
         else binding.button.text = resources.getString(R.string.edit)
         binding.button.setOnClickListener {
             var permission = true
-            if (binding.name.text.toString() == ""){
+            if (schedule.name == ""){
                 permission = false
-                binding.errorName.visibility = View.VISIBLE
+                if (schedule.name == "") binding.scheduleName.error = resources.getString(R.string.error_name)
+                else binding.scheduleName.error = null
             }
-            if (isCreated)
-                if (binding.countDays.text.toString() == ""){
+            if (isCreated && schedule.type == TYPE_SCHEDULE_PERIODIC)
+                if (binding.scheduleCountDays.editText?.text.toString() == ""){
                     permission = false
-                    binding.errorCountDays.visibility = View.VISIBLE
-                }
-
+                    binding.scheduleCountDays.error = " "
+                } else binding.scheduleCountDays.error = null
 
             if (permission){
                 if (isCreated) {
@@ -137,7 +134,7 @@ class ScheduleDialog : BottomSheetDialogFragment() {
             }
         }
 
-        return view
+        return binding.root
     }
 
     override fun onDestroy() {

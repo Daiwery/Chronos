@@ -13,7 +13,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Goal
@@ -22,10 +22,14 @@ import com.daiwerystudio.chronos.database.Union
 import com.daiwerystudio.chronos.database.UnionRepository
 import com.daiwerystudio.chronos.databinding.DialogGoalBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
+import com.daiwerystudio.chronos.ui.FORMAT_DAY
+import com.daiwerystudio.chronos.ui.FORMAT_TIME
+import com.daiwerystudio.chronos.ui.formatTime
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import java.time.format.FormatStyle
 import java.util.*
 
 /**
@@ -43,7 +47,6 @@ class GoalDialog : BottomSheetDialogFragment() {
     private lateinit var goal: Goal
     var isCreated: Boolean = false
     private var union: Union? = null
-    private var isTemporal: Boolean? = null
 
     private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
@@ -59,8 +62,6 @@ class GoalDialog : BottomSheetDialogFragment() {
 
         // Значение равно null, если isCreated = false или отправитель не хочет создавать union.
         union = arguments?.getSerializable("union") as Union?
-        // Если true, то нужно убрать checkBox.
-        isTemporal = arguments?.getBoolean("isTemporal")
 
         // Восстанавливаем значение, если оно есть.
         if (viewModel.data != null) goal = viewModel.data as Goal
@@ -70,75 +71,61 @@ class GoalDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogGoalBinding.inflate(inflater, container, false)
         binding.goal = goal
-        if (goal.deadline == 0L) binding.checkBox.isChecked = true
-        if (isTemporal == true) binding.checkBox.visibility = View.GONE
+        binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
+        binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
 
-        binding.goalName.addTextChangedListener{
-            goal.name = it.toString()
-            if (goal.name != "") binding.error.visibility = View.INVISIBLE
-            else binding.error.visibility = View.VISIBLE
+        binding.goalName.editText?.doOnTextChanged { text, _, _, _ ->
+            goal.name = text.toString()
+            if (goal.name == "")  binding.goalName.error = resources.getString(R.string.error_name)
+            else binding.goalName.error = null
         }
+        binding.goalNote.editText?.doOnTextChanged { text, _, _, _ -> goal.note = text.toString() }
 
-        binding.goalNote.addTextChangedListener {
-            goal.note = it.toString()
-        }
-
-        binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) goal.deadline = 0L
-            else goal.deadline = System.currentTimeMillis()
-            binding.goal = goal
-        }
-
-        binding.deadlineTime.setOnClickListener{
+        binding.time.editText?.setOnClickListener{
             val localTime = goal.deadline+local
             val day = localTime/(1000*60*60*24)
             val time = (localTime%(1000*60*60*24)).toInt()
             val hour = time/(1000*60*60)
             val minute = (time-hour*1000*60*60)/(1000*60)
 
-            val dialog = MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(hour)
-                .setMinute(minute)
-                .setTitleText("")
-                .build()
-
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 goal.deadline = day*1000*60*60*24+(dialog.hour*60+dialog.minute)*1000*60-local
-                binding.goal = goal
+                binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
-        binding.deadlineDay.setOnClickListener{
+        binding.day.editText?.setOnClickListener{
             val localTime = goal.deadline+local
             val time = localTime%(1000*60*60*24)
 
-            val dialog = MaterialDatePicker.Builder.datePicker()
-                .setSelection(localTime)
-                .build()
-
+            val dialog = MaterialDatePicker.Builder.datePicker().setSelection(localTime).build()
             dialog.addOnPositiveButtonClickListener {
                 goal.deadline = it+time-local
-                binding.goal = goal
+                binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
             }
             dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")
         }
 
         if (isCreated) binding.button.text = resources.getString(R.string.add)
         else binding.button.text = resources.getString(R.string.edit)
+
         binding.button.setOnClickListener{
-            if (goal.name != ""){
+            var permission = true
+            if (goal.name == "") {
+                permission = false
+                binding.goalName.error = resources.getString(R.string.error_name)
+            } else binding.goalName.error = null
+
+            if (permission){
                 if (isCreated) mGoalRepository.addGoal(goal)
                 else mGoalRepository.updateGoal(goal)
 
                 if (union != null) mUnionRepository.addUnion(union!!)
 
                 this.dismiss()
-            } else {
-                // Это нужно для того, чтоюы при первом появлении пустого TextInput ошибки не было,
-                // а после нажатия кнопки, без изменения TextInput, появлялась ошибка.
-                binding.error.visibility = View.VISIBLE
             }
         }
 

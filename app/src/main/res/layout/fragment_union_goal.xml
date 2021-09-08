@@ -28,11 +28,9 @@
                 android:id="@+id/toolBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:titleTextAppearance="@style/Text.TitleToolbar"
                 app:menu="@menu/menu_edit_delete"
                 app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24"
-                app:title="@{goal.name}"
-                app:titleCentered="true" />
+                app:title="@{goal.name}" />
 
             <com.daiwerystudio.chronos.ui.widgets.SelectTypeShowing
                 android:id="@+id/selectTypeShowing"
@@ -50,40 +48,33 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card"
-                android:layout_width="0dp"
+            <ScrollView
+                android:id="@+id/scrollView2"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:booleanVisibility="@{!goal.note.equals(``)}"
+                android:paddingLeft="16dp"
+                android:paddingTop="2dp"
+                android:paddingRight="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHeight_max="300dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                android:background="@color/white_1000">
 
-                <ScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        style="@style/Text.Content"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="8dp"
-                        android:paddingTop="2dp"
-                        android:paddingRight="8dp"
-                        android:text="@{goal.note}"
-                        tools:text="kfgdjiokjpi;mksp'[thin;mdkpf['gfmo" />
-                </ScrollView>
-            </com.google.android.material.card.MaterialCardView>
+                <TextView
+                    android:textAppearance="@style/Text.Content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{goal.note}"
+                    tools:text="kfgdjiokjpi;mksp'[thin;mdkpf['gfmo" />
+            </ScrollView>
 
             <TextView
                 android:id="@+id/textView21"
-                style="@style/Text.Caption"
+                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="16dp"
                 android:text="@string/progress_"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView13" />
@@ -91,17 +82,18 @@
             <ProgressBar
                 android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintBottom_toBottomOf="@+id/progressTextView"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView21" />
+                app:layout_constraintStart_toEndOf="@+id/progressTextView"
+                app:layout_constraintTop_toTopOf="@+id/progressTextView" />
 
             <TextView
                 android:id="@+id/progressTextView"
-                style="@style/Text.Caption"
+                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
@@ -111,46 +103,25 @@
 
             <TextView
                 android:id="@+id/textView13"
-                style="@style/Text.Caption"
+                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginStart="16dp"
                 android:booleanVisibility="@{goal.deadline != 0}"
                 android:text="@string/deadline_"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/card" />
+                app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
 
-            <com.daiwerystudio.chronos.ui.widgets.TimeTextView
-                android:id="@+id/time"
-                style="@style/Text.Caption"
+            <TextView
+                android:id="@+id/deadline"
+                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:booleanVisibility="@{goal.deadline != 0}"
-                android:textTime="@{goal.deadline}"
                 app:layout_constraintStart_toEndOf="@+id/textView13"
                 app:layout_constraintTop_toTopOf="@+id/textView13"
-                custom:timeLocal="local"
-                custom:timeStyle="shortFormat"
-                custom:timeType="time"
                 tools:text="14:00" />
-
-            <com.daiwerystudio.chronos.ui.widgets.TimeTextView
-                android:id="@+id/day"
-                style="@style/Text.Caption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:booleanVisibility="@{goal.deadline != 0}"
-                android:textTime="@{goal.deadline}"
-                app:layout_constraintStart_toEndOf="@+id/time"
-                app:layout_constraintTop_toTopOf="@+id/time"
-                custom:timeLocal="local"
-                custom:timeStyle="fullFormat"
-                custom:timeType="date"
-                tools:text="8 августа" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView

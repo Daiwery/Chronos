@@ -20,10 +20,14 @@ import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.DialogActionScheduleBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
+import com.daiwerystudio.chronos.ui.FORMAT_TIME
+import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.widgets.SelectActionTypeViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import java.lang.IllegalArgumentException
+import java.time.format.FormatStyle
 
 class ActionScheduleDialog : BottomSheetDialogFragment() {
     private val viewModel: SelectActionTypeViewModel
@@ -58,11 +62,24 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogActionScheduleBinding.inflate(inflater, container, false)
         binding.actionSchedule = actionSchedule
-        binding.type = type
+        when (type){
+            TYPE_DAY_SCHEDULE_ABSOLUTE -> {
+                binding.time1.editText?.setText(
+                    formatTime(actionSchedule.startTime, false, FormatStyle.SHORT, FORMAT_TIME))
+                binding.time2.editText?.setText(
+                    formatTime(actionSchedule.endTime, false, FormatStyle.SHORT, FORMAT_TIME))
+            }
+            TYPE_DAY_SCHEDULE_RELATIVE -> {
+                binding.time1.editText?.setText(
+                    formatTime(actionSchedule.startAfter, false, FormatStyle.SHORT, FORMAT_TIME))
+                binding.time2.editText?.setText(
+                    formatTime(actionSchedule.duration, false, FormatStyle.SHORT, FORMAT_TIME))
+            }
+            else -> throw IllegalArgumentException("Invalid type")
+        }
 
         // Отмена клавиатуры.
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
-
 
         viewModel.actionTypes.observe(viewLifecycleOwner, {
             binding.selectActionType.setData(it)
@@ -75,91 +92,79 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
         binding.selectActionType.setOnSelectListener{ actionSchedule.actionTypeId = it.id }
         binding.selectActionType.setOnEditIsAllListener{ viewModel.isAll.value = it }
 
-
-        binding.startAfter.setOnClickListener{
-            val hour = actionSchedule.startAfter.toInt()/(1000*60*60)
-            val minute =  (actionSchedule.startAfter.toInt()-hour*1000*60*60)/(1000*60)
-
-            val dialog = MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(hour)
-                .setMinute(minute)
-                .setTitleText("")
-                .build()
-
-            dialog.addOnPositiveButtonClickListener {
-                actionSchedule.startAfter = (dialog.hour*60+dialog.minute)*1000*60L
-                binding.actionSchedule = actionSchedule
+        binding.time1.editText?.setOnClickListener {
+            val time = when (type){
+                TYPE_DAY_SCHEDULE_ABSOLUTE -> actionSchedule.startTime.toInt()
+                TYPE_DAY_SCHEDULE_RELATIVE -> actionSchedule.startAfter.toInt()
+                else -> throw IllegalArgumentException("Invalid type")
             }
-            dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
-        }
-        binding.duration.setOnClickListener {
-            val hour = actionSchedule.duration.toInt()/(1000*60*60)
-            val minute =  (actionSchedule.duration.toInt()-hour*1000*60*60)/(1000*60)
+            val hour = time/(1000*60*60)
+            val minute = (time-hour*1000*60*60)/(1000*60)
 
-            val dialog = MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(hour)
-                .setMinute(minute)
-                .setTitleText("")
-                .build()
-
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
-                actionSchedule.duration = (dialog.hour*60+dialog.minute)*1000*60L
-                binding.actionSchedule = actionSchedule
+                when (type){
+                    TYPE_DAY_SCHEDULE_ABSOLUTE -> {
+                        actionSchedule.startTime = (dialog.hour*60+dialog.minute)*1000*60L
+                        binding.time1.editText?.setText(
+                            formatTime(actionSchedule.startTime, false, FormatStyle.SHORT, FORMAT_TIME))
+                    }
+                    TYPE_DAY_SCHEDULE_RELATIVE -> {
+                        actionSchedule.startAfter = (dialog.hour*60+dialog.minute)*1000*60L
+                        binding.time1.editText?.setText(
+                            formatTime(actionSchedule.startAfter, false, FormatStyle.SHORT, FORMAT_TIME))
+                    }
+                    else -> throw IllegalArgumentException("Invalid type")
+                }
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
-        binding.startTime.setOnClickListener{
-            val hour = actionSchedule.startTime.toInt()/(1000*60*60)
-            val minute =  (actionSchedule.startTime.toInt()-hour*1000*60*60)/(1000*60)
-
-            val dialog = MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(hour)
-                .setMinute(minute)
-                .setTitleText("")
-                .build()
-
-            dialog.addOnPositiveButtonClickListener {
-                actionSchedule.startTime = (dialog.hour*60+dialog.minute)*1000*60L
-                binding.actionSchedule = actionSchedule
+        binding.time2.editText?.setOnClickListener {
+            val time = when (type){
+                TYPE_DAY_SCHEDULE_ABSOLUTE -> actionSchedule.endTime.toInt()
+                TYPE_DAY_SCHEDULE_RELATIVE -> actionSchedule.duration.toInt()
+                else -> throw IllegalArgumentException("Invalid type")
             }
-            dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
-        }
-        binding.endTime.setOnClickListener{
-            val hour = actionSchedule.endTime.toInt()/(1000*60*60)
-            val minute =  (actionSchedule.endTime.toInt()-hour*1000*60*60)/(1000*60)
+            val hour = time/(1000*60*60)
+            val minute = (time-hour*1000*60*60)/(1000*60)
 
-            val dialog = MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(hour)
-                .setMinute(minute)
-                .setTitleText("")
-                .build()
-
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
-                actionSchedule.endTime = (dialog.hour*60+dialog.minute)*1000*60L
-                binding.actionSchedule = actionSchedule
+                when (type){
+                    TYPE_DAY_SCHEDULE_ABSOLUTE -> {
+                        actionSchedule.endTime = (dialog.hour*60+dialog.minute)*1000*60L
+                        binding.time1.editText?.setText(
+                            formatTime(actionSchedule.endTime, false, FormatStyle.SHORT, FORMAT_TIME))
+                    }
+                    TYPE_DAY_SCHEDULE_RELATIVE -> {
+                        actionSchedule.duration = (dialog.hour*60+dialog.minute)*1000*60L
+                        binding.time1.editText?.setText(
+                            formatTime(actionSchedule.duration, false, FormatStyle.SHORT, FORMAT_TIME))
+                    }
+                    else -> throw IllegalArgumentException("Invalid type")
+                }
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
         when (type) {
             TYPE_DAY_SCHEDULE_RELATIVE -> {
-                binding.textView7.text = resources.getString(R.string.start_after)
-                binding.textView8.text = resources.getString(R.string.duration)
+                binding.time1.hint = resources.getString(R.string.start_after)
+                binding.time2.hint = resources.getString(R.string.duration)
             }
             TYPE_DAY_SCHEDULE_ABSOLUTE -> {
-                binding.textView7.text = resources.getString(R.string.start)
-                binding.textView8.text = resources.getString(R.string.end)
+                binding.time1.hint = resources.getString(R.string.start)
+                binding.time2.hint = resources.getString(R.string.end)
             }
             else -> throw IllegalStateException("Invalid type")
         }
 
         if (isCreated) binding.button.text = resources.getString(R.string.add)
         else binding.button.text = resources.getString(R.string.edit)
+
         binding.button.setOnClickListener {
             var permission = true
             if (actionSchedule.actionTypeId == "") permission = false

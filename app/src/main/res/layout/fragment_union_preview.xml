@@ -24,7 +24,6 @@
                 android:id="@+id/toolBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:titleTextAppearance="@style/Text.TitleToolbar"
                 app:title="@string/title_union_preview" />
         </com.google.android.material.appbar.AppBarLayout>
 

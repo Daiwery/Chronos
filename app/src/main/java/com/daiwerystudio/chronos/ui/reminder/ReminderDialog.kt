@@ -9,7 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Reminder
@@ -18,10 +18,14 @@ import com.daiwerystudio.chronos.database.Union
 import com.daiwerystudio.chronos.database.UnionRepository
 import com.daiwerystudio.chronos.databinding.DialogReminderBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
+import com.daiwerystudio.chronos.ui.FORMAT_DAY
+import com.daiwerystudio.chronos.ui.FORMAT_TIME
+import com.daiwerystudio.chronos.ui.formatTime
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import java.time.format.FormatStyle
 import java.util.*
 
 
@@ -59,45 +63,39 @@ class ReminderDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogReminderBinding.inflate(inflater, container, false)
         binding.reminder = reminder
+        binding.day.editText?.setText(formatTime(reminder.time, true, FormatStyle.LONG, FORMAT_DAY))
+        binding.time.editText?.setText(formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME))
 
-        binding.text.addTextChangedListener{
-            reminder.text = it.toString()
-            if (reminder.text != "") binding.error.visibility = View.INVISIBLE
-            else binding.error.visibility = View.VISIBLE
+        binding.reminderText.editText?.doOnTextChanged { text, _, _, _ ->
+            reminder.text = text.toString()
+            if (reminder.text == "") binding.reminderText.error = resources.getString(R.string.error_name)
+            else binding.reminderText.error = null
         }
 
-        binding.time.setOnClickListener{
+        binding.time.editText?.setOnClickListener{
             val localTime = reminder.time+local
             val day = localTime/(1000*60*60*24)
             val time = (localTime%(1000*60*60*24)).toInt()
             val hour = time/(1000*60*60)
             val minute = (time-hour*1000*60*60)/(1000*60)
 
-            val dialog = MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(hour)
-                .setMinute(minute)
-                .setTitleText("")
-                .build()
-
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 reminder.time = day*1000*60*60*24+(dialog.hour*60+dialog.minute)*1000*60-local
-                binding.reminder = reminder
+                binding.time.editText?.setText(formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
-        binding.day.setOnClickListener{
+        binding.day.editText?.setOnClickListener{
             val localTime = reminder.time+local
             val time = localTime%(1000*60*60*24)
 
-            val dialog = MaterialDatePicker.Builder.datePicker()
-                .setSelection(localTime)
-                .build()
-
+            val dialog = MaterialDatePicker.Builder.datePicker().setSelection(localTime).build()
             dialog.addOnPositiveButtonClickListener {
                 reminder.time = it+time-local
-                binding.reminder = reminder
+                binding.day.editText?.setText(formatTime(reminder.time, true, FormatStyle.MEDIUM, FORMAT_DAY))
             }
             dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")
         }
@@ -106,8 +104,10 @@ class ReminderDialog : BottomSheetDialogFragment() {
         else binding.button.text = resources.getString(R.string.edit)
         binding.button.setOnClickListener{
             var permission = true
-            if (reminder.text == "") permission = false
-            if (reminder.time < System.currentTimeMillis()) permission = false
+            if (reminder.text == "") {
+                permission = false
+                binding.reminderText.error = resources.getString(R.string.error_name)
+            } else binding.reminderText.error = null
 
             if (permission) {
                 if (isCreated) mReminderRepository.addReminder(reminder)

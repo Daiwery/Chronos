@@ -20,11 +20,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.*
+import com.daiwerystudio.chronos.ui.FORMAT_DAY
+import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.action_type.ActionTypeDialog
 import com.daiwerystudio.chronos.ui.folder.FolderDialog
+import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.schedule.ScheduleDialog
+import java.time.format.FormatStyle
 
 /**
  * Данный интерфейс означает, что у класса есть поле id. Нужен для обобщения DiffUtil на
@@ -153,18 +157,18 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
         this.goal = goal
         binding.goal = goal
         binding.isAchieved = goal.isAchieved
-
-        // Так нужно сделать из-за класса в DayFragment, который наследует этот класс.
-        if (goal.deadline != 0L) binding.day.visibility = View.VISIBLE
-        else binding.day.visibility = View.GONE
-
-        // Percent удаляется, так как это не RoomLiveData.
+        setDeadline()
         setPercentAchieved()
     }
 
     override fun updateUI(old: ID, new: ID) {
         setStaticUI(new as Goal)
         if (new.isAchieved != binding.checkBox.isChecked) binding.checkBox.isChecked = new.isAchieved
+    }
+
+    open fun setDeadline(){
+        binding.deadlineTextView.text = (formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME)+
+                ", " + formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
     }
 
     abstract fun onAchieved()
@@ -201,6 +205,7 @@ abstract class ScheduleAbstractHolder(private val binding: ItemRecyclerViewSched
     open fun setStaticUI(schedule: Schedule){
         this.schedule = schedule
         binding.schedule = schedule
+        binding.start.text =  formatTime(schedule.start, true, FormatStyle.LONG, FORMAT_DAY)
         when (schedule.type){
             TYPE_SCHEDULE_PERIODIC -> binding.type.text = itemView.context.getString(R.string.periodic_schedule)
             TYPE_SCHEDULE_ONCE -> binding.type.text = itemView.context.getString(R.string.once_schedule)
@@ -251,7 +256,7 @@ abstract class NoteAbstractHolder(private val binding: ItemRecyclerViewNoteBindi
 /**
  * Абстрактный класс для холдера Reminder с инициализацией UI и слушателей.
  */
-abstract class ReminderAbstractHolder(private val binding: ItemRecyclerViewReminderBinding,
+abstract class ReminderAbstractHolder(val binding: ItemRecyclerViewReminderBinding,
                                       private val fragmentManager: FragmentManager):
     RawHolder(binding.root) {
     lateinit var reminder: Reminder
@@ -270,11 +275,18 @@ abstract class ReminderAbstractHolder(private val binding: ItemRecyclerViewRemin
     override fun bind(item: ID) {
         this.reminder = item as Reminder
         binding.reminder = reminder
+        setTime()
     }
 
     override fun updateUI(old: ID, new: ID) {
         this.reminder = new as Reminder
         binding.reminder = reminder
+        setTime()
+    }
+
+    open fun setTime(){
+        binding.timeTextView.text = (formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME)+
+                ", " + formatTime(reminder.time, true, FormatStyle.LONG, FORMAT_DAY))
     }
 }
 

@@ -16,10 +16,14 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionGoalBinding
+import com.daiwerystudio.chronos.ui.FORMAT_DAY
+import com.daiwerystudio.chronos.ui.FORMAT_TIME
+import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.union.ID
 import com.daiwerystudio.chronos.ui.union.ItemAnimator
 import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
 import com.daiwerystudio.chronos.ui.union.UnionPopupMenu
+import java.time.format.FormatStyle
 
 class UnionGoalFragment : UnionAbstractFragment() {
     override val viewModel: UnionGoalViewModel
@@ -50,6 +54,8 @@ class UnionGoalFragment : UnionAbstractFragment() {
 
         viewModel.parent.observe(viewLifecycleOwner, { goal ->
             binding.goal = goal
+            binding.deadline.text = (formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME) +
+                    ", " + formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
 
             // Percent удаляется, так как это не RoomLiveData.
             val percent = viewModel.getPercentAchieved(goal.id)
@@ -86,14 +92,14 @@ class UnionGoalFragment : UnionAbstractFragment() {
                 R.id.edit -> {
                     val dialog = GoalDialog()
                     dialog.arguments = Bundle().apply{
-                        putSerializable("goal", viewModel.showing.parentID)
+                        putSerializable("goal", viewModel.parent.value!!)
                         putBoolean("isCreated", false)
                     }
                     dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
                     true
                 }
                 R.id.delete -> {
-                    AlertDialog.Builder(context, R.style.App_AlertDialog)
+                    AlertDialog.Builder(context, R.style.Style_AlertDialog)
                         .setTitle(resources.getString(R.string.are_you_sure))
                         .setPositiveButton(R.string.yes) { _, _ ->
                             viewModel.deleteUnionWithChild(viewModel.showing.parentID)

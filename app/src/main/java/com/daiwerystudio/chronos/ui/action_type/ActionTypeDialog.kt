@@ -13,7 +13,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.ActionType
@@ -64,11 +64,10 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DialogActionTypeBinding.inflate(inflater, container, false)
-        val view = binding.root
         binding.actionType = actionType
 
         binding.color.setOnClickListener{
-            ColorPickerDialog.Builder(context, R.style.App_ColorPickerDialog)
+            ColorPickerDialog.Builder(context, R.style.Style_ColorPickerDialog)
                 .setPreferenceName("ColorPickerDialog")
                 .setPositiveButton(resources.getString(R.string.select), object : ColorEnvelopeListener {
                         override fun onColorSelected(envelope: ColorEnvelope, fromUser: Boolean) {
@@ -77,21 +76,26 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                         }
                     })
                 .setNegativeButton(resources.getString(R.string.cancel)) { dialogInterface, _ -> dialogInterface.dismiss() }
-                .setBottomSpace(12)
-                .attachAlphaSlideBar(false)
-                .show()
+                .setBottomSpace(12).attachAlphaSlideBar(false).show()
         }
 
-        binding.name.addTextChangedListener{
-            actionType.name = binding.name.text.toString()
-            if (actionType.name != "") binding.error.visibility = View.INVISIBLE
-            else binding.error.visibility = View.VISIBLE
+        binding.actionTypeName.editText?.doOnTextChanged { text, _, _, _ ->
+            actionType.name = text.toString()
+            if (actionType.name == "")  binding.actionTypeName.error = resources.getString(R.string.error_name)
+            else binding.actionTypeName.error = null
         }
 
         if (isCreated) binding.button.text = resources.getString(R.string.add)
         else binding.button.text = resources.getString(R.string.edit)
+
         binding.button.setOnClickListener{
-            if (actionType.name != ""){
+            var permission = true
+            if (actionType.name == "") {
+                permission = false
+                binding.actionTypeName.error = resources.getString(R.string.error_name)
+            } else binding.actionTypeName.error = null
+
+            if (permission){
                 if (isCreated) {
                     mActionTypeRepository.addActionType(actionType)
                     mUnionRepository.addUnion(union!!)
@@ -99,14 +103,10 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                 else mActionTypeRepository.updateActionType(actionType)
 
                 this.dismiss()
-            } else {
-                // Это нужно для того, чтоюы при первом появлении пустого TextInput ошибки не было,
-                // а после нажатия кнопки, без изменения TextInput, появлялась ошибка.
-                binding.error.visibility = View.VISIBLE
             }
         }
 
-        return view
+        return binding.root
     }
 
     override fun onDestroy() {

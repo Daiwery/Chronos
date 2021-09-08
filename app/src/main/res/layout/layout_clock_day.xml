@@ -20,8 +20,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            custom:spaceHeight="50dp"
-            custom:textSize="14sp" />
+            custom:spaceHeight="100dp"
+            custom:textSize="14sp"
+            custom:marginText="0dp"/>
 
         <HorizontalScrollView
             android:id="@+id/scrollView1"
@@ -48,6 +49,7 @@
                     custom:spaceWidth="0dp"
                     custom:stripWidth="15dp"
                     custom:sizeDrawable="24dp"
+                    custom:marginIcon="4dp"
                     custom:drawableGoal="@drawable/ic_goal"
                     custom:drawableReminder="@drawable/ic_reminder"/>
             </FrameLayout>

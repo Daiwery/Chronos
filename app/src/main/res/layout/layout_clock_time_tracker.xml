@@ -20,8 +20,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            custom:spaceHeight="50dp"
-            custom:textSize="14sp" />
+            custom:spaceHeight="100dp"
+            custom:textSize="14sp"
+            custom:marginText="0dp"/>
 
         <HorizontalScrollView
             android:layout_width="wrap_content"

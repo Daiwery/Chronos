@@ -7,10 +7,10 @@
 
     <TextView
         android:id="@+id/textView10"
-        style="@style/Text.TitleDialog"
+        android:textAppearance="@style/Text.Content"
+        android:textSize="20sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:text="@string/select_action_type"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -19,7 +19,6 @@
         android:id="@+id/imageView"
         android:layout_width="10dp"
         android:layout_height="10dp"
-        android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/textView1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView1"
@@ -28,7 +27,7 @@
 
     <TextView
         android:id="@+id/textView1"
-        style="@style/Text.Content"
+        android:textAppearance="@style/Text.Content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
@@ -54,8 +53,8 @@
         android:id="@+id/isAll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:text="@string/all"
+        android:textAppearance="@style/Text.Content"
         app:layout_constraintBottom_toTopOf="@+id/recyclerView"
         app:layout_constraintEnd_toEndOf="parent" />
 

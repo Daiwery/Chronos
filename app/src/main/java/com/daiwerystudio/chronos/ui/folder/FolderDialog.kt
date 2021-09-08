@@ -9,7 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Folder
@@ -54,16 +54,22 @@ class FolderDialog : BottomSheetDialogFragment() {
         binding = DialogFolderBinding.inflate(inflater, container, false)
         binding.folder = folder
 
-        binding.name.addTextChangedListener{
-            folder.name = binding.name.text.toString()
-            if (folder.name != "") binding.error.visibility = View.INVISIBLE
-            else binding.error.visibility = View.VISIBLE
+        binding.folderName.editText?.doOnTextChanged { text, _, _, _ ->
+            folder.name = text.toString()
+            if (folder.name == "")  binding.folderName.error = resources.getString(R.string.error_name)
+            else binding.folderName.error = null
         }
 
         if (isCreated) binding.button.text = resources.getString(R.string.add)
         else binding.button.text = resources.getString(R.string.edit)
         binding.button.setOnClickListener{
-            if (folder.name != ""){
+            var permission = true
+            if (folder.name == "") {
+                permission = false
+                binding.folderName.error = resources.getString(R.string.error_name)
+            } else binding.folderName.error = null
+
+            if (permission){
                 if (isCreated) {
                     mFolderRepository.addFolder(folder)
                     mUnionRepository.addUnion(union!!)
@@ -71,10 +77,6 @@ class FolderDialog : BottomSheetDialogFragment() {
                 else mFolderRepository.updateFolder(folder)
 
                 this.dismiss()
-            } else {
-                // Это нужно для того, чтоюы при первом появлении пустого TextInput ошибки не было,
-                // а после нажатия кнопки, без изменения TextInput, появлялась ошибка.
-                binding.error.visibility = View.VISIBLE
             }
         }
 

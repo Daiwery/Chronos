@@ -16,56 +16,48 @@
         android:orientation="vertical"
         tools:context=".ui.action_type.ActionTypeDialog">
 
-        <TextView
-            android:id="@+id/textView1"
-            style="@style/Text.TitleDialog"
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/action_type_name"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/name"
-            android:textAlignment="center"
-            app:layout_constraintBottom_toBottomOf="@+id/name"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/name" />
-
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:autofillHints="true"
-            android:ems="5"
-            android:hint="@string/action_type_name_hint"
-            android:singleLine="true"
-            android:text="@{actionType.name}"
+            android:layout_marginEnd="16dp"
+            android:hint="@string/name"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/textView1"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textAutoCorrect|textCapSentences"
+                android:singleLine="true"
+                android:text="@{actionType.name}" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/textView2"
-            style="@style/Text.TitleDialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:text="@string/color"
             android:textAlignment="center"
+            android:textAppearance="@style/Text.Content"
+            android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="@+id/color"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/action_type_name"
             app:layout_constraintTop_toTopOf="@+id/color" />
 
         <ImageView
             android:id="@+id/color"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
             android:colorFilter="@{actionType.color}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/name"
-            app:layout_constraintTop_toBottomOf="@+id/name"
+            app:layout_constraintTop_toBottomOf="@+id/action_type_name"
             app:srcCompat="@drawable/oval"
             tools:ignore="ContentDescription" />
 
@@ -74,22 +66,14 @@
             style="@style/Widget.BottomDialog.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:text="@string/add"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.578"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/color" />
-
-        <ImageView
-            android:id="@+id/error"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/name"
-            app:layout_constraintEnd_toEndOf="@+id/name"
-            app:layout_constraintTop_toTopOf="@+id/name"
-            app:srcCompat="@drawable/ic_baseline_error_24"
-            tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

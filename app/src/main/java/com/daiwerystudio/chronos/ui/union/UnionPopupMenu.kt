@@ -46,9 +46,27 @@ class UnionPopupMenu(val fragmentManager: FragmentManager,
                         return true
                     }
 
-                    R.id.create_goal -> {
+                    R.id.create_indefinite_goal -> {
                         val id = UUID.randomUUID().toString()
                         val goal = Goal(id=id)
+                        goal.deadline = 0
+                        val union = Union(id=id, parent=mUnionBuilder?.getParent() ?: "", type=TYPE_GOAL)
+
+                        val dialog = GoalDialog()
+                        dialog.arguments = Bundle().apply{
+                            putSerializable("goal", goal)
+                            putSerializable("union", union)
+                            putBoolean("isCreated", true)
+                        }
+                        dialog.show(fragmentManager, "GoalDialog")
+
+                        return true
+                    }
+
+                    R.id.create_temporary_goal -> {
+                        val id = UUID.randomUUID().toString()
+                        val goal = Goal(id=id)
+                        goal.deadline = System.currentTimeMillis()
                         val union = Union(id=id, parent=mUnionBuilder?.getParent() ?: "", type=TYPE_GOAL)
 
                         val dialog = GoalDialog()

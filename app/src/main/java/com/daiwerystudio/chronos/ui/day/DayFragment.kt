@@ -36,6 +36,9 @@ import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.FragmentDayBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewGoalBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewReminderBinding
+import com.daiwerystudio.chronos.ui.FORMAT_DAY
+import com.daiwerystudio.chronos.ui.FORMAT_TIME
+import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.union.*
@@ -177,11 +180,12 @@ class DayFragment: Fragment() {
 
         override fun setStaticUI(goal: Goal) {
             super.setStaticUI(goal)
-
             // Делаем невидимым прогресс бар.
             binding.isAchieved = true
-            // И убираем дату.
-            binding.day.visibility = View.GONE
+        }
+
+        override fun setDeadline() {
+            binding.deadlineTextView.text = formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME)
         }
 
         override fun onAchieved() {
@@ -202,7 +206,11 @@ class DayFragment: Fragment() {
     }
 
     inner class ReminderHolder(binding: ItemRecyclerViewReminderBinding):
-        ReminderAbstractHolder(binding, requireActivity().supportFragmentManager)
+        ReminderAbstractHolder(binding, requireActivity().supportFragmentManager){
+            override fun setTime() {
+                binding.timeTextView.text = formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME)
+            }
+        }
 
     private inner class Adapter(var data: List<Pair<Int, ID>>): RecyclerView.Adapter<RawHolder>(){
         fun updateData(newData: List<Pair<Int, ID>>){

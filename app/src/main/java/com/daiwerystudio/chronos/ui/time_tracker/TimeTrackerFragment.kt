@@ -25,6 +25,8 @@ import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.FragmentTimeTrackerBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
+import com.daiwerystudio.chronos.ui.FORMAT_TIME
+import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.union.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -145,14 +147,15 @@ class TimeTrackerFragment : Fragment() {
         fun bind(action: Action){
             this.action = action
             binding.action = action
+            binding.start.text = formatTime(action.startTime, true, FormatStyle.SHORT, FORMAT_TIME)
+            binding.end.text = formatTime(action.endTime, true, FormatStyle.SHORT, FORMAT_TIME)
 
             val actionType = viewModel.getActionType(action.actionTypeId)
             actionType.observe(viewLifecycleOwner, {
                 if (it == null) {
                     binding.actionType = ActionType(id=UUID.randomUUID().toString(), color=0, name="???")
                     binding.invalid.visibility = View.VISIBLE
-                }
-                else {
+                } else {
                     binding.invalid.visibility = View.GONE
                     binding.actionType = it
                 }

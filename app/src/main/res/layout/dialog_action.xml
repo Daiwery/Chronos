@@ -14,124 +14,95 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/textView16"
-            style="@style/Text.TitleDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="@string/day_"
-            app:layout_constraintBottom_toBottomOf="@+id/endDay"
-            app:layout_constraintEnd_toStartOf="@+id/endDay"
-            app:layout_constraintTop_toTopOf="@+id/endDay" />
-
-        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
-            android:id="@+id/endDay"
-            style="@style/Text.Time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/startDay"
-            android:textTime="@{action.endTime}"
-            custom:timeLocal="local"
-            custom:timeStyle="shortFormat"
-            custom:timeType="date"
-            tools:text="8 августа" />
-
-        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/startDay"
-            style="@style/Text.Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="16dp"
+            android:hint="@string/start"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textTime="@{action.startTime}"
-            custom:timeLocal="local"
-            custom:timeStyle="shortFormat"
-            custom:timeType="date"
-            tools:text="8 августа" />
+            app:layout_constraintTop_toTopOf="@+id/startTime">
 
-        <TextView
-            android:id="@+id/textView14"
-            style="@style/Text.TitleDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="@string/day_"
-            app:layout_constraintBottom_toBottomOf="@+id/startDay"
-            app:layout_constraintEnd_toStartOf="@+id/startDay"
-            app:layout_constraintTop_toTopOf="@+id/startDay" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:inputType="none"
+                tools:text="7 сентября 2021 года" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
-            android:id="@+id/endTime"
-            style="@style/Text.Time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:layout_constraintStart_toStartOf="@+id/startTime"
-            app:layout_constraintTop_toBottomOf="@+id/startTime"
-            android:textTime="@{action.endTime}"
-            custom:timeLocal="local"
-            custom:timeStyle="shortFormat"
-            custom:timeType="time"
-            tools:text="0:10" />
-
-        <TextView
-            android:id="@+id/textView"
-            style="@style/Text.TitleDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/start_"
-            app:layout_constraintBottom_toBottomOf="@+id/startTime"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/startTime" />
-
-        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/startTime"
-            style="@style/Text.Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            app:layout_constraintStart_toEndOf="@+id/textView"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textTime="@{action.startTime}"
-            custom:timeLocal="local"
-            custom:timeStyle="shortFormat"
-            custom:timeType="time"
-            tools:text="0:10" />
+            android:hint="@string/start"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/textView4"
-            style="@style/Text.TitleDialog"
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:inputType="none"
+                tools:text="15:21" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/endDay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/end_"
-            app:layout_constraintBottom_toBottomOf="@+id/endTime"
-            app:layout_constraintEnd_toEndOf="@+id/textView"
-            app:layout_constraintTop_toTopOf="@+id/endTime" />
+            android:hint="@string/end"
+            app:layout_constraintEnd_toEndOf="@+id/startDay"
+            app:layout_constraintTop_toTopOf="@+id/endTime">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:inputType="none"
+                tools:text="7 сентября 2021 года" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/endTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/end"
+            app:layout_constraintStart_toStartOf="@+id/startTime"
+            app:layout_constraintTop_toBottomOf="@+id/startTime">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:inputType="none"
+                tools:text="15:21" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.daiwerystudio.chronos.ui.widgets.SelectActionTypeView
             android:id="@+id/selectActionType"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
             android:minHeight="50dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/endTime" />
+            app:layout_constraintTop_toBottomOf="@+id/endDay" />
 
         <Button
             android:id="@+id/button"
             style="@style/Widget.BottomDialog.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:text="@string/add"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/selectActionType" />

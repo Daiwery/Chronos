@@ -20,11 +20,15 @@ import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.DialogActionBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
+import com.daiwerystudio.chronos.ui.FORMAT_DAY
+import com.daiwerystudio.chronos.ui.FORMAT_TIME
+import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.widgets.SelectActionTypeViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import java.time.format.FormatStyle
 import java.util.*
 
 class ActionDialog : BottomSheetDialogFragment() {
@@ -59,8 +63,11 @@ class ActionDialog : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DialogActionBinding.inflate(inflater, container, false)
-        val view = binding.root
         binding.action = action
+        binding.startDay.editText?.setText(formatTime(action.startTime, true, FormatStyle.LONG, FORMAT_DAY))
+        binding.startTime.editText?.setText(formatTime(action.startTime, true, FormatStyle.SHORT, FORMAT_TIME))
+        binding.endDay.editText?.setText(formatTime(action.endTime, true, FormatStyle.LONG, FORMAT_DAY))
+        binding.endTime.editText?.setText(formatTime(action.endTime, true, FormatStyle.SHORT, FORMAT_TIME))
 
         // Отмена клавиатуры.
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
@@ -76,90 +83,70 @@ class ActionDialog : BottomSheetDialogFragment() {
         })
         binding.selectActionType.setOnSelectListener{ action.actionTypeId = it.id }
 
-
-        binding.startTime.setOnClickListener{
+        binding.startTime.editText?.setOnClickListener{
             val localTime = action.startTime+local
             val day = localTime/(24*60*60*1000)
             val time = (localTime%(24*60*60*1000)).toInt()
             val hour = time/(60*60*1000)
             val minute = (time-hour*60*60*1000)/(60*1000)
 
-            val dialog = MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(hour)
-                .setMinute(minute)
-                .setTitleText("")
-                .build()
-
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 action.startTime = day*24*60*60*1000+(dialog.hour*60+dialog.minute)*60*1000-local
-                binding.action = action
+                binding.startTime.editText?.setText(formatTime(action.startTime, true, FormatStyle.SHORT, FORMAT_TIME))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
-        binding.startDay.setOnClickListener{
+        binding.startDay.editText?.setOnClickListener{
             val localTime = action.startTime+local
             val time = localTime%(24*60*60*1000)
 
-            val dialog = MaterialDatePicker.Builder.datePicker()
-                .setSelection(localTime)
-                .build()
-
+            val dialog = MaterialDatePicker.Builder.datePicker().setSelection(localTime).build()
             dialog.addOnPositiveButtonClickListener {
                 action.startTime = it+time-local
-                binding.action = action
+                binding.startDay.editText?.setText(formatTime(action.startTime, true, FormatStyle.LONG, FORMAT_DAY))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
 
-        binding.endTime.setOnClickListener{
+        binding.endTime.editText?.setOnClickListener{
             val localTime = action.endTime+local
             val day = localTime/(24*60*60*1000)
             val time = (localTime%(24*60*60*1000)).toInt()
             val hour = time/(60*60*1000)
             val minute = (time-hour*60*60*1000)/(60*1000)
 
-            val dialog = MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(hour)
-                .setMinute(minute)
-                .setTitleText("")
-                .build()
-
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 action.endTime = day*24*60*60*1000+(dialog.hour*60+dialog.minute)*60*1000-local
-                binding.action = action
+                binding.endTime.editText?.setText(formatTime(action.endTime, true, FormatStyle.SHORT, FORMAT_TIME))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
-        binding.endDay.setOnClickListener{
+        binding.endDay.editText?.setOnClickListener{
             val localTime = action.endTime+local
             val time = localTime%(24*60*60*1000)
 
-            val dialog = MaterialDatePicker.Builder.datePicker()
-                .setSelection(localTime)
-                .build()
-
+            val dialog = MaterialDatePicker.Builder.datePicker().setSelection(localTime).build()
             dialog.addOnPositiveButtonClickListener {
                 action.endTime = it+time-local
-                binding.action = action
+                binding.endDay.editText?.setText(formatTime(action.endTime, true, FormatStyle.LONG, FORMAT_DAY))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
-
 
         if (isCreated) binding.button.text = resources.getString(R.string.add)
         else binding.button.text = resources.getString(R.string.edit)
 
-
         binding.button.setOnClickListener {
             var permission = true
             if (action.actionTypeId == "") permission = false
-            if (action.startTime > action.endTime)
-                permission = false
+            if (action.startTime > action.endTime) permission = false
 
             if (permission){
                 if (isCreated) mActionRepository.addAction(action)
@@ -169,7 +156,7 @@ class ActionDialog : BottomSheetDialogFragment() {
             }
         }
 
-        return view
+        return binding.root
     }
 
     override fun onDestroy() {

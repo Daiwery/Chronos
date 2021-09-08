@@ -1,22 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="TimeTextView">
-        <attr name="timeLocal" format="enum">
-            <enum name="absolute" value="0"/>
-            <enum name="local" value="1"/>
-        </attr>
-        <attr name="timeStyle" format="enum">
-            <enum name="fullFormat" value="0"/>
-            <enum name="longFormat" value="1"/>
-            <enum name="mediumFormat" value="2"/>
-            <enum name="shortFormat" value="3"/>
-        </attr>
-        <attr name="timeType" format="enum">
-            <enum name="time" value="0"/>
-            <enum name="date" value="1"/>
-        </attr>
-    </declare-styleable>
-
     <declare-styleable name="SelectTypeShowing">
     </declare-styleable>
 
@@ -41,6 +24,7 @@
         <attr name="corner"/>
         <attr name="colorColumn"/>
         <attr name="sizeDrawable" format="dimension"/>
+        <attr name="marginIcon" format="dimension"/>
         <attr name="drawableGoal" format="reference" />
         <attr name="drawableReminder" format="reference" />
     </declare-styleable>
@@ -55,6 +39,7 @@
     <declare-styleable name="ClockFaceView">
         <attr name="textSize" format="dimension" />
         <attr name="spaceHeight" format="dimension" />
+        <attr name="marginText" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="ScheduleClockView">

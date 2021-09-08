@@ -19,6 +19,7 @@ import com.daiwerystudio.chronos.database.*
  */
 class SelectTypeShowing(context: Context, attrs: AttributeSet): FrameLayout(context, attrs) {
     private var selectedView: ImageView? = null
+    private val folderView: ImageView
     private val noteView: ImageView
     private val reminderView: ImageView
     private val goalView: ImageView
@@ -29,21 +30,29 @@ class SelectTypeShowing(context: Context, attrs: AttributeSet): FrameLayout(cont
         inflate(context, R.layout.layout_select_type_showing, this)
         isHorizontalScrollBarEnabled = false
 
+        folderView = findViewById(R.id.folder)
+        folderView.setOnClickListener { select(it as ImageView) }
+        folderView.setColorFilter(ContextCompat.getColor(context, R.color.black))
 
         noteView = findViewById(R.id.note)
         noteView.setOnClickListener { select(it as ImageView) }
+        noteView.setColorFilter(ContextCompat.getColor(context, R.color.black))
 
         reminderView = findViewById(R.id.reminder)
         reminderView.setOnClickListener { select(it as ImageView) }
+        reminderView.setColorFilter(ContextCompat.getColor(context, R.color.black))
 
         goalView = findViewById(R.id.goal)
         goalView.setOnClickListener { select(it as ImageView) }
+        goalView.setColorFilter(ContextCompat.getColor(context, R.color.black))
 
         scheduleView = findViewById(R.id.schedule)
         scheduleView.setOnClickListener { select(it as ImageView) }
+        scheduleView.setColorFilter(ContextCompat.getColor(context, R.color.black))
 
         actionTypeView = findViewById(R.id.action_type)
         actionTypeView.setOnClickListener { select(it as ImageView) }
+        actionTypeView.setColorFilter(ContextCompat.getColor(context, R.color.black))
     }
 
     private fun select(view: ImageView){
@@ -58,6 +67,7 @@ class SelectTypeShowing(context: Context, attrs: AttributeSet): FrameLayout(cont
 
         when (selectedView) {
             null -> mSelectTypeShowingListener?.selectTypeShowing(-1)
+            folderView -> mSelectTypeShowingListener?.selectTypeShowing(TYPE_FOLDER)
             noteView -> mSelectTypeShowingListener?.selectTypeShowing(TYPE_NOTE)
             reminderView -> mSelectTypeShowingListener?.selectTypeShowing(TYPE_REMINDER)
             goalView -> mSelectTypeShowingListener?.selectTypeShowing(TYPE_GOAL)
@@ -73,6 +83,7 @@ class SelectTypeShowing(context: Context, attrs: AttributeSet): FrameLayout(cont
             TYPE_SCHEDULE -> select(scheduleView)
             TYPE_NOTE -> select(noteView)
             TYPE_REMINDER -> select(reminderView)
+            TYPE_FOLDER -> select(folderView)
         }
     }
 

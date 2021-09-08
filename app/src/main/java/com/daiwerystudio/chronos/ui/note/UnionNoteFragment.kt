@@ -85,7 +85,7 @@ class UnionNoteFragment : UnionAbstractFragment() {
                     true
                 }
                 R.id.delete -> {
-                    AlertDialog.Builder(context, R.style.App_AlertDialog)
+                    AlertDialog.Builder(context, R.style.Style_AlertDialog)
                         .setTitle(resources.getString(R.string.are_you_sure))
                         .setPositiveButton(R.string.yes) { _, _ ->
                             viewModel.deleteUnionWithChild(viewModel.showing.parentID)

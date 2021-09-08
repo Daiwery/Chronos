@@ -58,26 +58,28 @@ class DayScheduleViewModel : ViewModel() {
 
     fun setTypeDaySchedule(type: Int){
         // При изменении типа дная мы должны корректно изменить действия.
-        when (type){
-            // Если мы переводим в абсолютное, то уже все сделано.
-            TYPE_DAY_SCHEDULE_ABSOLUTE -> {}
+        if (actionsSchedule.value!!.isNotEmpty())
+            when (type){
+                // Если мы переводим в абсолютное, то уже все сделано.
+                TYPE_DAY_SCHEDULE_ABSOLUTE -> {}
 
-            // А если переводим в относительное, то нужно рассчитать startAfter и duration.
-            TYPE_DAY_SCHEDULE_RELATIVE -> {
-                // Действия уже отсортированы по времени.
-                daySchedule.value!!.startDayTime = actionsSchedule.value!![0].startTime
-                actionsSchedule.value!!.forEachIndexed { i, actionSchedule ->
-                    actionsSchedule.value!![i].duration = actionSchedule.endTime-actionSchedule.startTime
-                    actionsSchedule.value!![i].startAfter =
-                        if (i == 0) actionSchedule.startTime-daySchedule.value!!.startDayTime
-                        else actionSchedule.startTime-actionsSchedule.value!![i-1].endTime
+                // А если переводим в относительное, то нужно рассчитать startAfter и duration.
+                TYPE_DAY_SCHEDULE_RELATIVE -> {
+                    // Действия уже отсортированы по времени.
+                    daySchedule.value!!.startDayTime = actionsSchedule.value!![0].startTime
+                    actionsSchedule.value!!.forEachIndexed { i, actionSchedule ->
+                        actionsSchedule.value!![i].duration = actionSchedule.endTime-actionSchedule.startTime
+                        actionsSchedule.value!![i].startAfter =
+                            if (i == 0) actionSchedule.startTime-daySchedule.value!!.startDayTime
+                            else actionSchedule.startTime-actionsSchedule.value!![i-1].endTime
+                    }
                 }
+                else -> throw IllegalArgumentException("Invalid type")
             }
-            else -> throw IllegalArgumentException("Invalid type")
-        }
         daySchedule.value!!.type = type
         mScheduleRepository.updateDaySchedule(daySchedule.value!!)
-        mScheduleRepository.updateActionsSchedule(actionsSchedule.value!!)
+        if (actionsSchedule.value!!.isNotEmpty())
+            mScheduleRepository.updateActionsSchedule(actionsSchedule.value!!)
     }
 
     fun updateDaySchedule(){

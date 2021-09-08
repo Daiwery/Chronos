@@ -399,6 +399,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
     private var corner: Float
     private var colorColumn: Int
     private var sizeDrawable: Float
+    private var marginIcon: Float
     private var drawableGoal: Drawable?
     private var drawableReminder: Drawable?
 
@@ -453,6 +454,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                 corner = getDimensionPixelSize(R.styleable.MultiScheduleView_corner, 0).toFloat()
                 colorColumn = getColor(R.styleable.MultiScheduleView_colorColumn, 0)
                 sizeDrawable = getDimensionPixelSize(R.styleable.MultiScheduleView_sizeDrawable, 0).toFloat()
+                marginIcon = getDimensionPixelSize(R.styleable.MultiScheduleView_marginIcon, 0).toFloat()
                 drawableGoal = getDrawable(R.styleable.MultiScheduleView_drawableGoal)
                 drawableReminder = getDrawable(R.styleable.MultiScheduleView_drawableReminder)
             } finally {
@@ -761,7 +763,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         val requestedHeight = MeasureSpec.getSize(heightMeasureSpec)
 
-        val desiredWidth = (stripWidth*mCount+spaceWidth*(mCount-1)+sizeDrawable).toInt()
+        val desiredWidth = (stripWidth*mCount+spaceWidth*(mCount-1)+sizeDrawable+marginIcon).toInt()
 
         val width = when (widthMode) {
             MeasureSpec.EXACTLY -> requestedWidth
@@ -784,31 +786,33 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
         val height = height.toFloat()
 
         mPaint.color = colorColumn
-        canvas?.drawRoundRect(0f+sizeDrawable, 0f,
-            (stripWidth+spaceWidth)-spaceWidth+sizeDrawable, height, corner, corner, mPaint)
+        canvas?.drawRoundRect(0f, 0f,
+            (stripWidth+spaceWidth)-spaceWidth, height, corner, corner, mPaint)
 
         mActionDrawables.forEach {
             mPaint.color = it.color
-            canvas?.drawRoundRect((stripWidth+spaceWidth)*it.left+sizeDrawable, height*it.start,
-                (stripWidth+spaceWidth)*it.right-spaceWidth+sizeDrawable, height*it.end, corner, corner, mPaint)
+            canvas?.drawRoundRect((stripWidth+spaceWidth)*it.left, height*it.start,
+                (stripWidth+spaceWidth)*it.right-spaceWidth, height*it.end, corner, corner, mPaint)
         }
 
         mGoalsTimes.forEach {
             mPaint.color = Color.BLACK
             bitmapGoal?.also { bitmap ->
-                canvas?.drawBitmap(bitmap, 0f, height*it-sizeDrawable/2, mPaint)
+                canvas?.drawBitmap(bitmap, (stripWidth+spaceWidth)*mCount-spaceWidth+marginIcon,
+                    height*it-sizeDrawable/2, mPaint)
             }
-            canvas?.drawLine(sizeDrawable, height*it,
-                (stripWidth+spaceWidth)*mCount-spaceWidth+sizeDrawable, height*it, mPaint)
+            canvas?.drawLine(0f, height*it,
+                (stripWidth+spaceWidth)*mCount-spaceWidth, height*it, mPaint)
         }
 
         mRemindersTimes.forEach {
             mPaint.color = Color.BLACK
             bitmapReminder?.also { bitmap ->
-                canvas?.drawBitmap(bitmap, 0f, height*it-sizeDrawable/2, mPaint)
+                canvas?.drawBitmap(bitmap, (stripWidth+spaceWidth)*mCount-spaceWidth+marginIcon,
+                    height*it-sizeDrawable/2, mPaint)
             }
-            canvas?.drawLine(sizeDrawable, height*it,
-                (stripWidth+spaceWidth)*mCount-spaceWidth+sizeDrawable, height*it, mPaint)
+            canvas?.drawLine(0f, height*it,
+                (stripWidth+spaceWidth)*mCount-spaceWidth, height*it, mPaint)
         }
     }
 }
@@ -1023,7 +1027,17 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
  */
 class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs){
     private var textSize: Float
+
+    /**
+     * Расстояние между двумя цифрами на циферблате.
+     */
     private var spaceHeight: Int
+
+    /**
+     * Верхний отступ текста от штриха.
+     */
+    private var marginText: Int
+
     private var mPaint: Paint = Paint()
     private val mHandler: Handler = Handler(Looper.getMainLooper())
 
@@ -1046,7 +1060,8 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
             0, 0).apply {
             try {
                 textSize = getDimensionPixelSize(R.styleable.ClockFaceView_textSize, 0).toFloat()
-                spaceHeight = getDimensionPixelSize(R.styleable.ClockFaceView_spaceHeight , 0)
+                spaceHeight = getDimensionPixelSize(R.styleable.ClockFaceView_spaceHeight, 0)
+                marginText = getDimensionPixelSize(R.styleable.ClockFaceView_marginText, 0)
             } finally {
                 recycle()
             }
@@ -1129,7 +1144,7 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
         val width = width.toFloat()
 
         hours.forEach {
-            canvas?.drawText(it.text, (width-it.width)/2, height*it.y, mPaint)
+            canvas?.drawText(it.text, (width-it.width)/2, height*it.y+textSize+marginText, mPaint)
             canvas?.drawLine(0f, height*it.y, width , height*it.y, mPaint)
 
             var position = it.y+1/48f

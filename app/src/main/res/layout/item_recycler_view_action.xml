@@ -38,7 +38,7 @@
 
             <TextView
                 android:id="@+id/textView1"
-                style="@style/Text.NameItem"
+                android:textAppearance="@style/Text.NameItem"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -53,7 +53,7 @@
 
             <TextView
                 android:id="@+id/startTextView"
-                style="@style/Text.Caption"
+                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -64,7 +64,7 @@
 
             <TextView
                 android:id="@+id/endTextView"
-                style="@style/Text.Caption"
+                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -76,7 +76,7 @@
 
             <TextView
                 android:id="@+id/start"
-                style="@style/Text.Caption"
+                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -86,7 +86,7 @@
 
             <TextView
                 android:id="@+id/end"
-                style="@style/Text.Caption"
+                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="@+id/start"

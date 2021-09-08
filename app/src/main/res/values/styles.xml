@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Style.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.BottomNavigationView</item>
+    </style>
+    <style name="ThemeOverlay.BottomNavigationView" parent="">
+        <item name="colorOnPrimary">@color/black_200</item>
+    </style>
+
+    <style name="Style.BottomDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.BottomDialog.BottomSheet</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize|stateVisible</item>
+    </style>
+    <style name="Widget.BottomDialog.BottomSheet" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/background_dialog</item>
+    </style>
+    <style name="Widget.BottomDialog.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:textSize">14sp</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="android:elevation">0dp</item>
+        <item name="backgroundTint">@color/blue</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Style.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.TextInputLayout</item>
+    </style>
+    <style name="ThemeOverlay.TextInputLayout" parent="">
+        <item name="colorPrimary">@color/purple_700</item>
+        <item name="editTextStyle">@style/Widget.TextInputLayout.EditText</item>
+    </style>
+    <style name="Widget.TextInputLayout.EditText" parent="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox">
+        <item name="android:textAppearance">@style/Text.Content</item>
+    </style>
+
+    <style name="ThemeOverlay.TimePicker" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <item name="colorOnSurface">@color/black</item>
+        <item name="colorPrimary">@color/purple_700</item>
+    </style>
+
+    <style name="ThemeOverlay.DatePicker" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorOnSurface">@color/black</item>
+        <item name="colorPrimary">@color/purple_700</item>
+    </style>
+
+    <style name="Style.ColorPickerDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.ColorPickerDialog.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.ColorPickerDialog.Button</item>
+        <item name="android:background">@color/white_1000</item>
+    </style>
+    <style name="Widget.ColorPickerDialog.Button" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white_300</item>
+    </style>
+
+    <style name="Style.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="android:buttonBarPositiveButtonStyle">@style/Widget.AlertDialog.Button</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/Widget.AlertDialog.Button</item>
+        <item name="android:background">@color/white_1000</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="Widget.AlertDialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white_300</item>
+    </style>
+
+    <style name="Style.TabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.TabLayout</item>
+        <item name="android:background">@color/white</item>
+    </style>
+    <style name="ThemeOverlay.TabLayout" parent="">
+        <item name="colorPrimary">@color/purple_300</item>
+        <item name="colorSurface">@color/white_1000</item>
+        <item name="colorOnSurface">@color/white_300</item>
+        <item name="textAppearanceButton">@style/Text.TabLayout</item>
+    </style>
+    <style name="Text.TabLayout" parent="@style/TextAppearance.MaterialComponents.Tooltip">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+</resources>

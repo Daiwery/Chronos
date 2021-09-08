@@ -28,7 +28,7 @@ abstract class UnionAbstractFragment : Fragment() {
         simpleItemTouchCallback.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_delete_24_white)
 
         simpleItemTouchCallback.setSwipeItemListener{ position ->
-            AlertDialog.Builder(context, R.style.App_AlertDialog)
+            AlertDialog.Builder(context, R.style.Style_AlertDialog)
                 .setTitle(R.string.are_you_sure)
                 .setPositiveButton(R.string.yes) { _, _ ->
                     viewModel.data.value?.also { viewModel.deleteUnionWithChild(it[position].second.id) }
@@ -37,7 +37,7 @@ abstract class UnionAbstractFragment : Fragment() {
                 .setCancelable(false).create().show()
         }
         simpleItemTouchCallback.setDragItemListener{dragFromPosition, dragToPosition ->
-            AlertDialog.Builder(context, R.style.App_AlertDialog)
+            AlertDialog.Builder(context, R.style.Style_AlertDialog)
                 .setTitle(R.string.are_you_sure)
                 .setPositiveButton(R.string.yes) { _, _ ->
                     viewModel.editParentUnion(dragFromPosition, dragToPosition)

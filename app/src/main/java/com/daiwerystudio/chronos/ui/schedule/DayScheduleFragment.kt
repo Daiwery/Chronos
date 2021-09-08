@@ -32,11 +32,14 @@ import com.daiwerystudio.chronos.database.TYPE_DAY_SCHEDULE_ABSOLUTE
 import com.daiwerystudio.chronos.database.TYPE_DAY_SCHEDULE_RELATIVE
 import com.daiwerystudio.chronos.databinding.FragmentDayScheduleBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionScheduleBinding
+import com.daiwerystudio.chronos.ui.FORMAT_TIME
+import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.union.CustomDiffUtil
 import com.daiwerystudio.chronos.ui.union.ItemAnimator
 import com.daiwerystudio.chronos.ui.widgets.ScheduleClockView
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import java.time.format.FormatStyle
 
 
 class DayScheduleFragment : Fragment() {
@@ -112,8 +115,8 @@ class DayScheduleFragment : Fragment() {
 
             when (viewModel.daySchedule.value!!.type) {
                 TYPE_DAY_SCHEDULE_RELATIVE -> {
-                    actionSchedule.startAfter = 30*60*1000
-                    actionSchedule.duration = 90*60*1000
+                    actionSchedule.startAfter = 30*60*1000L
+                    actionSchedule.duration = 90*60*1000L
                 }
                 TYPE_DAY_SCHEDULE_ABSOLUTE -> {
                     val actionsSchedule = viewModel.actionsSchedule.value!!
@@ -215,20 +218,21 @@ class DayScheduleFragment : Fragment() {
         }
 
         fun bind(actionSchedule: ActionSchedule) {
-             this.actionSchedule = actionSchedule
-             binding.actionSchedule = actionSchedule
+            this.actionSchedule = actionSchedule
+            binding.actionSchedule = actionSchedule
+            binding.start.text = formatTime(actionSchedule.startTime, false, FormatStyle.SHORT, FORMAT_TIME)
+            binding.end.text = formatTime(actionSchedule.endTime, false, FormatStyle.SHORT, FORMAT_TIME)
 
-             val actionType = viewModel.getActionType(actionSchedule.actionTypeId)
-             actionType.observe(viewLifecycleOwner, {
-                 if (it == null) {
-                     binding.actionType = ActionType(id="", color=0, name="???")
-                     binding.invalid.visibility = View.VISIBLE
-                 }
-                 else {
-                     binding.invalid.visibility = View.GONE
-                     binding.actionType = it
-                 }
-             })
+            val actionType = viewModel.getActionType(actionSchedule.actionTypeId)
+            actionType.observe(viewLifecycleOwner, {
+                if (it == null) {
+                    binding.actionType = ActionType(id="", color=0, name="???")
+                    binding.invalid.visibility = View.VISIBLE
+                } else {
+                    binding.invalid.visibility = View.GONE
+                    binding.actionType = it
+                }
+            })
         }
     }
 

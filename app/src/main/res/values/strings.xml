@@ -53,4 +53,9 @@
     <string name="time_tracker">Тайм трекер</string>
     <string name="folder_name_hint">Общее</string>
     <string name="folder">Папка</string>
+    <string name="color_">Цвет:</string>
+    <string name="error_name">Имя должно быть указано</string>
+    <string name="time">Время</string>
+    <string name="indefinite_goal">Бессрочная</string>
+    <string name="temporary_schedule">Временная</string>
 </resources>

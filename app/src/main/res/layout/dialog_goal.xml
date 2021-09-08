@@ -16,33 +16,83 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/textView3"
-            style="@style/Text.TitleDialog"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/goal_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:hint="@string/name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textAutoCorrect|textCapSentences"
+                android:singleLine="true"
+                android:text="@{goal.name}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/goal_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:hint="@string/note"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/goal_name">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine|textAutoCorrect|textCapSentences"
+                android:maxLines="8"
+                android:text="@{goal.note}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/name"
-            app:layout_constraintBottom_toBottomOf="@+id/goal_name"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/goal_name" />
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/goal_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:autofillHints="true"
-            android:ems="5"
-            android:hint="@string/goal_name_hint"
-            android:singleLine="true"
-            android:text="@{goal.name}"
-            android:inputType="textAutoCorrect|textCapSentences"
+            android:hint="@string/day"
+            android:booleanVisibility="@{goal.deadline != 0}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/goal_note">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:inputType="none"
+                tools:text="7 сентября 2021 года" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:hint="@string/time"
+            android:booleanVisibility="@{goal.deadline != 0}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/textView3"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/day">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:inputType="none"
+                tools:text="15:21" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/button"
@@ -50,126 +100,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:text="@string/add"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/deadlineDay" />
-
-        <ImageView
-            android:id="@+id/error"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/goal_name"
-            app:layout_constraintEnd_toEndOf="@+id/goal_name"
-            app:layout_constraintTop_toTopOf="@+id/goal_name"
-            app:srcCompat="@drawable/ic_baseline_error_24"
-            tools:ignore="ContentDescription" />
-
-        <TextView
-            android:id="@+id/textView15"
-            style="@style/Text.TitleDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/note"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/goal_name" />
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/goal_note"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:autofillHints="true"
-            android:ems="5"
-            android:hint="@string/text"
-            android:inputType="textMultiLine|textAutoCorrect|textCapSentences"
-            android:maxLines="8"
-            android:text="@{goal.note}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView15" />
-
-        <TextView
-            android:id="@+id/textView17"
-            style="@style/Text.TitleDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/deadline"
-            app:layout_constraintBottom_toBottomOf="@+id/checkBox"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/checkBox" />
-
-        <CheckBox
-            android:id="@+id/checkBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="@string/indefinitely"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/goal_note" />
-
-        <TextView
-            android:id="@+id/textView"
-            style="@style/Text.TitleDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="@string/time_"
-            android:booleanVisibility="@{goal.deadline != 0}"
-            app:layout_constraintBottom_toBottomOf="@+id/deadlineTime"
-            app:layout_constraintEnd_toStartOf="@+id/deadlineTime"
-            app:layout_constraintTop_toTopOf="@+id/deadlineTime" />
-
-        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
-            android:id="@+id/deadlineTime"
-            style="@style/Text.Time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/checkBox"
-            android:textTime="@{goal.deadline}"
-            android:booleanVisibility="@{goal.deadline != 0}"
-            custom:timeLocal="local"
-            custom:timeStyle="shortFormat"
-            custom:timeType="time"
-            tools:text="0:10" />
-
-        <com.daiwerystudio.chronos.ui.widgets.TimeTextView
-            android:id="@+id/deadlineDay"
-            style="@style/Text.Time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintStart_toEndOf="@+id/textView14"
-            app:layout_constraintTop_toBottomOf="@+id/checkBox"
-            android:textTime="@{goal.deadline}"
-            android:booleanVisibility="@{goal.deadline != 0}"
-            custom:timeLocal="local"
-            custom:timeStyle="shortFormat"
-            custom:timeType="date"
-            tools:text="8 августа" />
-
-        <TextView
-            android:id="@+id/textView14"
-            style="@style/Text.TitleDialog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/day_"
-            android:booleanVisibility="@{goal.deadline != 0}"
-            app:layout_constraintBottom_toBottomOf="@+id/deadlineDay"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/deadlineDay" />
+            app:layout_constraintTop_toBottomOf="@+id/day" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

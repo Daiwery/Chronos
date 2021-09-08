@@ -26,11 +26,9 @@
                 android:id="@+id/toolBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:titleTextAppearance="@style/Text.TitleToolbar"
                 app:menu="@menu/menu_edit_delete"
                 app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24"
-                app:title="@{folder.name}"
-                app:titleCentered="true" />
+                app:title="@{folder.name}"/>
 
             <com.daiwerystudio.chronos.ui.widgets.SelectTypeShowing
                 android:id="@+id/selectTypeShowing"

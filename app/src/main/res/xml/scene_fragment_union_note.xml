@@ -22,14 +22,6 @@
             <PropertySet
                 app:visibilityMode="ignore" />
         </Constraint>
-        <Constraint
-            android:layout_marginEnd="16dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="wrap_content"
-            android:id="@+id/fab"
-            app:layout_constraintTop_toBottomOf="parent"
-            android:layout_marginTop="0dp" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -42,20 +34,11 @@
                 app:visibilityMode="ignore" />
         </Constraint>
         <Constraint
-            android:layout_marginEnd="8dp"
             android:layout_height="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_width="0dp"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="8dp"
             android:id="@+id/scrollView" />
-        <Constraint
-            android:id="@+id/recyclerView"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
     </ConstraintSet>
 </MotionScene>

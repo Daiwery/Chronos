@@ -10,13 +10,10 @@
         <item name="colorSecondaryVariant">@color/purple_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Customize your theme here. -->
-        <item name="bottomNavigationStyle">@style/App.BottomNavigationView</item>
-        <item name="materialCardViewStyle">@style/App.CardView</item>
-        <item name="bottomSheetDialogTheme">@style/App.BottomDialog</item>
-        <item name="editTextStyle">@style/App.EditText</item>
-        <item name="checkboxStyle">@style/App.CheckBox</item>
-        <item name="tabStyle">@style/App.TabLayout</item>
-        <item name="spinnerStyle">@style/App.Spinner</item>
+        <item name="bottomNavigationStyle">@style/Style.BottomNavigationView</item>
+        <item name="bottomSheetDialogTheme">@style/Style.BottomDialog</item>
+        <item name="textInputStyle">@style/Style.TextInputLayout</item>
+        <item name="tabStyle">@style/Style.TabLayout</item>
         <item name="materialTimePickerTheme">@style/ThemeOverlay.TimePicker</item>
         <item name="materialCalendarTheme">@style/ThemeOverlay.DatePicker</item>
     </style>
