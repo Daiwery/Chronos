@@ -10,12 +10,9 @@
 package com.daiwerystudio.chronos.ui.day
 
 import android.icu.util.TimeZone
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.*
-import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.ui.union.ID
-import java.lang.IllegalArgumentException
 import java.util.concurrent.Executors
 import kotlin.math.abs
 
@@ -32,6 +29,7 @@ class DayViewModel: ViewModel() {
     private val mScheduleRepository = ScheduleRepository.get()
     private val mGoalRepository = GoalRepository.get()
     private val mReminderRepository = ReminderRepository.get()
+    private val mUnionRepository = UnionRepository.get()
     private val mExecutor = Executors.newSingleThreadExecutor()
     val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
@@ -147,8 +145,14 @@ class DayViewModel: ViewModel() {
     fun deleteItem(position: Int){
         val item = data.value!![position]
         when(item.first){
-            TYPE_GOAL -> mGoalRepository.deleteGoal(item.second as Goal)
-            TYPE_REMINDER -> mReminderRepository.deleteReminder(item.second as Reminder)
+            TYPE_GOAL -> {
+                mUnionRepository.deleteUnionWithChild(item.second.id)
+                mGoalRepository.deleteGoal(item.second as Goal)
+            }
+            TYPE_REMINDER -> {
+                mUnionRepository.deleteUnionWithChild(item.second.id)
+                mReminderRepository.deleteReminder(item.second as Reminder)
+            }
             else -> throw IllegalArgumentException("Invalid type")
         }
     }

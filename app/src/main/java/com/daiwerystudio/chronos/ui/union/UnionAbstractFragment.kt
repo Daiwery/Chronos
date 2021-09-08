@@ -7,6 +7,8 @@ package com.daiwerystudio.chronos.ui.union
 
 import android.app.AlertDialog
 import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.core.content.ContextCompat
@@ -15,28 +17,51 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.*
-import com.daiwerystudio.chronos.ui.ItemTouchDragCallback
 
 /**
  * Абстрактный класс для union фрагмента.
  */
 abstract class UnionAbstractFragment : Fragment() {
     abstract val viewModel: UnionViewModel
-    val itemTouchHelper by lazy {
-        val simpleItemTouchCallback = ItemTouchDragCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN)
-        simpleItemTouchCallback.background = ColorDrawable(Color.parseColor("#CA0000"))
-        simpleItemTouchCallback.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_delete_24_white)
 
-        simpleItemTouchCallback.setSwipeItemListener{ position ->
-            AlertDialog.Builder(context, R.style.Style_AlertDialog)
+    // ПРЕДУПРЕЖДЕНИЕ! Инициализация должна происходить после инициализации showing в UnionViewModel.
+    val itemTouchHelper by lazy {
+        val simpleItemTouchCallback = UnionSimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+            ItemTouchHelper.LEFT or if (viewModel.showing.parentID != "") ItemTouchHelper.RIGHT else 0)
+        simpleItemTouchCallback.backgroundRight = ColorDrawable(Color.parseColor("#CA0000"))
+        simpleItemTouchCallback.iconRight = ContextCompat.getDrawable(requireContext(),
+            R.drawable.ic_baseline_delete_24)?.apply {
+            colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
+        }
+        simpleItemTouchCallback.backgroundLeft = ColorDrawable(Color.parseColor("#0071D5"))
+        simpleItemTouchCallback.iconLeft = ContextCompat.getDrawable(requireContext(),
+            R.drawable.ic_baseline_arrow_upward_24)?.apply {
+            colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
+        }
+        simpleItemTouchCallback.setSwipeItemListener(object : UnionSimpleCallback.SwipeListener{
+            override fun swipeLeft(position: Int) {
+                AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                    .setTitle(R.string.are_you_sure)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        viewModel.deleteUnionWithChild(viewModel.data.value!![position].second.id)
+                    }
+                    .setNegativeButton(R.string.no){ _, _ -> }
+                    .setCancelable(false).create().show()
+            }
+
+            override fun swipeRight(position: Int) {
+                AlertDialog.Builder(context, R.style.Style_AlertDialog)
                 .setTitle(R.string.are_you_sure)
                 .setPositiveButton(R.string.yes) { _, _ ->
-                    viewModel.data.value?.also { viewModel.deleteUnionWithChild(it[position].second.id) }
+                    viewModel.moveUnionUp(position)
                 }
                 .setNegativeButton(R.string.no){ _, _ -> }
                 .setCancelable(false).create().show()
-        }
-        simpleItemTouchCallback.setDragItemListener{dragFromPosition, dragToPosition ->
+            }
+        })
+        simpleItemTouchCallback.backgroundDragToViewHolder = ContextCompat.getDrawable(requireContext(),
+            R.drawable.background_drag_to_view_holder)
+        simpleItemTouchCallback.setDragItemListener{ dragFromPosition, dragToPosition ->
             AlertDialog.Builder(context, R.style.Style_AlertDialog)
                 .setTitle(R.string.are_you_sure)
                 .setPositiveButton(R.string.yes) { _, _ ->

@@ -16,11 +16,6 @@ package com.daiwerystudio.chronos.ui
 import android.view.View
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.util.*
 
 /*
  * В данном файле написаны все кастомные Binding Adapter, использующиеся в приложении.

@@ -6,8 +6,10 @@
 package com.daiwerystudio.chronos.ui.widgets
 
 import androidx.lifecycle.*
-import com.daiwerystudio.chronos.database.*
-import java.util.concurrent.Executors
+import com.daiwerystudio.chronos.database.ActionType
+import com.daiwerystudio.chronos.database.TYPE_ACTION_TYPE
+import com.daiwerystudio.chronos.database.Union
+import com.daiwerystudio.chronos.database.UnionRepository
 
 /**
  * Специальный класс ViewModel для работы SelectActionType.

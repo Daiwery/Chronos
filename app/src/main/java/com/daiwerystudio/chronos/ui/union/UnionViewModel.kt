@@ -148,20 +148,26 @@ open class UnionViewModel : ViewModel() {
         mUnionRepository.deleteUnionWithChild(id)
     }
 
+    fun moveUnionUp(position: Int){
+        mExecutor.execute {
+            val id = data.value!![position].second.id
+            val union = mUnions.value!!.first { it.id == id }
+
+            // Не является LiveData, поэтому выполняем в отдельном потоке.
+            val parent = mUnionRepository.getParentUnion(showing.parentID)
+            if (parent != null) {
+                union.parent = parent
+                mUnionRepository.updateUnion(union)
+            }
+        }
+    }
+
     fun editParentUnion(from: Int, to: Int){
         mExecutor.execute {
             val id = data.value!![from].second.id
             val union = mUnions.value!!.first { it.id == id }
 
-            // Если to == -1, то перемещаем union вверх по иерархии.
-            if (to == -1) {
-                // Не является LiveData, поэтому выполняем в отдельном потоке.
-                val parent = mUnionRepository.getParentUnion(showing.parentID)
-                if (parent != null) {
-                    union.parent = parent
-                    mUnionRepository.updateUnion(union)
-                }
-            } else {
+            if (data.value!![to].first != TYPE_REMINDER) {
                 union.parent = data.value!![to].second.id
                 mUnionRepository.updateUnion(union)
             }

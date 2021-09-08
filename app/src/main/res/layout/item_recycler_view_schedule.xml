@@ -115,7 +115,8 @@
             android:layout_marginStart="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            custom:srcCompat="@drawable/ic_schedule" />
+            custom:srcCompat="@drawable/ic_schedule"
+            tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

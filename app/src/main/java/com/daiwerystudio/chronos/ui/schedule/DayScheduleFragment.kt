@@ -9,10 +9,11 @@
 
 package com.daiwerystudio.chronos.ui.schedule
 
-import android.graphics.Canvas
+import android.app.AlertDialog
 import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +37,7 @@ import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.union.CustomDiffUtil
 import com.daiwerystudio.chronos.ui.union.ItemAnimator
+import com.daiwerystudio.chronos.ui.union.UnionSimpleCallback
 import com.daiwerystudio.chronos.ui.widgets.ScheduleClockView
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -46,6 +48,29 @@ class DayScheduleFragment : Fragment() {
     private val viewModel: DayScheduleViewModel
             by lazy { ViewModelProvider(this).get(DayScheduleViewModel::class.java) }
     private lateinit var binding: FragmentDayScheduleBinding
+    private val itemTouchHelper by lazy {
+        val simpleItemTouchCallback = UnionSimpleCallback(0, ItemTouchHelper.LEFT )
+        simpleItemTouchCallback.backgroundRight = ColorDrawable(Color.parseColor("#CA0000"))
+        simpleItemTouchCallback.iconRight = ContextCompat.getDrawable(requireContext(),
+            R.drawable.ic_baseline_delete_24)?.apply {
+            colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
+        }
+        simpleItemTouchCallback.setSwipeItemListener(object : UnionSimpleCallback.SwipeListener{
+            override fun swipeLeft(position: Int) {
+                AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                    .setTitle(R.string.are_you_sure)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        viewModel.deleteActionSchedule(viewModel.actionsSchedule.value!![position])
+                    }
+                    .setNegativeButton(R.string.no){ _, _ -> }
+                    .setCancelable(false).create().show()
+            }
+
+            override fun swipeRight(position: Int) {}
+        })
+
+        ItemTouchHelper(simpleItemTouchCallback)
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -259,60 +284,5 @@ class DayScheduleFragment : Fragment() {
         override fun onBindViewHolder(holder: Holder, position: Int) {
             holder.bind(actionsSchedule[position])
         }
-    }
-
-
-    private val itemTouchHelper by lazy { val simpleItemTouchCallback = object :
-            ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT){
-
-        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
-                            target: RecyclerView.ViewHolder): Boolean {
-            return false
-        }
-
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                viewModel.deleteActionSchedule(viewModel.actionsSchedule.value!![viewHolder.absoluteAdapterPosition])
-        }
-
-        /**
-         * Иконка, которую рисует onChildDraw.
-         */
-        var icon: Drawable? = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_delete_24_white)
-
-        /**
-         * Задний фон, который рисует onChildDraw.
-         */
-        var background: Drawable? = ColorDrawable(Color.parseColor("#CA0000"))
-
-        override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
-                                 dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                if (dX < 0) {
-                    val itemView = viewHolder.itemView
-                    background?.setBounds(
-                        itemView.left + viewHolder.itemView.width/100,
-                        itemView.top, itemView.right, itemView.bottom
-                    )
-
-                    icon?.also {
-                        val iconMargin = (itemView.height - it.intrinsicHeight) / 2
-                        val iconTop = itemView.top + iconMargin
-                        val iconBottom = iconTop + it.intrinsicHeight
-                        val iconRight = itemView.right - iconMargin
-                        val iconLeft = iconRight - it.intrinsicWidth
-                        it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
-                    }
-                } else {
-                    icon?.setBounds(0, 0, 0, 0)
-                    background?.setBounds(0, 0, 0, 0)
-                }
-            }
-            background?.draw(c)
-            icon?.draw(c)
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-        }
-        }
-        ItemTouchHelper(simpleItemTouchCallback)
     }
  }

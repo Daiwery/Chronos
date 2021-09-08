@@ -5,6 +5,8 @@
 
 package com.daiwerystudio.chronos.ui.union
 
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +18,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
@@ -393,6 +396,227 @@ abstract class UnionAbstractAdapter(var data: List<Pair<Int, ID>>,
     }
 }
 
+
+class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
+    ItemTouchHelper.SimpleCallback(dragDirs, swipeDirs) {
+
+    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+    /*  Функции ниже означают, что функция onSwiped никогда не будет вызвана.  */
+    override fun getSwipeEscapeVelocity(defaultValue: Float) = Float.MAX_VALUE
+    override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder) = Float.MAX_VALUE
+
+    /**
+     * Находится ли холдер в взмахнутом состоянии. Определяется в onChildDraw: вышли ли
+     * границы холедра за установленнную черту.
+     */
+    private var mIsSwipeLeft: Boolean = false
+    private var mIsSwipeRight: Boolean = false
+
+    /**
+     * Позиция активного холдера в адаптере.
+     */
+    private var mSwipePosition: Int = 0
+
+    /**
+     * Так как mIsSwipe определяем в onChildDraw, которая запускается и при обратной анимации,
+     * нам нужна переменная, в которой будет хранится, нужно ли спрашивать пользователя о взмахе.
+     * Она устанавливается в onSelectedChanged, то есть в тот момент, когда пользователь
+     * закончил взаимодействовать с холдером и когда холдер еще не вернулся обратно.
+     */
+    private var mIsActiveSwipeLeft: Boolean = false
+    private var mIsActiveSwipeRight: Boolean = false
+
+    var iconRight: Drawable? = null
+    var backgroundRight: Drawable? = null
+    var iconLeft: Drawable? = null
+    var backgroundLeft: Drawable? = null
+    override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                             dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+        var dx = dX
+        when {
+            dx < -viewHolder.itemView.width / 4f -> {
+                dx = -viewHolder.itemView.width / 4f
+                mIsSwipeLeft = true
+                mIsSwipeRight = false
+            }
+            dx > viewHolder.itemView.width / 4f -> {
+                dx = viewHolder.itemView.width / 4f
+                mIsSwipeRight = true
+                mIsSwipeLeft = false
+            }
+            else -> {
+                mIsSwipeLeft = false
+                mIsSwipeRight = false
+            }
+        }
+
+        val itemView = viewHolder.itemView
+        when {
+            dx < 0 -> {
+                iconLeft?.setBounds(0, 0, 0, 0)
+                backgroundLeft?.setBounds(0, 0, 0, 0)
+
+                backgroundRight?.setBounds(itemView.right + dx.toInt(),
+                    itemView.top, itemView.right, itemView.bottom)
+
+                iconRight?.also {
+                    val iconMargin = (itemView.height - it.intrinsicHeight) / 2
+                    val iconTop = itemView.top + iconMargin
+                    val iconBottom = iconTop + it.intrinsicHeight
+                    val iconRight = itemView.right - iconMargin/2
+                    val iconLeft = iconRight - it.intrinsicWidth
+                    it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                }
+            }
+            dx > 0 -> {
+                iconRight?.setBounds(0, 0, 0, 0)
+                backgroundRight?.setBounds(0, 0, 0, 0)
+
+                backgroundLeft?.setBounds(itemView.left, itemView.top,
+                    itemView.left+dx.toInt(), itemView.bottom)
+
+                iconLeft?.also {
+                    val iconMargin = (itemView.height - it.intrinsicHeight) / 2
+                    val iconTop = itemView.top + iconMargin
+                    val iconBottom = iconTop + it.intrinsicHeight
+                    val iconLeft = itemView.left + iconMargin/2
+                    val iconRight = iconLeft + it.intrinsicWidth
+                    it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                }
+            }
+            else -> {
+                iconRight?.setBounds(0, 0, 0, 0)
+                backgroundRight?.setBounds(0, 0, 0, 0)
+                iconLeft?.setBounds(0, 0, 0, 0)
+                backgroundLeft?.setBounds(0, 0, 0, 0)
+            }
+        }
+
+        backgroundRight?.draw(c)
+        iconRight?.draw(c)
+        backgroundLeft?.draw(c)
+        iconLeft?.draw(c)
+        super.onChildDraw(c, recyclerView, viewHolder, dx, dY, actionState, isCurrentlyActive)
+    }
+
+    /**
+     * Холдер, который перемещаем.
+     */
+    private var dragFromViewHolder: RecyclerView.ViewHolder? = null
+    /**
+     * Холдер, на который перместили.
+     */
+    private var dragToViewHolder: RecyclerView.ViewHolder? = null
+
+    /**
+     * Запускается, когда пользователь переместил холдер на другой холдер.
+     */
+    override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                        target: RecyclerView.ViewHolder): Boolean {
+        clearViewDragToViewHolder()
+        dragToViewHolder = target
+        setViewDragToViewHolder()
+        return true
+    }
+
+    /**
+     * Запускается, когда меняется состояние холдера. То есть когда пользователь начинает
+     * или заканчивает взаимодействовать с холдером.
+     */
+    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+        if (viewHolder != null) mSwipePosition = viewHolder.absoluteAdapterPosition
+        if (mIsSwipeLeft) mIsActiveSwipeLeft = true
+        if (mIsSwipeRight) mIsActiveSwipeRight = true
+
+        when (actionState) {
+            ItemTouchHelper.ACTION_STATE_DRAG -> {
+                dragFromViewHolder = viewHolder!!
+                setViewDragFromViewHolder()
+            }
+            ItemTouchHelper.ACTION_STATE_IDLE -> {
+                if (dragFromViewHolder != null && dragToViewHolder != null) {
+                    mDragItemListener?.dragItem(dragFromViewHolder!!.absoluteAdapterPosition,
+                        dragToViewHolder!!.absoluteAdapterPosition )
+                    resetViewHolders()
+                }
+            }
+        }
+
+        super.onSelectedChanged(viewHolder, actionState)
+    }
+
+    /**
+     * Выполнятеся, когда хочет переместить холдер.
+     */
+    private fun setViewDragFromViewHolder(){
+    }
+    /**
+     * Очищает DragFromViewHolder.
+     */
+    private fun clearViewDragFromViewHolder(){
+    }
+
+    /**
+     * Выполняется, когда пользователь переместил холдер на другой холдер.
+     */
+    var backgroundDragToViewHolder: Drawable? = null
+    private fun setViewDragToViewHolder(){
+        dragToViewHolder?.also { it.itemView.background = backgroundDragToViewHolder }
+    }
+    /**
+     * Очищает DragToViewHolder.
+     */
+    private fun clearViewDragToViewHolder(){
+        dragToViewHolder?.also { it.itemView.background = null }
+    }
+
+    /**
+     * Reset всех холдеров.
+     */
+    private fun resetViewHolders(){
+        clearViewDragFromViewHolder()
+        clearViewDragToViewHolder()
+        dragFromViewHolder = null
+        dragToViewHolder = null
+    }
+
+    /**
+     * Запускается после окончания взаимодействия пользователя с холдером и окончания анимации
+     * возвращения.
+     */
+    override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+        super.clearView(recyclerView, viewHolder)
+
+        if (mIsActiveSwipeLeft) {
+            mSwipeListener?.swipeLeft(mSwipePosition)
+            mIsActiveSwipeLeft = false
+        }
+        if (mIsActiveSwipeRight) {
+            mSwipeListener?.swipeRight(mSwipePosition)
+            mIsActiveSwipeRight = false
+        }
+    }
+
+    /* Интерфейс, вызываемый при событии взмахивания.  */
+    private var mSwipeListener: SwipeListener? = null
+    interface SwipeListener{
+        fun swipeLeft(position: Int)
+        fun swipeRight(position: Int)
+    }
+    fun setSwipeItemListener(swipeListener: SwipeListener){
+        mSwipeListener = swipeListener
+    }
+
+    /* Интерфейс, вызываемый при событии drag. */
+    private var mDragItemListener: DragItemListener? = null
+    fun interface DragItemListener{
+        fun dragItem(dragFromPosition: Int, dragToPosition: Int)
+    }
+    fun setDragItemListener(dragItemListener: DragItemListener){
+        mDragItemListener = dragItemListener
+    }
+
+}
 
 
 
