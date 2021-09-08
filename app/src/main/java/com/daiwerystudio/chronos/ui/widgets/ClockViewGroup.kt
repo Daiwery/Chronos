@@ -569,8 +569,8 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                 var start = it.startTime/(24f*60*60*1000)
                 var end = it.endTime/(24f*60*60*1000)
 
-                // Возможно, что дкйствие выйдет за пределы текущего дня.
-                if (start < 1f ) start = 0f
+                // Возможно, что действие выйдет за пределы текущего дня.
+                if (start < 0f ) start = 0f
                 if (end > 1f ) end = 1f
 
                 rawPoints.add(Point(it.id, true, start, color))
