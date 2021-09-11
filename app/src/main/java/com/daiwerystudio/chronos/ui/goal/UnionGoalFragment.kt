@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionGoalBinding
 import com.daiwerystudio.chronos.ui.FORMAT_DAY
@@ -42,10 +43,20 @@ class UnionGoalFragment : UnionAbstractFragment() {
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (binding.fab.isShown && dy > 0) binding.fab.hide()
+                if (!binding.fab.isShown && dy < 0) binding.fab.show()
+            }
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
+            }
+        })
+
         viewModel.parent.observe(viewLifecycleOwner, { goal ->
             binding.goal = goal
             binding.deadline.text = (formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME) +
-                    ", " + formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
+                    " - " + formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_DAY))
 
             // Percent удаляется, так как это не RoomLiveData.
             val percent = viewModel.getPercentAchieved(goal.id)

@@ -14,11 +14,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.databinding.FragmentUnionPreviewBinding
+
 
 class UnionPreviewFragment : UnionAbstractFragment() {
     override val viewModel: UnionViewModel
@@ -28,6 +29,7 @@ class UnionPreviewFragment : UnionAbstractFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentUnionPreviewBinding.inflate(inflater, container, false)
+        binding.rootView.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -36,9 +38,21 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (binding.fab.isShown && dy > 0) binding.fab.hide()
+                if (!binding.fab.isShown && dy < 0) binding.fab.show()
+            }
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
+            }
+        })
+
         binding.selectFilterType.setTypeShowing(viewModel.information.filterType)
         binding.selectFilterType.setSelectTypeShowingListener {
             binding.loadingView.visibility = View.VISIBLE
+            if ((binding.recyclerView.adapter as Adapter).data.isNotEmpty())
+                binding.recyclerView.scrollToPosition(0)
             viewModel.information.setFilterType(it)
         }
 
@@ -50,15 +64,14 @@ class UnionPreviewFragment : UnionAbstractFragment() {
             viewModel.information.setFilterName(it?.toString())
         }
 
-        binding.rootView.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
         binding.toolBar.setOnClickListener {
-            if (binding.selectFilterType.visibility == View.GONE) {
-                binding.selectFilterType.visibility = View.VISIBLE
-                binding.imageView9.rotation = 90f
-            }
-            else {
+            if (binding.selectFilterType.visibility == View.VISIBLE) {
                 binding.selectFilterType.visibility = View.GONE
                 binding.imageView9.rotation = 0f
+            }
+            else {
+                binding.selectFilterType.visibility = View.VISIBLE
+                binding.imageView9.rotation = 90f
             }
             binding.selectFilterType.requestLayout()
         }

@@ -80,9 +80,10 @@
         <item name="materialThemeOverlay">@style/ThemeOverlay.ToolBar</item>
     </style>
     <style name="Text.TitleToolBar"  parent="@style/TextAppearance.MaterialComponents.Body1">
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">20sp</item>
     </style>
     <style name="ThemeOverlay.ToolBar" parent="">
+        <item name="colorSecondary">@color/white</item>
     </style>
 
     <style name="Style.CardView" parent="Widget.MaterialComponents.CardView">

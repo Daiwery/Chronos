@@ -10,10 +10,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionActionTypeBinding
 import com.daiwerystudio.chronos.ui.union.ID
@@ -36,6 +36,16 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
             itemAnimator = ItemAnimator()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (binding.fab.isShown && dy > 0) binding.fab.hide()
+                if (!binding.fab.isShown && dy < 0) binding.fab.show()
+            }
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
+            }
+        })
 
         viewModel.parent.observe(viewLifecycleOwner, {
             binding.actionType = it

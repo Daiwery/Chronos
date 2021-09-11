@@ -5,13 +5,9 @@
     <color name="blue">#0070bd</color>
 
     <color name="black">#FF000000</color>
-    <color name="black_200">#222222</color>
 
-    <color name="purple_300">#91009C</color>
-    <color name="purple_500">#E918FF</color>
     <color name="purple_700">#FAB8FF</color>
 
     <color name="white_300">#8C8B8B</color>
-    <color name="white_500">#BFBFBF</color>
     <color name="white_1000">#FBFBFB</color>
 </resources>

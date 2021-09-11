@@ -36,10 +36,11 @@
             android:id="@+id/collapseContent"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:background="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+            android:paddingBottom="8dp">
 
             <ScrollView
                 android:id="@+id/scrollView2"
@@ -48,27 +49,28 @@
                 android:paddingLeft="16dp"
                 android:paddingTop="2dp"
                 android:paddingRight="16dp"
+                android:booleanVisibility="@{!goal.note.equals(``)}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHeight_max="300dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:background="@color/white_1000">
+                app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
-                    android:textAppearance="@style/Text.Content"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{goal.note}"
-                    tools:text="kfgdjiokjpi;mksp'[thin;mdkpf['gfmo" />
+                    android:textAppearance="@style/Text.Content"
+                    tools:text="Снова заметка, во прикол" />
             </ScrollView>
 
             <TextView
                 android:id="@+id/textView21"
-                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/progress_"
+                android:textAppearance="@style/Text.Content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView13" />
 
@@ -86,32 +88,33 @@
 
             <TextView
                 android:id="@+id/progressTextView"
-                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
+                android:textAppearance="@style/Text.Content"
                 app:layout_constraintStart_toEndOf="@+id/textView21"
                 app:layout_constraintTop_toTopOf="@+id/textView21"
                 tools:text="50%" />
 
             <TextView
                 android:id="@+id/textView13"
-                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
                 android:booleanVisibility="@{goal.deadline != 0}"
                 android:text="@string/deadline_"
+                android:textAppearance="@style/Text.Content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
 
             <TextView
                 android:id="@+id/deadline"
-                android:textAppearance="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:booleanVisibility="@{goal.deadline != 0}"
+                android:textAppearance="@style/Text.Content"
                 app:layout_constraintStart_toEndOf="@+id/textView13"
                 app:layout_constraintTop_toTopOf="@+id/textView13"
                 tools:text="14:00" />
@@ -121,7 +124,6 @@
             android:id="@+id/recyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

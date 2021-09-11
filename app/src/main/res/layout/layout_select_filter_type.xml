@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,52 +7,70 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/folder"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_weight="1"
-        app:srcCompat="@drawable/ic_folder"
-        tools:ignore="ContentDescription" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-        android:id="@+id/note"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_note"
-        android:layout_weight="1"
-        tools:ignore="ContentDescription" />
+        <ImageView
+            android:id="@+id/folder"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_folder"
+            tools:ignore="ContentDescription" />
 
-    <ImageView
-        android:id="@+id/reminder"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_reminder"
-        android:layout_weight="1"
-        tools:ignore="ContentDescription" />
+        <ImageView
+            android:id="@+id/note"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_note"
+            app:layout_constraintStart_toEndOf="@+id/folder"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
-    <ImageView
-        android:id="@+id/goal"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_goal"
-        android:layout_weight="1"
-        tools:ignore="ContentDescription" />
+        <ImageView
+            android:id="@+id/reminder"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_reminder"
+            app:layout_constraintStart_toEndOf="@+id/note"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
-    <ImageView
-        android:id="@+id/schedule"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_schedule"
-        android:layout_weight="1"
-        tools:ignore="ContentDescription" />
+        <ImageView
+            android:id="@+id/goal"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_goal"
+            app:layout_constraintStart_toEndOf="@+id/reminder"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
-    <ImageView
-        android:id="@+id/action_type"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_weight="1"
-        android:src="@drawable/ic_action_type"
-        tools:ignore="ContentDescription" />
+        <ImageView
+            android:id="@+id/schedule"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_schedule"
+            app:layout_constraintStart_toEndOf="@+id/goal"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/action_type"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_action_type"
+            app:layout_constraintStart_toEndOf="@+id/schedule"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
