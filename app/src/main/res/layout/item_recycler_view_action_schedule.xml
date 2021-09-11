@@ -95,15 +95,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
-            android:id="@+id/error"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:booleanVisibility="@{actionSchedule.corrupted}"
-            android:visibility="gone"
-            app:srcCompat="@drawable/drawable_error_schedule"
-            tools:ignore="ContentDescription" />
-
-        <ImageView
             android:id="@+id/invalid"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

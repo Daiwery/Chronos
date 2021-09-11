@@ -22,11 +22,6 @@ class ScheduleViewModel : ViewModel() {
     val schedule: LiveData<Schedule> =
         Transformations.switchMap(scheduleID) { mScheduleRepository.getSchedule(it) }
 
-    // В once_schedule длина массива равна 1.
-    val daysScheduleIDs: LiveData<List<String>> =
-        Transformations.switchMap(scheduleID) { mScheduleRepository.getIDsDaysScheduleFromScheduleID(it) }
-
-
     fun deleteUnionWithChild(id: String){
         mUnionRepository.deleteUnionWithChild(id)
     }

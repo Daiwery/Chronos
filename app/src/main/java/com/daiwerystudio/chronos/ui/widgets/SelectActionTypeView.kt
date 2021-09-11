@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.ActionType
-import com.daiwerystudio.chronos.ui.union.CustomDiffUtil
+import com.daiwerystudio.chronos.ui.union.UnionDiffUtil
 
 /**
  * Виджет, позволяющий выбрать тип действия. Представляет из себя горизонтальные
@@ -205,7 +205,7 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
         private var mSelectPosition: Int = -1
 
         fun setData(newData: List<ActionType>) {
-            val diffUtilCallback = CustomDiffUtil(actionTypes, newData)
+            val diffUtilCallback = UnionDiffUtil(actionTypes, newData)
             val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
 
             mSelectPosition = -1

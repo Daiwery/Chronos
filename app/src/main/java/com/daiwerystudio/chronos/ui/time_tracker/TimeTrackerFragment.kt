@@ -29,7 +29,7 @@ import com.daiwerystudio.chronos.databinding.FragmentTimeTrackerBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
-import com.daiwerystudio.chronos.ui.union.CustomDiffUtil
+import com.daiwerystudio.chronos.ui.union.UnionDiffUtil
 import com.daiwerystudio.chronos.ui.union.ItemAnimator
 import com.daiwerystudio.chronos.ui.union.UnionSimpleCallback
 import java.time.LocalDate
@@ -202,7 +202,7 @@ class TimeTrackerFragment : Fragment() {
 
     private inner class Adapter(var actions: List<Action>): RecyclerView.Adapter<Holder>(){
         fun updateData(newData: List<Action>){
-            val diffUtilCallback = CustomDiffUtil(actions, newData)
+            val diffUtilCallback = UnionDiffUtil(actions, newData)
             val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
 
             actions = newData.map{ it.copy() }

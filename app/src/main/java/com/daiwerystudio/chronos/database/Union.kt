@@ -149,7 +149,7 @@ class UnionRepository private constructor(context: Context) {
             mDao.deleteUnions(unions)
             mActionTypeRepository.deleteActionTypes(unions.filter { it.type == TYPE_ACTION_TYPE }.map { it.id })
             mGoalRepository.deleteGoals(unions.filter { it.type == TYPE_GOAL }.map { it.id })
-            mScheduleRepository.deleteCompletelySchedules(unions.filter { it.type == TYPE_SCHEDULE }.map { it.id })
+            mScheduleRepository.completelyDeleteSchedules(unions.filter { it.type == TYPE_SCHEDULE }.map { it.id })
             mNoteRepository.deleteNotes(unions.filter { it.type == TYPE_NOTE }.map { it.id })
             mReminderRepository.deleteReminders(unions.filter { it.type == TYPE_REMINDER }.map { it.id })
             mFolderRepository.deleteFolders(unions.filter { it.type == TYPE_FOLDER }.map { it.id })

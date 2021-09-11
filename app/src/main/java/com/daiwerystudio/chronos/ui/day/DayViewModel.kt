@@ -9,6 +9,10 @@
 * Дата изменения: 08.09.2021. Последний день лета :(
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 * Изменения: изменен 3 этап наблюдения и добавлен 4 этап наблюдения.
+*
+* Дата изменения: 11.09.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: удаление относительного типа дня и откат к 3 этапам наблюдения.
 */
 
 package com.daiwerystudio.chronos.ui.day
@@ -18,7 +22,6 @@ import androidx.lifecycle.*
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.ui.union.ID
 import java.util.concurrent.Executors
-import kotlin.math.abs
 
 /**
  * Схема наблюдения следующая. Начальная точка - это номер дня day. На него подписан mActiveSchedules
@@ -99,79 +102,7 @@ class DayViewModel: ViewModel() {
         mScheduleRepository.getActiveSchedules()
     }
 
-    /*  Второй этап наблюдения. Получение дней в расписании, которые активны сегодня */
-    // C указанием, сегодняшний это день или вчерашний. Это нужно, такак действия из прошлого "дня" могут
-    // быть ночью этого, если день периодический.
-    // Дни из базы данных получаются на прямую, а не через LiveData. Поэтому подписки на изменения
-    // базы данных нет. Но она и не нужна, так как база данных дней сама по себе меняться не может.
-    private val mDaysSchedule: LiveData<List<Pair<Boolean, DaySchedule>>> =
-        Transformations.switchMap(mActiveSchedules) { schedules ->
-            val liveDaysSchedule =  MutableLiveData<List<Pair<Boolean, DaySchedule>>>()
-
-            mExecutor.execute {
-                val daysSchedule = mutableListOf<Pair<Boolean, DaySchedule>>()
-                schedules.forEach {
-                    when (it.type) {
-                        TYPE_SCHEDULE_ONCE -> {
-                            if ((it.start+local)/(1000*60*60*24) == day.value)
-                                daysSchedule.add(Pair(true, mScheduleRepository.getDaySchedule(it.id, 0)))
-                        }
-                        TYPE_SCHEDULE_PERIODIC -> {
-                            val dayIndex = (day.value!!-(it.start+local)/(1000*60*60*24)).toInt()
-                            // abs нужен для ситуации, когда dayIndex<0.
-                            var daySchedule = mScheduleRepository.getDaySchedule(it.id, abs(dayIndex)%it.countDays)
-                            if (!daySchedule.isCorrupted)
-                                daysSchedule.add(Pair(true, daySchedule))
-                            // А после берем прошлый день, так как действия из прошлого "дня" могут
-                            // быть ночью этого.
-                            daySchedule = mScheduleRepository.getDaySchedule(it.id, abs((dayIndex-1))%it.countDays)
-                            if (!daySchedule.isCorrupted)
-                                daysSchedule.add(Pair(false, daySchedule))
-                        }
-                        else -> throw IllegalArgumentException("Invalid type")
-                    }
-                }
-                liveDaysSchedule.postValue(daysSchedule)
-            }
-
-            liveDaysSchedule
-        }
-
-    /*  Третий этап наблюдения. Получение действий в расписании. Подписка на базу данных. */
-    // Необработанные действия в том смысле, что некоторые из них в прошлом дне. Такие
-    // нужно переместить на один день назад. Это нужно, такак действия из прошлого "дня" могут
-    // быть ночью этого, если день периодический.
-    // start и end должны быть рассчитаны в DayScheduleViewModel.
-    private val mRawActionsSchedule: LiveData<List<ActionSchedule>> =
-        Transformations.switchMap(mDaysSchedule){ daysSchedule ->
-            daysSchedule.forEach {
-                mTypesDaysSchedule[it.second.id] = it.first
-            }
-            mScheduleRepository.getActionsScheduleFromDaysIDs(daysSchedule.map{ it.second.id })
-        }
-    private var mTypesDaysSchedule = mutableMapOf<String, Boolean>()
-
-    /* Четвертый этап наблюдения. Обработка действий.  */
-    val actionsSchedule: LiveData<List<ActionSchedule>> =
-        Transformations.switchMap(mRawActionsSchedule){ rawActionsSchedule ->
-            val liveActionsSchedule = MutableLiveData<List<ActionSchedule>>()
-
-            mExecutor.execute {
-                val newActionsSchedule = mutableListOf<ActionSchedule>()
-                rawActionsSchedule.forEach {
-                   if (mTypesDaysSchedule[it.dayID] == false) {
-                       newActionsSchedule.add(it.apply {
-                           startTime -= 24*60*60*1000
-                           endTime -= 24*60*60*1000
-                       })
-                   }
-                   else newActionsSchedule.add(it)
-                }
-                liveActionsSchedule.postValue(newActionsSchedule)
-            }
-
-            liveActionsSchedule
-        }
+    val actionsSchedule: LiveData<List<ActionSchedule>> = MutableLiveData()
 
 
     /*                        Доп. функции                        */

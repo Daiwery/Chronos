@@ -98,12 +98,10 @@ class DayFragment: Fragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (binding.fab.isShown && dy > 0) binding.fab.hide()
-                if (!binding.fab.isShown && dy < 0) binding.fab.show()
-            }
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) binding.fab.hide()
             }
         })
 
@@ -136,8 +134,6 @@ class DayFragment: Fragment() {
         }
 
         binding.clock.setFinishedListener{ binding.loadingClock.visibility = View.GONE }
-        binding.clock.setClickSectionListener{}
-        binding.clock.setCountSectionsListener{}
         binding.clock.setMustActionTypeListener{}
 
         binding.fab.setOnClickListener{
@@ -254,7 +250,7 @@ class DayFragment: Fragment() {
 
     private inner class Adapter(var data: List<Pair<Int, ID>>): RecyclerView.Adapter<RawHolder>(){
         fun updateData(newData: List<Pair<Int, ID>>){
-            val diffUtilCallback = CustomDiffUtil(data.map { it.second }, newData.map { it.second })
+            val diffUtilCallback = UnionDiffUtil(data.map { it.second }, newData.map { it.second })
             val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
 
             data = newData.map{ it.copy() }

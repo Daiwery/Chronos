@@ -35,37 +35,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:ignore="ContentDescription" />
 
-        <ImageView
-            android:id="@+id/setStartDayTime"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:src="@drawable/ic_baseline_access_time_filled_24"
-            app:layout_constraintEnd_toEndOf="@+id/clock"
-            app:layout_constraintStart_toEndOf="@+id/setType"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="ContentDescription" />
-
-        <ImageView
-            android:id="@+id/setType"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:src="@drawable/ic_baseline_access_time_24"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="ContentDescription" />
-
         <com.daiwerystudio.chronos.ui.widgets.ScheduleClockView
             android:id="@+id/clock"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/setType"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_min="50dp" />
 
         <include

@@ -28,7 +28,6 @@ import com.daiwerystudio.chronos.ui.FORMAT_DAY
 import com.daiwerystudio.chronos.ui.formatTime
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
-import java.lang.IllegalArgumentException
 import java.time.format.FormatStyle
 
 /**
@@ -78,14 +77,12 @@ class ScheduleDialog : BottomSheetDialogFragment() {
             else binding.scheduleName.error = null
         }
 
-        if (isCreated && schedule.type == TYPE_SCHEDULE_PERIODIC) {
-            binding.scheduleCountDays.editText?.doOnTextChanged { text, _, _, _ ->
-                if (text.toString() != "") {
-                    schedule.countDays = text.toString().toInt()
-                    binding.scheduleCountDays.error = null
-                } else binding.scheduleCountDays.error = " "
-            }
-        } else binding.scheduleCountDays.visibility = View.GONE
+        binding.scheduleCountDays.editText?.doOnTextChanged { text, _, _, _ ->
+            if (text.toString() != "") {
+                schedule.countDays = text.toString().toInt()
+                binding.scheduleCountDays.error = null
+            } else binding.scheduleCountDays.error = " "
+        }
 
         binding.scheduleStart.editText?.setOnClickListener {
             val dialog = MaterialDatePicker.Builder.datePicker().setSelection(schedule.start+local).build()
@@ -113,11 +110,7 @@ class ScheduleDialog : BottomSheetDialogFragment() {
 
             if (permission){
                 if (isCreated) {
-                    when (schedule.type){
-                        TYPE_SCHEDULE_ONCE -> mScheduleRepository.createOnceSchedule(schedule)
-                        TYPE_SCHEDULE_PERIODIC -> mScheduleRepository.createPeriodicSchedule(schedule)
-                        else -> throw IllegalArgumentException("Invalid type")
-                    }
+                    mScheduleRepository.addSchedule(schedule)
                     mUnionRepository.addUnion(union!!)
                     this.dismiss()
 

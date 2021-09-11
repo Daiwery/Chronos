@@ -5,7 +5,7 @@
 
 package com.daiwerystudio.chronos.ui.schedule
 
-import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.daiwerystudio.chronos.R
+import com.daiwerystudio.chronos.database.Schedule
 import com.daiwerystudio.chronos.databinding.FragmentScheduleBinding
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -41,15 +42,10 @@ class ScheduleFragment : Fragment() {
             else tab.text = resources.getString(R.string.day)+" "+(position+1).toString()
         }.attach()
 
-
         viewModel.schedule.observe(viewLifecycleOwner, {
             binding.toolBar.title = it.name
+            (binding.viewPager2.adapter as PagerAdapter).setSchedule(it)
         })
-        viewModel.daysScheduleIDs.observe(viewLifecycleOwner, {
-            (binding.viewPager2.adapter as PagerAdapter).setDaysScheduleIDs(it)
-            if (it.size == 1) binding.tabLayout.visibility = View.GONE
-        })
-
 
         binding.toolBar.setNavigationOnClickListener {
             it.findNavController().navigateUp()
@@ -65,6 +61,20 @@ class ScheduleFragment : Fragment() {
                     dialog.show(requireActivity().supportFragmentManager, "ScheduleDialog")
                     true
                 }
+                R.id.delete -> {
+                    AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                        .setTitle(resources.getString(R.string.are_you_sure))
+                        .setPositiveButton(R.string.yes) { _, _ ->
+                            viewModel.deleteUnionWithChild(viewModel.schedule.value!!.id)
+                            requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+                            requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+                        }
+                        .setNegativeButton(R.string.no){ _, _ -> }
+                        .setCancelable(false)
+                        .create()
+                        .show()
+                    true
+                }
                 else -> false
             }
         }
@@ -74,24 +84,26 @@ class ScheduleFragment : Fragment() {
 
 
     inner class PagerAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
-        private var daysScheduleIDs: List<String> = emptyList()
+        private var schedule: Schedule? = null
 
-        @SuppressLint("NotifyDataSetChanged")
-        fun setDaysScheduleIDs(daysScheduleIDs: List<String>){
-            this.daysScheduleIDs = daysScheduleIDs
-            // С учетом того, что schedule.countDays нельзя изменить.
-            notifyDataSetChanged()
+        fun setSchedule(schedule: Schedule){
+            val lastCountDays = this.schedule?.countDays ?: 0
+            this.schedule = schedule
+
+            if (schedule.countDays > lastCountDays)
+                notifyItemRangeInserted(lastCountDays, schedule.countDays-lastCountDays)
+            if (schedule.countDays < lastCountDays)
+                notifyItemRangeRemoved(schedule.countDays, lastCountDays-schedule.countDays)
         }
 
-        override fun getItemCount(): Int = daysScheduleIDs.size
+        override fun getItemCount(): Int = schedule?.countDays ?: 0
 
         override fun createFragment(position: Int): Fragment {
             val bundle = Bundle().apply {
-                putSerializable("dayScheduleID", daysScheduleIDs[position])
+                putString("scheduleID", schedule!!.id)
+                putInt("dayIndex", position)
             }
-            return DayScheduleFragment().apply {
-                arguments = bundle
-            }
+            return DayScheduleFragment().apply { arguments = bundle }
         }
     }
 }

@@ -15,12 +15,12 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/time1"
-            android:layout_width="120dp"
+            android:id="@+id/startTime"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:hint="@string/start_after"
+            android:hint="@string/start"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -34,17 +34,17 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/time2"
+            android:id="@+id/endTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            android:hint="@string/duration"
+            android:hint="@string/end"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="120dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:focusable="false"
                 android:inputType="none"
@@ -63,7 +63,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/time1" />
+            app:layout_constraintTop_toBottomOf="@+id/startTime" />
 
         <Button
             android:id="@+id/button"

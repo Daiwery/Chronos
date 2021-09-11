@@ -41,8 +41,8 @@ interface ID {
     val id: String
 }
 
-class CustomDiffUtil(private val oldList: List<ID>,
-                             private val newList: List<ID>): DiffUtil.Callback() {
+class UnionDiffUtil(private val oldList: List<ID>,
+                    private val newList: List<ID>): DiffUtil.Callback() {
     override fun getOldListSize() = oldList.size
     override fun getNewListSize() = newList.size
 
@@ -335,7 +335,7 @@ abstract class FolderAbstractHolder(val binding: ItemRecyclerViewFolderBinding,
 abstract class UnionAbstractAdapter(var data: List<Pair<Int, ID>>,
                                     private val layoutInflater: LayoutInflater): RecyclerView.Adapter<RawHolder>() {
     open fun updateData(newData: List<Pair<Int, ID>>) {
-        val diffUtilCallback = CustomDiffUtil(data.map { it.second }, newData.map { it.second })
+        val diffUtilCallback = UnionDiffUtil(data.map { it.second }, newData.map { it.second })
         val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
 
         data = newData

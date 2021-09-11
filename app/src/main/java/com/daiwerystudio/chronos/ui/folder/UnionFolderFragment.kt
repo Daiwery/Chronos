@@ -39,12 +39,10 @@ class UnionFolderFragment : UnionAbstractFragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (binding.fab.isShown && dy > 0) binding.fab.hide()
-                if (!binding.fab.isShown && dy < 0) binding.fab.show()
-            }
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) binding.fab.hide()
             }
         })
 

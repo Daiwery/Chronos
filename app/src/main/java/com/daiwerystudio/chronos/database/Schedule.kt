@@ -10,6 +10,10 @@
 * Дата изменения: 23.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 * Изменения: добавлен тип расписания: периодический или на конкретный день.
+*
+* Дата изменения: 11.09.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: удаление таблицы дня в расписании. Теперь только один тип.
 */
 
 package com.daiwerystudio.chronos.database
@@ -28,10 +32,6 @@ private const val SCHEDULE_DATABASE_NAME = "schedule-database"
 /* Предупреждение: данные константы не используются в Data Binding в item_recycler_view_schedule*/
 const val TYPE_SCHEDULE_PERIODIC = 0
 const val TYPE_SCHEDULE_ONCE = 1
-
-/* Предупреждение: данные константы не используются в Data Binding в dialog_action_schedule*/
-const val TYPE_DAY_SCHEDULE_RELATIVE = 0
-const val TYPE_DAY_SCHEDULE_ABSOLUTE = 1
 
 
 /**
@@ -55,63 +55,23 @@ data class Schedule(
     var isActive: Boolean = true,
 ) : Serializable, ID
 
-
 /**
  * @property id уникальный идентификатор.
  * @property scheduleID id расписания, к которому относится данное действие.
- * @property dayIndex номер дня. В once_schedules фиктивно.
- * @property type тип дня. Абсолютный (действия задаются конкретными временами)
- * или относительный (действия задаются временем после прошлого действия и длительностью).
- * @property startDayTime время начала дня. Используется для относительного расписания.
- * @property isCorrupted испорченно ли действие. Действие становится таковым, если пересекается
- * с другим действием.
- */
-@Entity(tableName = "day_schedule_table")
-data class DaySchedule(
-    @PrimaryKey val id: String = UUID.randomUUID().toString(),
-    var scheduleID: String,
-    var dayIndex: Int,
-    var type: Int = TYPE_DAY_SCHEDULE_ABSOLUTE,
-    var startDayTime: Long = 6*60*60*1000,
-    var isCorrupted: Boolean = false
-) : Serializable
-
-
-
-/**
- * @property id уникальный идентификатор.
- * @property dayID id дня, к которому относится данное действие.
- * @property indexList индекс действия в массиве. По нему сортируются действия, чтобы сохранить
- * порядок требуемый пользователем. Необходим только для относительного расписания.
+ * @property dayIndex номер дня, к которому относится данное действие.
  * @property actionTypeId id типа действия, к которому относится данное действие в расписании.
- * @property startTime фактическое время начала действия. В абсолютном расписании изменяется
- * напрямую пользователем, в относительном считается отдельно по двум последним свойствам.
- * Оно необходимо для всех алгоритмов обработки действий в расписании. Измеряется в секундах.
- * В относительном расписании может быть больше 24 часов по той причине, что начало дня идет с startDayTime.
+ * @property startTime фактическое время начала действия.
  * В этом случае время находится в окне с 00:00 до startDayTime в СЛЕДУЮЩЕМ дне.
- * @property endTime фактическое время конца действия. А обсолютном расписании изменяется
- * напрямую пользователем, в отнсительном считается отдельно по двум последним свойствам.
- * Оно необходимо для всех алгоритмов обработки действий расписаний.
- * В относительном расписании может быть больше 24 часов по той причине, что начало дня идет с startDayTime.
- * В этом случае время находится в окне с 00:00 до startDayTime в СЛЕДУЮЩЕМ  дне.
- * @property startAfter время начала действия после окончания прошлого. В отсительном расписании
- * изменяется напрямую пользователем, в абсолютном фиктивно.
- * @property duration длительность действия. В отсительном расписании изменяется
- * напрямую пользователем, в абсолютном фиктивно. Измеряется в секундах.
- * @property isCorrupted испорченно ли действие. Действие становится таковым, если пересекается
- * с другим действием.
+ * @property endTime фактическое время конца действия.
  */
 @Entity(tableName = "action_schedule_table")
 data class ActionSchedule(
     @PrimaryKey override val id: String = UUID.randomUUID().toString(),
-    var dayID: String,
-    var indexList: Int,
+    var scheduleID: String,
+    var dayIndex: Int,
     var actionTypeId: String = "",
     var startTime: Long = 0,
     var endTime: Long = 0,
-    var startAfter: Long = 0,
-    var duration: Long = 0,
-    var isCorrupted: Boolean = false
 ) : Serializable, ID
 
 
@@ -126,32 +86,15 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedule_table WHERE isActive=1")
     fun getActiveSchedules(): LiveData<List<Schedule>>
 
-    @Query("SELECT * FROM action_schedule_table WHERE dayID=(:dayID) ORDER BY indexList ASC")
-    fun getActionsRelativeScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>>
-
-    @Query("SELECT * FROM action_schedule_table WHERE dayID=(:dayID) ORDER BY startTime ASC")
-    fun getActionsAbsoluteScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>>
-
-    @Query("SELECT * FROM action_schedule_table WHERE dayID IN (:daysIDs)")
-    fun getActionsScheduleFromDaysIDs(daysIDs: List<String>): LiveData<List<ActionSchedule>>
-
-    @Query("SELECT id FROM day_schedule_table WHERE scheduleID=(:scheduleID)")
-    fun getIDsDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<String>>
-
-    @Query("SELECT * FROM day_schedule_table WHERE id=(:id)")
-    fun getDaySchedule(id: String): LiveData<DaySchedule>
-
-    @Query("SELECT * FROM day_schedule_table WHERE scheduleID=(:scheduleID) AND dayIndex=(:dayIndex)")
-    fun getDaySchedule(scheduleID: String, dayIndex: Int): DaySchedule
+    @Query("SELECT * FROM action_schedule_table " +
+            "WHERE scheduleID=(:scheduleID) AND dayIndex=(:dayIndex) " +
+            "ORDER BY startTime ASC")
+    fun getActionsScheduleFromSchedule(scheduleID: String, dayIndex: Int): LiveData<List<ActionSchedule>>
 
     @Query("DELETE FROM schedule_table WHERE id IN (:ids)")
     fun deleteSchedules(ids: List<String>)
 
-    @Query("DELETE FROM day_schedule_table WHERE scheduleID IN (:scheduleIDs)")
-    fun deleteDaysScheduleFromSchedulesID(scheduleIDs: List<String>)
-
-    @Query("DELETE FROM action_schedule_table WHERE dayID IN " +
-            "(SELECT id FROM day_schedule_table WHERE scheduleID IN (:scheduleIDs))")
+    @Query("DELETE FROM action_schedule_table WHERE scheduleID IN (:scheduleIDs)")
     fun deleteActionsScheduleFromSchedulesID(scheduleIDs: List<String>)
 
     @Update
@@ -161,16 +104,7 @@ interface ScheduleDao {
     fun addSchedule(schedule: Schedule)
 
     @Update
-    fun updateDaySchedule(daySchedule: DaySchedule)
-
-    @Insert
-    fun addDaySchedule(daySchedule: DaySchedule)
-
-    @Update
     fun updateActionSchedule(actionSchedule: ActionSchedule)
-
-    @Update
-    fun updateActionsSchedule(actionsSchedule: List<ActionSchedule>)
 
     @Insert
     fun addActionSchedule(actionSchedule: ActionSchedule)
@@ -180,7 +114,7 @@ interface ScheduleDao {
 }
 
 
-@Database(entities = [Schedule::class, DaySchedule::class, ActionSchedule::class], version=1, exportSchema=false)
+@Database(entities = [Schedule::class, ActionSchedule::class], version=1, exportSchema=false)
 abstract class ScheduleDatabase : RoomDatabase() {
     abstract fun dao(): ScheduleDao
 }
@@ -210,59 +144,26 @@ class ScheduleRepository private constructor(context: Context) {
 
     fun getActiveSchedules(): LiveData<List<Schedule>> = mDao.getActiveSchedules()
 
-    fun getActionsRelativeScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>> =
-        mDao.getActionsRelativeScheduleFromDayID(dayID)
+    fun getActionsScheduleFromSchedule(scheduleID: String, dayIndex: Int): LiveData<List<ActionSchedule>> =
+        mDao.getActionsScheduleFromSchedule(scheduleID, dayIndex)
 
-    fun getActionsAbsoluteScheduleFromDayID(dayID: String): LiveData<List<ActionSchedule>> =
-        mDao.getActionsAbsoluteScheduleFromDayID(dayID)
-
-    fun getActionsScheduleFromDaysIDs(daysIDs: List<String>): LiveData<List<ActionSchedule>> =
-        mDao.getActionsScheduleFromDaysIDs(daysIDs)
-
-    fun getIDsDaysScheduleFromScheduleID(scheduleID: String): LiveData<List<String>> =
-        mDao.getIDsDaysScheduleFromScheduleID(scheduleID)
-
-    fun getDaySchedule(id: String): LiveData<DaySchedule> = mDao.getDaySchedule(id)
-
-    fun getDaySchedule(scheduleID: String, dayIndex: Int): DaySchedule = mDao.getDaySchedule(scheduleID, dayIndex)
-
-    fun deleteCompletelySchedules(ids: List<String>){
+    fun completelyDeleteSchedules(ids: List<String>){
         mHandler.post {
             mDao.deleteActionsScheduleFromSchedulesID(ids)
-            mDao.deleteDaysScheduleFromSchedulesID(ids)
             mDao.deleteSchedules(ids)
         }
     }
 
-    fun createPeriodicSchedule(schedule: Schedule){
-        mHandler.post {
-            mDao.addSchedule(schedule)
-            for (i in 0 until schedule.countDays)
-                mDao.addDaySchedule(DaySchedule(scheduleID=schedule.id, dayIndex=i))
-        }
-    }
-
-    fun createOnceSchedule(schedule: Schedule){
-        mHandler.post {
-            mDao.addSchedule(schedule)
-            mDao.addDaySchedule(DaySchedule(scheduleID=schedule.id, dayIndex=0))
-        }
+    fun addSchedule(schedule: Schedule){
+        mHandler.post { mDao.addSchedule(schedule) }
     }
 
     fun updateSchedule(schedule: Schedule){
         mHandler.post { mDao.updateSchedule(schedule) }
     }
 
-    fun updateDaySchedule(daySchedule: DaySchedule){
-        mHandler.post { mDao.updateDaySchedule(daySchedule) }
-    }
-
     fun updateActionSchedule(actionSchedule: ActionSchedule){
         mHandler.post { mDao.updateActionSchedule(actionSchedule) }
-    }
-
-    fun updateActionsSchedule(actionsSchedule: List<ActionSchedule>){
-        mHandler.post { mDao.updateActionsSchedule(actionsSchedule) }
     }
 
     fun addActionSchedule(actionSchedule: ActionSchedule){
