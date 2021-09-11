@@ -1,14 +1,21 @@
 /*
 * Дата создания: 17.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 10.09.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: добавлен поиск (фильтр).
 */
 
 package com.daiwerystudio.chronos.ui.union
 
+import android.animation.LayoutTransition
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.daiwerystudio.chronos.databinding.FragmentUnionPreviewBinding
@@ -18,11 +25,9 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         by lazy { ViewModelProvider(this).get(UnionViewModel::class.java) }
     private lateinit var binding: FragmentUnionPreviewBinding
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentUnionPreviewBinding.inflate(inflater, container, false)
-        val view = binding.root
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -31,10 +36,31 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
-        binding.selectTypeShowing.setTypeShowing(viewModel.showing.typeShowing)
-        binding.selectTypeShowing.setSelectTypeShowingListener{
+        binding.selectFilterType.setTypeShowing(viewModel.information.filterType)
+        binding.selectFilterType.setSelectTypeShowingListener {
             binding.loadingView.visibility = View.VISIBLE
-            viewModel.showing.setTypeShowing(it)
+            viewModel.information.setFilterType(it)
+        }
+
+        binding.search.setText(viewModel.information.filterString)
+        binding.search.addTextChangedListener {
+            binding.loadingView.visibility = View.VISIBLE
+            if ((binding.recyclerView.adapter as Adapter).data.isNotEmpty())
+                binding.recyclerView.scrollToPosition(0)
+            viewModel.information.setFilterName(it?.toString())
+        }
+
+        binding.rootView.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+        binding.toolBar.setOnClickListener {
+            if (binding.selectFilterType.visibility == View.GONE) {
+                binding.selectFilterType.visibility = View.VISIBLE
+                binding.imageView9.rotation = 90f
+            }
+            else {
+                binding.selectFilterType.visibility = View.GONE
+                binding.imageView9.rotation = 0f
+            }
+            binding.selectFilterType.requestLayout()
         }
 
         viewModel.data.observe(viewLifecycleOwner, {
@@ -44,12 +70,12 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         binding.fab.setOnClickListener{
             val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
             popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
-                override fun getParent(): String = viewModel.showing.parentID
+                override fun getParent(): String = viewModel.information.parentID
             })
             popup.show()
         }
 
-        return view
+        return binding.root
     }
 
     private fun setEmptyView(){

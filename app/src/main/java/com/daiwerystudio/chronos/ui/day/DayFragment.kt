@@ -144,6 +144,7 @@ class DayFragment: Fragment() {
                             val dialog = GoalDialog()
                             dialog.arguments = Bundle().apply{
                                 putSerializable("goal", goal)
+                                putBoolean("isTemporal", true)
                                 putBoolean("isCreated", true)
                             }
                             dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
@@ -208,7 +209,9 @@ class DayFragment: Fragment() {
         override fun setStaticUI(goal: Goal) {
             super.setStaticUI(goal)
             // Делаем невидимым прогресс бар.
-            binding.isAchieved = true
+            binding.textView21.visibility = View.GONE
+            binding.progressTextView.visibility = View.GONE
+            binding.progressBar.visibility = View.GONE
         }
 
         override fun setDeadline() {

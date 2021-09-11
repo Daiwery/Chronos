@@ -159,7 +159,6 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
     open fun setStaticUI(goal: Goal){
         this.goal = goal
         binding.goal = goal
-        binding.isAchieved = goal.isAchieved
         setDeadline()
         setPercentAchieved()
     }
@@ -171,7 +170,7 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
 
     open fun setDeadline(){
         binding.deadlineTextView.text = (formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME)+
-                ", " + formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
+                " - " + formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_DAY))
     }
 
     abstract fun onAchieved()
@@ -208,7 +207,7 @@ abstract class ScheduleAbstractHolder(private val binding: ItemRecyclerViewSched
     open fun setStaticUI(schedule: Schedule){
         this.schedule = schedule
         binding.schedule = schedule
-        binding.start.text =  formatTime(schedule.start, true, FormatStyle.LONG, FORMAT_DAY)
+        binding.start.text =  formatTime(schedule.start, true, FormatStyle.SHORT, FORMAT_DAY)
         when (schedule.type){
             TYPE_SCHEDULE_PERIODIC -> binding.type.text = itemView.context.getString(R.string.periodic_schedule)
             TYPE_SCHEDULE_ONCE -> binding.type.text = itemView.context.getString(R.string.once_schedule)
@@ -289,7 +288,7 @@ abstract class ReminderAbstractHolder(val binding: ItemRecyclerViewReminderBindi
 
     open fun setTime(){
         binding.timeTextView.text = (formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME)+
-                ", " + formatTime(reminder.time, true, FormatStyle.LONG, FORMAT_DAY))
+                " - " + formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_DAY))
     }
 }
 
@@ -456,7 +455,7 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
                 iconLeft?.setBounds(0, 0, 0, 0)
                 backgroundLeft?.setBounds(0, 0, 0, 0)
 
-                backgroundRight?.setBounds(itemView.right + dx.toInt(),
+                backgroundRight?.setBounds(itemView.right - itemView.width/3,
                     itemView.top, itemView.right, itemView.bottom)
 
                 iconRight?.also {
@@ -473,7 +472,7 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
                 backgroundRight?.setBounds(0, 0, 0, 0)
 
                 backgroundLeft?.setBounds(itemView.left, itemView.top,
-                    itemView.left+dx.toInt(), itemView.bottom)
+                    itemView.left+itemView.width/3, itemView.bottom)
 
                 iconLeft?.also {
                     val iconMargin = (itemView.height - it.intrinsicHeight) / 2

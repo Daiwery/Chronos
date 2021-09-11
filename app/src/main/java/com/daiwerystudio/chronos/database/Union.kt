@@ -43,12 +43,11 @@ interface UnionDao{
     @Query("SELECT * FROM union_table WHERE parent=(:parent)")
     fun getUnionsFromParent(parent: String): LiveData<List<Union>>
 
-    @Query("WITH RECURSIVE sub_table(id, parent, type) " +
-            "AS (SELECT id, parent, type FROM union_table WHERE parent=(:id)" +
-            "UNION ALL " +
-            "SELECT a.id, a.parent, a.type FROM union_table AS a JOIN sub_table AS b ON a.parent=b.id AND (b.type!=(:type) OR a.parent='')) " +
-            "SELECT * FROM union_table WHERE id IN (SELECT id FROM sub_table WHERE type=(:type))")
-    fun getUnionsFromParentAndType(id: String, type: Int): LiveData<List<Union>>
+    @Query("SELECT * FROM union_table")
+    fun getAllUnions(): LiveData<List<Union>>
+
+    @Query("SELECT * FROM union_table WHERE type=(:type)")
+    fun getUnionsFromType(type: Int): LiveData<List<Union>>
 
     @Query("WITH RECURSIVE sub_table(id, parent) " +
         "AS (SELECT id, parent FROM union_table WHERE id=(:id) " +
@@ -119,8 +118,9 @@ class UnionRepository private constructor(context: Context) {
     fun getUnionsFromParent(parent: String): LiveData<List<Union>> =
         mDao.getUnionsFromParent(parent)
 
-    fun getUnionsFromParentAndType(id: String, type: Int): LiveData<List<Union>> =
-        mDao.getUnionsFromParentAndType(id, type)
+    fun getAllUnions(): LiveData<List<Union>> = mDao.getAllUnions()
+
+    fun getUnionsFromType(type: Int): LiveData<List<Union>> = mDao.getUnionsFromType(type)
 
     fun getParentUnion(id: String): String? = mDao.getParentUnion(id)
 

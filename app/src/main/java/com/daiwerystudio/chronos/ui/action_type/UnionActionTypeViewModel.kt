@@ -16,6 +16,6 @@ class UnionActionTypeViewModel: UnionViewModel() {
 
     // Добавляем подписку на parentID.
     var parent: LiveData<ActionType> =
-        Transformations.switchMap(showing) { mRepository.getActionType(it.first) }
+        Transformations.switchMap(information) { mRepository.getActionType(it) }
         private set
 }

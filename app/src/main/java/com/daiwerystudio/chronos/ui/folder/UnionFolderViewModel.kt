@@ -16,6 +16,6 @@ class UnionFolderViewModel : UnionViewModel() {
 
     // Добавляем подписку на parentID.
     var parent: LiveData<Folder> =
-        Transformations.switchMap(showing) { mRepository.getFolder(it.first) }
+        Transformations.switchMap(information) { mRepository.getFolder(it) }
         private set
 }

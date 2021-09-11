@@ -24,10 +24,10 @@ import com.daiwerystudio.chronos.databinding.*
 abstract class UnionAbstractFragment : Fragment() {
     abstract val viewModel: UnionViewModel
 
-    // ПРЕДУПРЕЖДЕНИЕ! Инициализация должна происходить после инициализации showing в UnionViewModel.
+    // ПРЕДУПРЕЖДЕНИЕ! Инициализация должна происходить после инициализации information в UnionViewModel.
     val itemTouchHelper by lazy {
         val simpleItemTouchCallback = UnionSimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-            ItemTouchHelper.LEFT or if (viewModel.showing.parentID != "") ItemTouchHelper.RIGHT else 0)
+            ItemTouchHelper.LEFT or if (viewModel.information.parentID != "") ItemTouchHelper.RIGHT else 0)
         simpleItemTouchCallback.backgroundRight = ColorDrawable(Color.parseColor("#CA0000"))
         simpleItemTouchCallback.iconRight = ContextCompat.getDrawable(requireContext(),
             R.drawable.ic_baseline_delete_24)?.apply {
@@ -78,8 +78,8 @@ abstract class UnionAbstractFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.showing.setData(arguments?.getString("parentID") ?: "",
-            arguments?.getInt("typeShowing") ?: -1)
+        viewModel.information.setData(arguments?.getString("parentID") ?: "",
+            null, "")
     }
 
 
@@ -88,7 +88,6 @@ abstract class UnionAbstractFragment : Fragment() {
         override fun onClicked() {
             val bundle = Bundle().apply {
                 putString("parentID", actionType.id)
-                putInt("typeShowing", viewModel.showing.typeShowing)
             }
             itemView.findNavController().navigate(R.id.action_global_navigation_union_action_type, bundle)
         }
@@ -117,7 +116,6 @@ abstract class UnionAbstractFragment : Fragment() {
         override fun onClicked() {
             val bundle = Bundle().apply {
                 putString("parentID", goal.id)
-                putInt("typeShowing", viewModel.showing.typeShowing)
             }
             itemView.findNavController().navigate(R.id.action_global_navigation_union_goal, bundle)
         }
@@ -133,7 +131,6 @@ abstract class UnionAbstractFragment : Fragment() {
         override fun onClicked() {
             val bundle = Bundle().apply {
                 putString("parentID", schedule.id)
-                putInt("typeShowing", viewModel.showing.typeShowing)
             }
             itemView.findNavController().navigate(R.id.action_global_navigation_union_schedule, bundle)
         }
@@ -144,7 +141,6 @@ abstract class UnionAbstractFragment : Fragment() {
         override fun onClicked() {
             val bundle = Bundle().apply {
                 putString("parentID", note.id)
-                putInt("typeShowing", viewModel.showing.typeShowing)
             }
             itemView.findNavController().navigate(R.id.action_global_navigation_union_note, bundle)
         }
@@ -158,7 +154,6 @@ abstract class UnionAbstractFragment : Fragment() {
         override fun onClicked() {
             val bundle = Bundle().apply {
                 putString("parentID", folder.id)
-                putInt("typeShowing", viewModel.showing.typeShowing)
             }
             itemView.findNavController().navigate(R.id.action_global_navigation_union_folder, bundle)
         }

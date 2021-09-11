@@ -9,48 +9,48 @@
 
     <ImageView
         android:id="@+id/folder"
-        android:layout_width="20dp"
-        android:layout_height="40dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_weight="1"
         app:srcCompat="@drawable/ic_folder"
         tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/note"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:src="@drawable/ic_note"
         android:layout_weight="1"
         tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/reminder"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:src="@drawable/ic_reminder"
         android:layout_weight="1"
         tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/goal"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:src="@drawable/ic_goal"
         android:layout_weight="1"
         tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/schedule"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:src="@drawable/ic_schedule"
         android:layout_weight="1"
         tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/action_type"
-        android:layout_width="20dp"
-        android:layout_height="40dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_weight="1"
         android:src="@drawable/ic_action_type"
         tools:ignore="ContentDescription" />

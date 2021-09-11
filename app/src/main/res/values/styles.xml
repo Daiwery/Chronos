@@ -2,9 +2,9 @@
 <resources>
     <style name="Style.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
         <item name="materialThemeOverlay">@style/ThemeOverlay.BottomNavigationView</item>
+        <item name="android:background">@color/white</item>
     </style>
     <style name="ThemeOverlay.BottomNavigationView" parent="">
-        <item name="colorOnPrimary">@color/black_200</item>
     </style>
 
     <style name="Style.BottomDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
@@ -27,7 +27,6 @@
         <item name="materialThemeOverlay">@style/ThemeOverlay.TextInputLayout</item>
     </style>
     <style name="ThemeOverlay.TextInputLayout" parent="">
-        <item name="colorPrimary">@color/purple_700</item>
         <item name="editTextStyle">@style/Widget.TextInputLayout.EditText</item>
     </style>
     <style name="Widget.TextInputLayout.EditText" parent="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox">
@@ -35,13 +34,9 @@
     </style>
 
     <style name="ThemeOverlay.TimePicker" parent="ThemeOverlay.MaterialComponents.TimePicker">
-        <item name="colorOnSurface">@color/black</item>
-        <item name="colorPrimary">@color/purple_700</item>
     </style>
 
     <style name="ThemeOverlay.DatePicker" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
-        <item name="colorOnSurface">@color/black</item>
-        <item name="colorPrimary">@color/purple_700</item>
     </style>
 
     <style name="Style.ColorPickerDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
@@ -70,7 +65,6 @@
         <item name="android:background">@color/white</item>
     </style>
     <style name="ThemeOverlay.TabLayout" parent="">
-        <item name="colorPrimary">@color/purple_300</item>
         <item name="colorSurface">@color/white_1000</item>
         <item name="colorOnSurface">@color/white_300</item>
         <item name="textAppearanceButton">@style/Text.TabLayout</item>
@@ -78,5 +72,28 @@
     <style name="Text.TabLayout" parent="@style/TextAppearance.MaterialComponents.Tooltip">
         <item name="android:textSize">16sp</item>
         <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="Style.ToolBar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="titleTextColor">@color/white</item>
+        <item name="titleTextAppearance">@style/Text.TitleToolBar</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.ToolBar</item>
+    </style>
+    <style name="Text.TitleToolBar"  parent="@style/TextAppearance.MaterialComponents.Body1">
+        <item name="android:textSize">24sp</item>
+    </style>
+    <style name="ThemeOverlay.ToolBar" parent="">
+    </style>
+
+    <style name="Style.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.CardView</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.CardView</item>
+    </style>
+    <style name="ShapeAppearance.CardView" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">15dp</item>
+    </style>
+    <style name="ThemeOverlay.CardView" parent="">
+        <item name="colorSurface">@color/white</item>
     </style>
 </resources>

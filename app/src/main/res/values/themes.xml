@@ -2,19 +2,22 @@
     <!-- Base application theme. -->
     <style name="Theme.Chronos" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/white</item>
-        <item name="colorPrimaryDark">@color/white_500</item>
+        <item name="colorPrimary">@color/blue</item>
+        <item name="colorPrimaryDark">@color/blue</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/purple_700</item>
-        <item name="colorSecondaryVariant">@color/purple_700</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">@color/blue</item>
+        <item name="colorSecondaryVariant">@color/blue</item>
+        <item name="colorOnSecondary">@color/white</item>
         <!-- Customize your theme here. -->
+        <item name="android:colorBackground">@color/white_800</item>
         <item name="bottomNavigationStyle">@style/Style.BottomNavigationView</item>
         <item name="bottomSheetDialogTheme">@style/Style.BottomDialog</item>
         <item name="textInputStyle">@style/Style.TextInputLayout</item>
         <item name="tabStyle">@style/Style.TabLayout</item>
         <item name="materialTimePickerTheme">@style/ThemeOverlay.TimePicker</item>
         <item name="materialCalendarTheme">@style/ThemeOverlay.DatePicker</item>
+        <item name="toolbarStyle">@style/Style.ToolBar</item>
+        <item name="materialCardViewStyle">@style/Style.CardView</item>
     </style>
 </resources>

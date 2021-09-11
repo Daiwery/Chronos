@@ -18,6 +18,6 @@ class UnionScheduleViewModel : UnionViewModel() {
 
     // Добавляем подписку на parentID.
     var parent: LiveData<Schedule> =
-        Transformations.switchMap(showing) { mRepository.getSchedule(it.first) }
+        Transformations.switchMap(information) { mRepository.getSchedule(it) }
         private set
 }

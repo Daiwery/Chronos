@@ -10,11 +10,15 @@
 * Дата изменения: 26.08.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 * Изменения: вместо Pair<parentID, typeShowing> добавлен специальный класс, наследуемый от LiveData.
+* какой тип показывать.
+*
+* Дата изменения: 10.09.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: добавлен поиск (фильтр).
 */
 
 package com.daiwerystudio.chronos.ui.union
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
@@ -25,10 +29,9 @@ import java.util.concurrent.Executors
 /**
  * Класс определяет основные методы для взаимодействия с базой данных.
  *
- * Схема наблюдения LiveData: showing: - ShowingLiveData, специальный класс, определенный
- * здесь. Содержит два свойства - parentID и typeShowing, соединенные в Pair-объект,
- * где typeShowing - какой тип показывать. Меняется во фрагмете;
- * На showing подписан mUnions, которые по значению получает все unions от родителя;
+ * Схема наблюдения LiveData: information: - informationLiveData, специальный класс, определенный
+ * здесь. Содержит 3 свойства - value (parentID), filterType и filterString. Меняется во фрагмете;
+ * На information подписан mUnions, которые по значению получает все unions от родителя;
  * На mUnions подписаны n LiveData: mActionTypesLiveData, mGoalsLiveData и т.п. Которые
  * получают по значению соответствующие значения;
  * На эти 3 LiveData подписан MediatorLiveData data, который по ним формирует и сортирует
@@ -41,34 +44,44 @@ open class UnionViewModel : ViewModel() {
     private val mExecutor = Executors.newSingleThreadExecutor()
 
     /**
-     * Специальный LiveData для наблюдения за id родителя и типом показа.
+     * Специальный LiveData для наблюдения за id родителя и фильтрами по типу и по имени.
      */
-    class ShowingLiveData: LiveData<Pair<String, Int>>(){
+    class InformationLiveData: LiveData<String>(){
         var parentID: String = ""
             private set
-        var typeShowing: Int = -1
+        var filterType: Int? = null
+            private set
+        var filterString: String = ""
             private set
 
-        fun setData(parentID: String, typeShowing: Int){
+        fun setData(parentID: String, filterType: Int?, filterName: String?){
             this.parentID = parentID
-            this.typeShowing = typeShowing
-            value = Pair(parentID, typeShowing)
+            this.filterType = filterType
+            this.filterString = filterName ?: ""
+            value = parentID
         }
 
-        fun setTypeShowing(typeShowing: Int){
-            this.typeShowing = typeShowing
-            value = Pair(parentID, typeShowing)
+        fun setFilterType(filterType: Int?){
+            this.filterType = filterType
+            value = parentID
+        }
+
+        fun setFilterName(filterName: String?){
+            this.filterString = filterName ?: ""
+            value = parentID
         }
     }
-    val showing: ShowingLiveData = ShowingLiveData()
+    val information: InformationLiveData = InformationLiveData()
 
 
     /*                        Первый этап наблюдения                        */
     private var mUnions: LiveData<List<Union>> =
-        Transformations.switchMap(showing) {
-            Log.d("TEST", "${it.second}")
-            if (it.second == -1)  mUnionRepository.getUnionsFromParent(it.first)
-            else mUnionRepository.getUnionsFromParentAndType(it.first, it.second)
+        Transformations.switchMap(information) {
+            when {
+                information.filterType != null -> mUnionRepository.getUnionsFromType(information.filterType!!)
+                information.filterString != "" -> mUnionRepository.getAllUnions()
+                else -> mUnionRepository.getUnionsFromParent(it)
+            }
         }
 
 
@@ -103,28 +116,44 @@ open class UnionViewModel : ViewModel() {
         private set
 
     init {
-        data.addSource(mActionTypesLiveData) {
-            mActionTypes = it
+        data.addSource(mActionTypesLiveData) { actionTypes ->
+            val filter = information.filterString
+            mActionTypes = if (filter != "") actionTypes.filter { it.name.contains(filter, ignoreCase=true) }
+            else actionTypes
             mExecutor.execute { data.postValue(updateData()) }
         }
-        data.addSource(mGoalsLiveData){
-            mGoals = it
+        data.addSource(mGoalsLiveData){ goals ->
+            val filter = information.filterString
+            mGoals = if (filter != "") goals.filter {
+                it.name.contains(filter, ignoreCase=true) || it.note.contains(filter, ignoreCase=true)
+            }
+            else goals
             mExecutor.execute { data.postValue(updateData()) }
         }
-        data.addSource(mSchedulesLiveData){
-            mSchedules = it
+        data.addSource(mSchedulesLiveData){ schedules ->
+            val filter = information.filterString
+            mSchedules = if (filter != "") schedules.filter { it.name.contains(filter, ignoreCase=true) }
+            else schedules
             mExecutor.execute { data.postValue(updateData()) }
         }
-        data.addSource(mNotesLiveData){
-            mNotes = it
+        data.addSource(mNotesLiveData){ notes ->
+            val filter = information.filterString
+            mNotes = if (filter != "") notes.filter {
+                it.name.contains(filter, ignoreCase=true) || it.note.contains(filter, ignoreCase=true)
+            }
+            else notes
             mExecutor.execute { data.postValue(updateData()) }
         }
-        data.addSource(mRemindersLiveData){
-            mReminders = it
+        data.addSource(mRemindersLiveData){ reminders ->
+            val filter = information.filterString
+            mReminders = if (filter != "") reminders .filter { it.text.contains(filter, ignoreCase=true) }
+            else reminders
             mExecutor.execute { data.postValue(updateData()) }
         }
-        data.addSource(mFoldersLiveData){
-            mFolders = it
+        data.addSource(mFoldersLiveData){ folders ->
+            val filter = information.filterString
+            mFolders = if (filter != "") folders.filter { it.name.contains(filter, ignoreCase=true) }
+            else folders
             mExecutor.execute { data.postValue(updateData()) }
         }
     }
@@ -154,7 +183,7 @@ open class UnionViewModel : ViewModel() {
             val union = mUnions.value!!.first { it.id == id }
 
             // Не является LiveData, поэтому выполняем в отдельном потоке.
-            val parent = mUnionRepository.getParentUnion(showing.parentID)
+            val parent = mUnionRepository.getParentUnion(information.parentID)
             if (parent != null) {
                 union.parent = parent
                 mUnionRepository.updateUnion(union)

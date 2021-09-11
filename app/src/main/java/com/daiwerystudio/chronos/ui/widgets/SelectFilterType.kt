@@ -9,7 +9,6 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
 
@@ -17,7 +16,9 @@ import com.daiwerystudio.chronos.database.*
  * Класс, с помощью которого можно выбрать typeShowing. Следит за тем, какое view сейчас выбрано
  * и автоматически удаляет прошлое выбранное view.
  */
-class SelectTypeShowing(context: Context, attrs: AttributeSet): FrameLayout(context, attrs) {
+class SelectFilterType(context: Context, attrs: AttributeSet): FrameLayout(context, attrs) {
+    private val activeAlpha: Float = 1f
+    private val notActiveAlpha: Float = 0.5f
     private var selectedView: ImageView? = null
     private val folderView: ImageView
     private val noteView: ImageView
@@ -27,46 +28,46 @@ class SelectTypeShowing(context: Context, attrs: AttributeSet): FrameLayout(cont
     private val actionTypeView: ImageView
 
     init {
-        inflate(context, R.layout.layout_select_type_showing, this)
+        inflate(context, R.layout.layout_select_filter_type, this)
         isHorizontalScrollBarEnabled = false
 
         folderView = findViewById(R.id.folder)
         folderView.setOnClickListener { select(it as ImageView) }
-        folderView.setColorFilter(ContextCompat.getColor(context, R.color.black))
+        folderView.alpha = notActiveAlpha
 
         noteView = findViewById(R.id.note)
         noteView.setOnClickListener { select(it as ImageView) }
-        noteView.setColorFilter(ContextCompat.getColor(context, R.color.black))
+        noteView.alpha = notActiveAlpha
 
         reminderView = findViewById(R.id.reminder)
         reminderView.setOnClickListener { select(it as ImageView) }
-        reminderView.setColorFilter(ContextCompat.getColor(context, R.color.black))
+        reminderView.alpha = notActiveAlpha
 
         goalView = findViewById(R.id.goal)
         goalView.setOnClickListener { select(it as ImageView) }
-        goalView.setColorFilter(ContextCompat.getColor(context, R.color.black))
+        goalView.alpha = notActiveAlpha
 
         scheduleView = findViewById(R.id.schedule)
         scheduleView.setOnClickListener { select(it as ImageView) }
-        scheduleView.setColorFilter(ContextCompat.getColor(context, R.color.black))
+        scheduleView.alpha = notActiveAlpha
 
         actionTypeView = findViewById(R.id.action_type)
         actionTypeView.setOnClickListener { select(it as ImageView) }
-        actionTypeView.setColorFilter(ContextCompat.getColor(context, R.color.black))
+        actionTypeView.alpha = notActiveAlpha
     }
 
     private fun select(view: ImageView){
         // В selectView ссылка на выбранный view.
-        selectedView?.setColorFilter(ContextCompat.getColor(context, R.color.black))
+        selectedView?.alpha = notActiveAlpha
         // Если выбрали тоже самое, то ставим null.
         if (selectedView == view) selectedView = null
         else {
             selectedView = view
-            selectedView?.setColorFilter(ContextCompat.getColor(context, R.color.purple_500))
+            selectedView?.alpha = activeAlpha
         }
 
         when (selectedView) {
-            null -> mSelectTypeShowingListener?.selectTypeShowing(-1)
+            null -> mSelectTypeShowingListener?.selectTypeShowing(null)
             folderView -> mSelectTypeShowingListener?.selectTypeShowing(TYPE_FOLDER)
             noteView -> mSelectTypeShowingListener?.selectTypeShowing(TYPE_NOTE)
             reminderView -> mSelectTypeShowingListener?.selectTypeShowing(TYPE_REMINDER)
@@ -76,7 +77,7 @@ class SelectTypeShowing(context: Context, attrs: AttributeSet): FrameLayout(cont
         }
     }
 
-    fun setTypeShowing(typeShowing: Int){
+    fun setTypeShowing(typeShowing: Int?){
         when (typeShowing){
             TYPE_ACTION_TYPE -> select(actionTypeView)
             TYPE_GOAL -> select(goalView)
@@ -90,7 +91,7 @@ class SelectTypeShowing(context: Context, attrs: AttributeSet): FrameLayout(cont
     /*  Интерфейс, который сообщает о выбранном типе показа.  */
     private var mSelectTypeShowingListener: SelectTypeShowingListener? = null
     fun interface SelectTypeShowingListener{
-        fun selectTypeShowing(typeShowing: Int)
+        fun selectTypeShowing(typeShowing: Int?)
     }
     fun setSelectTypeShowingListener(selectTypeShowingListener: SelectTypeShowingListener){
         mSelectTypeShowingListener = selectTypeShowingListener

@@ -45,8 +45,9 @@ class GoalDialog : BottomSheetDialogFragment() {
     private lateinit var binding: DialogGoalBinding
 
     private lateinit var goal: Goal
-    var isCreated: Boolean = false
+    private var isCreated: Boolean = false
     private var union: Union? = null
+    private var isTemporal: Boolean? = null
 
     private val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
@@ -63,6 +64,9 @@ class GoalDialog : BottomSheetDialogFragment() {
         // Значение равно null, если isCreated = false или отправитель не хочет создавать union.
         union = arguments?.getSerializable("union") as Union?
 
+        // Если true, то цель всегда временная.
+        isTemporal = arguments?.getBoolean("isTemporal")
+
         // Восстанавливаем значение, если оно есть.
         if (viewModel.data != null) goal = viewModel.data as Goal
     }
@@ -73,6 +77,7 @@ class GoalDialog : BottomSheetDialogFragment() {
         binding.goal = goal
         binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
         binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
+        if (goal.deadline == 0L) binding.checkBox.isChecked = true
 
         binding.goalName.editText?.doOnTextChanged { text, _, _, _ ->
             goal.name = text.toString()
@@ -80,6 +85,15 @@ class GoalDialog : BottomSheetDialogFragment() {
             else binding.goalName.error = null
         }
         binding.goalNote.editText?.doOnTextChanged { text, _, _, _ -> goal.note = text.toString() }
+
+        if (isTemporal == true) binding.checkBox.visibility = View.GONE
+        binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) goal.deadline = 0L
+            else goal.deadline = System.currentTimeMillis()
+            binding.goal = goal
+            binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
+            binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
+        }
 
         binding.time.editText?.setOnClickListener{
             val localTime = goal.deadline+local

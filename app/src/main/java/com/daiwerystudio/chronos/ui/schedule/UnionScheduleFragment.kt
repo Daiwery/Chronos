@@ -35,7 +35,6 @@ class UnionScheduleFragment : UnionAbstractFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentUnionScheduleBinding.inflate(inflater, container, false)
-        val view = binding.root
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -43,23 +42,6 @@ class UnionScheduleFragment : UnionAbstractFragment() {
             itemAnimator = ItemAnimator()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
-
-        binding.selectTypeShowing.setTypeShowing(viewModel.showing.typeShowing)
-        if (viewModel.showing.typeShowing != -1) {
-            binding.selectTypeShowing.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-            binding.selectTypeShowing.requestLayout()
-        }
-        binding.selectTypeShowing.setSelectTypeShowingListener{
-            binding.loadingView.visibility = View.VISIBLE
-            viewModel.showing.setTypeShowing(it)
-        }
-
-        binding.toolBar.setOnClickListener {
-            if (binding.selectTypeShowing.height == 0)
-                binding.selectTypeShowing.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-            else binding.selectTypeShowing.layoutParams.height = 0
-            binding.selectTypeShowing.requestLayout()
-        }
 
         viewModel.parent.observe(viewLifecycleOwner, {
             binding.toolBar.title = it.name
@@ -72,7 +54,7 @@ class UnionScheduleFragment : UnionAbstractFragment() {
         binding.fab.setOnClickListener{
             val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
             popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
-                override fun getParent(): String = viewModel.showing.parentID
+                override fun getParent(): String = viewModel.information.parentID
             })
             popup.show()
         }
@@ -84,7 +66,7 @@ class UnionScheduleFragment : UnionAbstractFragment() {
             when (it.itemId) {
                 R.id.edit -> {
                     val bundle = Bundle().apply {
-                        putString("scheduleID", viewModel.showing.parentID)
+                        putString("scheduleID", viewModel.information.parentID)
                     }
                     this.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
                    true
@@ -93,7 +75,7 @@ class UnionScheduleFragment : UnionAbstractFragment() {
                     AlertDialog.Builder(context, R.style.Style_AlertDialog)
                         .setTitle(resources.getString(R.string.are_you_sure))
                         .setPositiveButton(R.string.yes) { _, _ ->
-                            viewModel.deleteUnionWithChild(viewModel.showing.parentID)
+                            viewModel.deleteUnionWithChild(viewModel.information.parentID)
                             requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
                         }
                         .setNegativeButton(R.string.no){ _, _ -> }
@@ -106,7 +88,7 @@ class UnionScheduleFragment : UnionAbstractFragment() {
             }
         }
 
-        return view
+        return binding.root
     }
 
     private fun setEmptyView(){

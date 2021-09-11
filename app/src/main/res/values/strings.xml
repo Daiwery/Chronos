@@ -49,4 +49,6 @@
     <string name="time">Время</string>
     <string name="indefinite_goal">Бессрочная</string>
     <string name="temporary_schedule">Временная</string>
+    <string name="search">Поиск</string>
+    <string name="indefinite">Бессрочно</string>
 </resources>

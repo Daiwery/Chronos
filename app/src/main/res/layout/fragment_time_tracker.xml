@@ -25,10 +25,12 @@
                 android:id="@+id/toolBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:title="31 августа 2021"/>
+                app:title="31 августа 2021"
+                app:titleCentered="true"/>
 
             <CalendarView
                 android:id="@+id/calendarView"
+                android:background="@color/white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
         </com.google.android.material.appbar.AppBarLayout>
