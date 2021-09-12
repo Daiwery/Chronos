@@ -468,16 +468,15 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
             val actionTypesTime = mutableListOf<ActionTypeTime>()
             var actionTypeTime = ActionTypeTime()
 
-            // Нужно, чтобы  действия из одного расписания имели один индекс.
-            // Естественно, это при условии, что само расписание не имеет пересечений.
-            // Словарь типа id расписания: номер столбца.
-            var activeSchedules = mutableMapOf<String, Int>()
+            // Массив id действий, которые сейчас активны в столбце с номер, равным индексу.
+            // Если id='', то это свободный столбец. По умолчанию всегда есть один столбец.
+            var columns = mutableListOf("")
             // Это номер последного задейственного столбца.
             var index = 0
+            // Нужно, чтобы действия из одного расписания имели один индекс, если это возможно.
+            // Словарь типа: номер столбца - id расписания.
+            var activeSchedules = mutableMapOf<Int, String>()
 
-            // ID действия в первом столбце. Нужно, чтобы добавить его в секцию, если
-            // оно пересекается с другим действием.
-            var first: String
             // Список активных действий, то есть тех, которые есть в данный момент времени.
             val active = mutableListOf<String>()
             points.forEach { point ->
@@ -485,18 +484,17 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                     // Если это начало, то добавляем id в список активных id.
                     active.add(point.id)
 
+                    // Если сейчас только одно активное действие.
                     if (active.size == 1) {
-                        first = point.id
+                        columns[0] = point.id
 
                         // Начали одно новое действие.
-                        actionTypeTime.actionTypeID = intervals[first]!!.actionTypeID
+                        actionTypeTime.actionTypeID = intervals[point.id]!!.actionTypeID
                         actionTypeTime.start = point.coordinate
                     }
 
-                    // Если все-таки находим пересечение, то нужно не забыть
-                    // про первое действие в этой секции (которое могло просто существовать
-                    // без персечений).
-                    if (active.size == 2) {
+                    // Если это первое пересечение.
+                    if (columns.size == 1) {
                         // Устанавливаем конец действия в начале секции.
                         // Так как при пересечении неизвестно, что делать.
                         actionTypeTime.end = point.coordinate
@@ -507,31 +505,50 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
                         // нужно выполнить.
                         actionTypeTime.actionTypeID = null
                         actionTypeTime.start = point.coordinate
+
+                        // И не забываем про первое действие, которое могло
+                        // существовать без пересечений.
+                        activeSchedules[0] = intervals[columns[0]]!!.scheduleID
                     }
 
+                    // Если больше одного, то действия пересекаются.
                     if (active.size > 1) {
-                        val scheduleID = intervals[point.id]!!.scheduleID
-                        if (scheduleID !in activeSchedules) {
-                            // Если такого расписания еще нет в секции, то добавляем
-                            // новый столбец.
+                        // Находим свободные столбцы.
+                        val freeIndexes = columns.mapIndexed { index, s ->
+                            if (s == "") index else -1 }.filter { it != -1 }
+
+                        // Находим свободный столбец, где сейчас это расписание.
+                        var freeIndex: Int? = null
+                        freeIndexes.forEach {
+                            if (freeIndex == null)
+                                if (it in activeSchedules)
+                                    if (activeSchedules[it] == intervals[point.id]!!.scheduleID)
+                                        freeIndex = it
+                        }
+
+                        if (freeIndex == null){
+                            // Если еще нет такого столбца.
                             index += 1
+                            columns.add(point.id)
                             intervals[point.id]!!.index = index
-                            activeSchedules[scheduleID] = index
-                        } else intervals[point.id]!!.index = activeSchedules[scheduleID]!!
+                            // Устанавливаем, что в этом столбце идет это расписание.
+                            activeSchedules[index] = intervals[point.id]!!.scheduleID
+                        } else {
+                            intervals[point.id]!!.index = freeIndex!!
+                            columns[freeIndex!!] = point.id
+                        }
 
                         if (index+1 > mCount) mCount = index+1
                     }
                 } else {
                     active.remove(point.id)
+                    columns[columns.indexOfFirst { it == point.id }] = ""
 
                     // Если сейчас только одно активное действие, то мы только что
-                    // вышли из пересечения.
+                    // вышли из пересечения. Но это действие может еще идти,
+                    // причем не в первом столюбце, и может пересечься с другим/и.
+                    // Поэтому необходимо сохранить весь порядок.
                     if (active.size == 1) {
-                        // Готовимся к следующей части.
-                        first = active[0]
-                        index = 0
-                        activeSchedules = mutableMapOf()
-
                         // Конец пересечения.
                         actionTypeTime.end = point.coordinate
                         actionTypesTime.add(actionTypeTime)
@@ -539,16 +556,20 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
 
                         // И начало нового действия. Так как теперь можно определить,
                         // какое действие необходимо выполнить.
-                        actionTypeTime.actionTypeID = intervals[first]!!.actionTypeID
+                        actionTypeTime.actionTypeID = intervals[active[0]]!!.actionTypeID
                         actionTypeTime.start = point.coordinate
                     }
 
-                    // Если нет активный действий, то мы закончили действие без пересечений
-                    // (с учетом того, что начало действия моглы было в конце пересечения).
+                    // Если нет активный действий.
                     if (active.size == 0) {
                         actionTypeTime.end = point.coordinate
                         actionTypesTime.add(actionTypeTime)
                         actionTypeTime = ActionTypeTime()
+
+                        // Готовимся к следующему пересечению.
+                        index = 0
+                        activeSchedules = mutableMapOf()
+                        columns = mutableListOf("")
                     }
                 }
             }

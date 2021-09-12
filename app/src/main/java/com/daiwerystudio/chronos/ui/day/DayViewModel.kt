@@ -12,7 +12,8 @@
 *
 * Дата изменения: 11.09.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
-* Изменения: удаление относительного типа дня и откат к 3 этапам наблюдения.
+* Изменения: удаление таблицы с днями в расписании. Измения схема наблюдения: теперь мы
+* сразу получаем действия из базы данных. Без промежуточных этапов. Вся логика теперь в SQLite.
 */
 
 package com.daiwerystudio.chronos.ui.day
@@ -25,11 +26,8 @@ import java.util.concurrent.Executors
 
 /**
  * Схема наблюдения следующая. Начальная точка - это номер дня day. На него подписан mActiveSchedules
- * - активные расписания. На mActiveSchedules подписан mDaysSchedule, который получает список дней,
- * активных сегодня. Предупреждение: он не имеет подписку на базу данных.
- * На mDaysSchedule подписан mRawActionsSchedule, который получает список типов действий из базы данных.
- * На mRawActionsSchedule подписан actionsSchedule, который обрабатывает действия, если они из
- * прошлого дня, но происходят ночью текущего.
+ * - активные расписания. На mActiveSchedules подписан actionSchedule, который получает действия,
+ * которые активны сегодня.
  *
  * Также на day подписаны две LiveData: mLiveGoals и mLiveReminders, которые объединяются
  * с помощью MediatorLiveData.
@@ -96,13 +94,10 @@ class DayViewModel: ViewModel() {
         }
     }
 
-
-    /*  Первый этап наблюдения. Получение активных расписаний.  */
-    private val mActiveSchedules: LiveData<List<Schedule>> = Transformations.switchMap(day) {
-        mScheduleRepository.getActiveSchedules()
+    /*  Получение активных расписаний.  */
+    val actionsSchedule: LiveData<List<ActionSchedule>> = Transformations.switchMap(day) {
+        mScheduleRepository.getActionsScheduleFromDay(it, local)
     }
-
-    val actionsSchedule: LiveData<List<ActionSchedule>> = MutableLiveData()
 
 
     /*                        Доп. функции                        */

@@ -22,50 +22,50 @@ class SelectActionTypeViewModel: ViewModel() {
     lateinit var parentID: String
 
 
-    /*  Первый этап наблюдения.   Получаем union и всех его детей.
+    /*  Первый этап наблюдения.  Получаем union и всех его детей.
     * Мы получаем все unions, независимо от типа.  */
     private val mLiveRawUnions: LiveData<List<Union>> =
         Transformations.switchMap(isAll) {
-            if (it) mUnionRepository.getActionTypeWithChild("")
-            else mUnionRepository.getActionTypeWithChild(parentID)
+            if (it) mUnionRepository.getUnionWithChild("")
+            else mUnionRepository.getUnionWithChild(parentID)
         }
 
     /*  Второй этап наблюдния. Нам нужно удалить все, кроме типов действий.
     * При этом нужно сохранить иерархию среди типов действий такой же.  */
     private val mLiveUnions: LiveData<List<Union>> =
         Transformations.switchMap(mLiveRawUnions) { rawUnions ->
+            // Обработанные unions.
             val unions = mutableListOf<Union>()
-            // Union с parent=first, нужно установить родителя, равного second.
+            // Для union с parent=pair.first нужно установить родителя, равного pair.second.
             val newParents = mutableListOf<Pair<String, String>>()
             // Если мы показываем не все, то нужно типы действий от этого расписания
-            // переместить в начало, так как SelectActionType начинает показывать с parent=''
-            if (isAll.value == false) newParents.add(Pair(parentID, ""))
+            // переместить в начало, так как SelectActionType начинает показывать с parent=''.
+            if (isAll.value == false && parentID != "") newParents.add(Pair(parentID, ""))
 
             // Рекурсивный выбор нового родителя.
-            // Выбираем до тех пор, пока не найдется замены родителю.
+            // Выбираем до тех пор, пока не найдем замену родителю.
             fun getNewParent(parent: String): String{
                 val index = newParents.indexOfFirst { it.first == parent }
                 return if (index == -1) parent
                 else getNewParent(newParents[index].second)
             }
-            // Цикл по узлам дерева (графа).
-            rawUnions.forEach {
-                if (it.type == TYPE_ACTION_TYPE)
-                    unions.add(it.apply { parent = getNewParent(it.parent) })
-                else newParents.add(Pair(it.id, it.parent))
+
+            // Сперва нужно пройтись по узлам, которые не являются типами действий.
+            rawUnions.filter { it.type != TYPE_ACTION_TYPE }.forEach { newParents.add(Pair(it.id, it.parent)) }
+            // А после меняем родителей у типов действий, чтобы созранить иерархию.
+            rawUnions.filter { it.type == TYPE_ACTION_TYPE }.forEach {
+                unions.add(it.apply { parent = getNewParent(it.parent) })
             }
 
             MutableLiveData<List<Union>>().apply { value = unions }
         }
     private var mUnions: List<Union> = emptyList()
 
-
     /*  Третий этап наблюдения. Получаем список action types.  */
     private val mRawActionTypes: LiveData<List<ActionType>> =
         Transformations.switchMap(mLiveUnions) {
             mUnionRepository.getActionTypes(it)
         }
-
 
     /*  Четвертый этап наблюдения. Объединяем action types с их родителями.  */
     val actionTypes: MediatorLiveData<List<Pair<String, ActionType>>> = MediatorLiveData()

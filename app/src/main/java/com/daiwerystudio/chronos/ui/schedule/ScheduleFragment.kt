@@ -16,6 +16,7 @@ import androidx.navigation.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Schedule
+import com.daiwerystudio.chronos.database.TYPE_SCHEDULE_ONCE
 import com.daiwerystudio.chronos.databinding.FragmentScheduleBinding
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -38,13 +39,13 @@ class ScheduleFragment : Fragment() {
 
         binding.viewPager2.adapter = PagerAdapter(this)
         TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
-            if (binding.viewPager2.adapter?.itemCount == 7) tab.text = resources.getStringArray(R.array.week)[position]
-            else tab.text = resources.getString(R.string.day)+" "+(position+1).toString()
+            tab.text = resources.getString(R.string.day)+" "+(position+1).toString()
         }.attach()
 
         viewModel.schedule.observe(viewLifecycleOwner, {
             binding.toolBar.title = it.name
             (binding.viewPager2.adapter as PagerAdapter).setSchedule(it)
+            if (it.type == TYPE_SCHEDULE_ONCE) binding.tabLayout.visibility = View.GONE
         })
 
         binding.toolBar.setNavigationOnClickListener {

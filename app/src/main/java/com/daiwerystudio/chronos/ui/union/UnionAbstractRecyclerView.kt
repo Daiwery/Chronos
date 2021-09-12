@@ -60,32 +60,6 @@ class UnionDiffUtil(private val oldList: List<ID>,
     }
 }
 
-class ItemAnimator: DefaultItemAnimator(){
-    override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
-        val itemView = holder!!.itemView
-
-        // После окончания анимации нужно вызвать dispatchAnimationFinished(holder).
-        val listener = object : Animation.AnimationListener{
-            override fun onAnimationStart(animation: Animation?) {}
-            override fun onAnimationRepeat(animation: Animation?) {}
-            override fun onAnimationEnd(animation: Animation?) {
-                dispatchAnimationFinished(holder)
-            }
-        }
-
-        val animation = AnimationUtils.loadAnimation(itemView.context, R.anim.anim_add_item)
-        animation.setAnimationListener(listener)
-        itemView.startAnimation(animation)
-
-        return true
-    }
-
-    override fun animateChange(oldHolder: RecyclerView.ViewHolder, newHolder: RecyclerView.ViewHolder,
-                               preInfo: ItemHolderInfo, postInfo: ItemHolderInfo): Boolean {
-        return true
-    }
-}
-
 /**
  * Абстрактный класс для всех холдеров.
  */

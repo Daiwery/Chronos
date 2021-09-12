@@ -30,7 +30,6 @@ import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.union.UnionDiffUtil
-import com.daiwerystudio.chronos.ui.union.ItemAnimator
 import com.daiwerystudio.chronos.ui.union.UnionSimpleCallback
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -80,7 +79,6 @@ class TimeTrackerFragment : Fragment() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = Adapter(emptyList())
-            itemAnimator = ItemAnimator()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 

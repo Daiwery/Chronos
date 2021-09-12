@@ -37,7 +37,6 @@ import com.daiwerystudio.chronos.databinding.FragmentDayScheduleBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionScheduleBinding
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
-import com.daiwerystudio.chronos.ui.union.ItemAnimator
 import com.daiwerystudio.chronos.ui.union.UnionSimpleCallback
 import java.time.format.FormatStyle
 
@@ -84,7 +83,7 @@ class DayScheduleFragment : Fragment() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = Adapter(emptyList())
-            itemAnimator = ItemAnimator()
+            // itemAnimator = ItemAnimator()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
@@ -197,7 +196,6 @@ class DayScheduleFragment : Fragment() {
         }
     }
 
-    // Не посылаем PayLoads.
     class ActionScheduleDiffUtil(private val oldList: List<ActionSchedule>,
                                  private val newList: List<ActionSchedule>): DiffUtil.Callback() {
         override fun getOldListSize() = oldList.size

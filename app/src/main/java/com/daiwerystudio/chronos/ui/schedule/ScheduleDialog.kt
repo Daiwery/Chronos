@@ -77,12 +77,14 @@ class ScheduleDialog : BottomSheetDialogFragment() {
             else binding.scheduleName.error = null
         }
 
-        binding.scheduleCountDays.editText?.doOnTextChanged { text, _, _, _ ->
-            if (text.toString() != "") {
-                schedule.countDays = text.toString().toInt()
-                binding.scheduleCountDays.error = null
-            } else binding.scheduleCountDays.error = " "
-        }
+        if (schedule.type == TYPE_SCHEDULE_PERIODIC) {
+            binding.scheduleCountDays.editText?.doOnTextChanged { text, _, _, _ ->
+                if (text.toString() != "") {
+                    schedule.countDays = text.toString().toInt()
+                    binding.scheduleCountDays.error = null
+                } else binding.scheduleCountDays.error = " "
+            }
+        } else binding.scheduleCountDays.visibility = View.GONE
 
         binding.scheduleStart.editText?.setOnClickListener {
             val dialog = MaterialDatePicker.Builder.datePicker().setSelection(schedule.start+local).build()

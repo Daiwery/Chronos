@@ -54,7 +54,7 @@ interface UnionDao{
         "UNION ALL " +
         "SELECT a.id, a.parent FROM union_table AS a JOIN sub_table AS b ON a.parent=b.id) " +
         "SELECT * FROM union_table WHERE id IN (SELECT id FROM sub_table)")
-    fun getUnionWithChild(id: String): List<Union>
+    fun getNotLiveUnionWithChild(id: String): List<Union>
 
     @Query("SELECT parent FROM union_table WHERE id=(:id)")
     fun getParentUnion(id: String): String?
@@ -67,13 +67,13 @@ interface UnionDao{
             "SELECT id FROM union_table WHERE id IN (SELECT id FROM sub_table WHERE type=1)")
     fun getGoalWithChild(id: String): List<String>
 
-    // Для значения type используется абсолютное значение, а не переменная TYPE_ACTION_TYPE.
-    @Query("WITH RECURSIVE sub_table(id, parent, type) " +
-            "AS (SELECT id, parent, type FROM union_table WHERE parent=(:id) " +
+    // Функция возвращает ВСЕ unions. Она называется так, потом что используется для SelectActionType.
+    @Query("WITH RECURSIVE sub_table(id, parent) " +
+            "AS (SELECT id, parent FROM union_table WHERE parent=(:id) " +
             "UNION ALL " +
-            "SELECT a.id, a.parent, a.type FROM union_table AS a JOIN sub_table AS b ON a.parent=b.id) " +
+            "SELECT a.id, a.parent FROM union_table AS a JOIN sub_table AS b ON a.parent=b.id) " +
             "SELECT * FROM union_table WHERE id IN (SELECT id FROM sub_table)")
-    fun getActionTypeWithChild(id: String): LiveData<List<Union>>
+    fun getUnionWithChild(id: String): LiveData<List<Union>>
 
     @Delete
     fun deleteUnions(unions: List<Union>)
@@ -144,7 +144,7 @@ class UnionRepository private constructor(context: Context) {
 
     fun deleteUnionWithChild(id: String){
         mHandler.post {
-            val unions = mDao.getUnionWithChild(id)
+            val unions = mDao.getNotLiveUnionWithChild(id)
 
             mDao.deleteUnions(unions)
             mActionTypeRepository.deleteActionTypes(unions.filter { it.type == TYPE_ACTION_TYPE }.map { it.id })
@@ -173,8 +173,8 @@ class UnionRepository private constructor(context: Context) {
         return percent
     }
 
-    fun getActionTypeWithChild(id: String): LiveData<List<Union>> =
-        mDao.getActionTypeWithChild(id)
+    fun getUnionWithChild(id: String): LiveData<List<Union>> =
+        mDao.getUnionWithChild(id)
 
     fun updateUnion(union: Union){
         mHandler.post { mDao.updateUnion(union) }

@@ -29,7 +29,8 @@ import java.util.*
 
 private const val SCHEDULE_DATABASE_NAME = "schedule-database"
 
-/* Предупреждение: данные константы не используются в Data Binding в item_recycler_view_schedule*/
+/* Предупреждение: данные константы не используются в Data Binding в item_recycler_view_schedule,
+* getActionsScheduleFromDay*/
 const val TYPE_SCHEDULE_PERIODIC = 0
 const val TYPE_SCHEDULE_ONCE = 1
 
@@ -83,13 +84,18 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedule_table WHERE id IN (:ids)")
     fun getSchedules(ids: List<String>): LiveData<List<Schedule>>
 
-    @Query("SELECT * FROM schedule_table WHERE isActive=1")
-    fun getActiveSchedules(): LiveData<List<Schedule>>
-
     @Query("SELECT * FROM action_schedule_table " +
             "WHERE scheduleID=(:scheduleID) AND dayIndex=(:dayIndex) " +
             "ORDER BY startTime ASC")
     fun getActionsScheduleFromSchedule(scheduleID: String, dayIndex: Int): LiveData<List<ActionSchedule>>
+
+    // Используются абсолютные значения для типа, а не константы.
+    @Query("SELECT a.id, a.scheduleID, a.dayIndex, a.actionTypeId, a.startTime, a.endTime FROM action_schedule_table AS a, " +
+            "(SELECT id, countDays, start, type FROM schedule_table WHERE isActive=1) AS b " +
+            "WHERE a.scheduleID=b.id AND (:day)>=(b.start+(:local))/(1000*60*60*24) " +
+            "AND ((a.dayIndex=((:day)-(b.start+(:local))/(1000*60*60*24))%b.countDays AND b.type=0) OR " +
+            "(a.dayIndex=(:day)-(b.start+(:local))/(1000*60*60*24) AND b.type=1))")
+    fun getActionsScheduleFromDay(day: Long, local: Int): LiveData<List<ActionSchedule>>
 
     @Query("DELETE FROM schedule_table WHERE id IN (:ids)")
     fun deleteSchedules(ids: List<String>)
@@ -142,10 +148,11 @@ class ScheduleRepository private constructor(context: Context) {
 
     fun getSchedules(ids: List<String>): LiveData<List<Schedule>> = mDao.getSchedules(ids)
 
-    fun getActiveSchedules(): LiveData<List<Schedule>> = mDao.getActiveSchedules()
-
     fun getActionsScheduleFromSchedule(scheduleID: String, dayIndex: Int): LiveData<List<ActionSchedule>> =
         mDao.getActionsScheduleFromSchedule(scheduleID, dayIndex)
+
+    fun getActionsScheduleFromDay(day: Long, local: Int): LiveData<List<ActionSchedule>> =
+        mDao.getActionsScheduleFromDay(day, local)
 
     fun completelyDeleteSchedules(ids: List<String>){
         mHandler.post {
