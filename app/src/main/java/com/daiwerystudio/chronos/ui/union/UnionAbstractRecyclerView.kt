@@ -8,15 +8,14 @@ package com.daiwerystudio.chronos.ui.union
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -399,6 +398,26 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
     private var mIsActiveSwipeLeft: Boolean = false
     private var mIsActiveSwipeRight: Boolean = false
 
+    /**
+     * Холдер, который перемещаем.
+     */
+    private var dragFromViewHolder: RecyclerView.ViewHolder? = null
+    /**
+     * Холдер, на который перместили.
+     */
+    private var dragToViewHolder: RecyclerView.ViewHolder? = null
+
+    /**
+     * Время начала обработки события drag с конкретным холдером. Чтобы событие drag произошло,
+     * нужно подождать некоторое время после начала.
+     */
+    private var timeStartDragging: Long = 0
+
+    /**
+     * Можно ли отправить событие drag.
+     */
+    private var permissionDragging: Boolean = false
+
     var iconRight: Drawable? = null
     var backgroundRight: Drawable? = null
     var iconLeft: Drawable? = null
@@ -473,23 +492,52 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
     }
 
     /**
-     * Холдер, который перемещаем.
-     */
-    private var dragFromViewHolder: RecyclerView.ViewHolder? = null
-    /**
-     * Холдер, на который перместили.
-     */
-    private var dragToViewHolder: RecyclerView.ViewHolder? = null
-
-    /**
-     * Запускается, когда пользователь переместил холдер на другой холдер.
+     * Запускается, когда пользователь переместил холдеры.
      */
     override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
                         target: RecyclerView.ViewHolder): Boolean {
-        clearViewDragToViewHolder()
-        dragToViewHolder = target
-        setViewDragToViewHolder()
+        mMoveListener?.moveItem(viewHolder.absoluteAdapterPosition, target.absoluteAdapterPosition)
+        recyclerView.adapter?.notifyItemMoved(viewHolder.absoluteAdapterPosition, target.absoluteAdapterPosition)
         return true
+    }
+
+    /**
+     * Это означает, что в ItemTouchHelper начнет обрабатывать наложение холдеров,
+     * если процент их наложения больше 25% (по умолчанию 50%)
+     */
+    override fun getMoveThreshold(viewHolder: RecyclerView.ViewHolder): Float = .25f
+
+    /**
+     * Здесь мы определяем, какое событие должно произойти: move или drag. Если current холдер
+     * персекает холдер больше, меньше, чем на 62.5 процента, то это событие drag. Иначе move.
+     * Если функция вернет true, то target холдер будет передаваться дальше и в конечном итоге
+     * попадет в onMove.
+     */
+    override fun canDropOver(recyclerView: RecyclerView,
+                             current: RecyclerView.ViewHolder,
+                             target: RecyclerView.ViewHolder): Boolean {
+        val curY = current.itemView.translationY+current.itemView.top
+        val moveOrDrop = if (current.itemView.translationY > 0)
+            curY+current.itemView.height >= target.itemView.top+0.625*target.itemView.height
+        else curY <= target.itemView.top+0.5*target.itemView.height
+
+        return if (moveOrDrop){
+            dragToViewHolder = null
+            permissionDragging = false
+            mDraggindViewHolderSetter?.endDrag()
+            true
+        } else {
+            // Если это новый холдер, то это начало обработки события drag.
+            if (dragToViewHolder != target) {
+                dragToViewHolder = target
+                timeStartDragging = System.currentTimeMillis()
+            }
+            else if (System.currentTimeMillis()-timeStartDragging > 100) {
+                permissionDragging = true
+                mDraggindViewHolderSetter?.startDrag(dragFromViewHolder!!, dragToViewHolder!!)
+            }
+            false
+        }
     }
 
     /**
@@ -502,55 +550,20 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
         if (mIsSwipeRight) mIsActiveSwipeRight = true
 
         when (actionState) {
-            ItemTouchHelper.ACTION_STATE_DRAG -> {
-                dragFromViewHolder = viewHolder!!
-                setViewDragFromViewHolder()
-            }
+            ItemTouchHelper.ACTION_STATE_DRAG -> dragFromViewHolder = viewHolder
             ItemTouchHelper.ACTION_STATE_IDLE -> {
-                if (dragFromViewHolder != null && dragToViewHolder != null) {
-                    mDragItemListener?.dragItem(dragFromViewHolder!!.absoluteAdapterPosition,
+                if (dragFromViewHolder != null && dragToViewHolder != null && permissionDragging) {
+                    mDragListener?.dragItem(dragFromViewHolder!!.absoluteAdapterPosition,
                         dragToViewHolder!!.absoluteAdapterPosition )
-                    resetViewHolders()
+
+                    mDraggindViewHolderSetter?.endDrag()
+                    dragFromViewHolder = null
+                    dragToViewHolder = null
                 }
             }
         }
 
         super.onSelectedChanged(viewHolder, actionState)
-    }
-
-    /**
-     * Выполнятеся, когда хочет переместить холдер.
-     */
-    private fun setViewDragFromViewHolder(){
-    }
-    /**
-     * Очищает DragFromViewHolder.
-     */
-    private fun clearViewDragFromViewHolder(){
-    }
-
-    /**
-     * Выполняется, когда пользователь переместил холдер на другой холдер.
-     */
-    var backgroundDragToViewHolder: Drawable? = null
-    private fun setViewDragToViewHolder(){
-        dragToViewHolder?.also { it.itemView.background = backgroundDragToViewHolder }
-    }
-    /**
-     * Очищает DragToViewHolder.
-     */
-    private fun clearViewDragToViewHolder(){
-        dragToViewHolder?.also { it.itemView.background = null }
-    }
-
-    /**
-     * Reset всех холдеров.
-     */
-    private fun resetViewHolders(){
-        clearViewDragFromViewHolder()
-        clearViewDragToViewHolder()
-        dragFromViewHolder = null
-        dragToViewHolder = null
     }
 
     /**
@@ -570,7 +583,8 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
         }
     }
 
-    /* Интерфейс, вызываемый при событии взмахивания.  */
+
+    /* Интерфейс, вызываемый при событии swipe.  */
     private var mSwipeListener: SwipeListener? = null
     interface SwipeListener{
         fun swipeLeft(position: Int)
@@ -580,13 +594,33 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
         mSwipeListener = swipeListener
     }
 
-    /* Интерфейс, вызываемый при событии drag. */
-    private var mDragItemListener: DragItemListener? = null
-    fun interface DragItemListener{
-        fun dragItem(dragFromPosition: Int, dragToPosition: Int)
+    /* Интерфейс, вызываемый при событии move. */
+    private var mMoveListener: MoveListener? = null
+    fun interface MoveListener{
+        fun moveItem(fromPosition: Int, toPosition: Int)
     }
-    fun setDragItemListener(dragItemListener: DragItemListener){
-        mDragItemListener = dragItemListener
+    fun setMoveListener(moveListener: MoveListener){
+        mMoveListener = moveListener
+    }
+
+    /* Интерфейс, вызываемый при событии drag. */
+    private var mDragListener: DragListener? = null
+    fun interface DragListener{
+        fun dragItem(fromPosition: Int, toPosition: Int)
+    }
+    fun setDragItemListener(dragListener: DragListener){
+        mDragListener = dragListener
+    }
+
+    /* Интерфейс, вызываемый для установки внешнего вида холдеров при событии drag. */
+    private var mDraggindViewHolderSetter: DraggindViewHolderSetter? = null
+    interface DraggindViewHolderSetter{
+        fun startDrag(dragFromViewHolder: RecyclerView.ViewHolder,
+                      dragToViewHolder: RecyclerView.ViewHolder)
+        fun endDrag()
+    }
+    fun setDraggindViewHolderSetter(draggindViewHolderSetter: DraggindViewHolderSetter){
+        mDraggindViewHolderSetter = draggindViewHolderSetter
     }
 
 }

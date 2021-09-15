@@ -55,6 +55,7 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
             val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
             popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
                 override fun getParent(): String = viewModel.information.parentID
+                override fun getIndex(): Int = viewModel.data.value!!.size
             })
             popup.show()
         }
@@ -103,6 +104,10 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
         binding.emptyView.visibility = View.GONE
     }
 
+
+    override fun notifyAdapterItemsChange(payload: Boolean){
+        binding.recyclerView.adapter?.notifyItemRangeChanged(0, viewModel.data.value!!.size, payload)
+    }
 
     private inner class Adapter: UnionAdapter() {
         override fun updateData(newData: List<Pair<Int, ID>>) {

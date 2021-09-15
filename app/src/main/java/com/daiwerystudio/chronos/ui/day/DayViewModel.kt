@@ -37,7 +37,6 @@ class DayViewModel: ViewModel() {
     private val mGoalRepository = GoalRepository.get()
     private val mReminderRepository = ReminderRepository.get()
     private val mUnionRepository = UnionRepository.get()
-    private val mExecutor = Executors.newSingleThreadExecutor()
     val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
     // Локальный день.

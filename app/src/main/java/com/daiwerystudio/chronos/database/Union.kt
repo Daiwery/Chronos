@@ -29,18 +29,21 @@ const val TYPE_FOLDER = 5
  * @property id уникальный идентификатор. Совпадает с id у соответствующего значения ActionType, Goal и др.
  * @property parent id родителя. Совпадает с id у соответствующего значения ActionType, Goal и др.
  * @property type тип, который представляет из себя union.
+ * @property indexList порядковый номер в списке. Нужен, чтобы сохранить порядок, который хочет
+ * пользователь.
  */
 @Entity(tableName = "union_table")
 data class Union(
     @PrimaryKey val id: String,
     var parent: String,
     var type: Int,
+    var indexList: Int
 ) : Serializable
 
 
 @Dao
 interface UnionDao{
-    @Query("SELECT * FROM union_table WHERE parent=(:parent)")
+    @Query("SELECT * FROM union_table WHERE parent=(:parent) ORDER BY indexList")
     fun getUnionsFromParent(parent: String): LiveData<List<Union>>
 
     @Query("SELECT * FROM union_table")
@@ -80,6 +83,9 @@ interface UnionDao{
 
     @Update
     fun updateUnion(union: Union)
+
+    @Update
+    fun updateUnions(unions: List<Union>)
 
     @Insert
     fun addUnion(union: Union)
@@ -178,6 +184,10 @@ class UnionRepository private constructor(context: Context) {
 
     fun updateUnion(union: Union){
         mHandler.post { mDao.updateUnion(union) }
+    }
+
+    fun updateUnions(unions: List<Union>){
+        mHandler.post { mDao.updateUnions(unions) }
     }
 
     fun addUnion(union: Union){

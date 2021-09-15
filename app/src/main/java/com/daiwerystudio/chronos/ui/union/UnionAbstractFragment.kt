@@ -15,8 +15,10 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.*
+import java.util.*
 
 /**
  * Абстрактный класс для union фрагмента.
@@ -24,62 +26,16 @@ import com.daiwerystudio.chronos.databinding.*
 abstract class UnionAbstractFragment : Fragment() {
     abstract val viewModel: UnionViewModel
 
-    // ПРЕДУПРЕЖДЕНИЕ! Инициализация должна происходить после инициализации information в UnionViewModel.
-    val itemTouchHelper by lazy {
-        val simpleItemTouchCallback = UnionSimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-            ItemTouchHelper.LEFT or if (viewModel.information.parentID != "") ItemTouchHelper.RIGHT else 0)
-        simpleItemTouchCallback.backgroundRight = ColorDrawable(Color.parseColor("#CA0000"))
-        simpleItemTouchCallback.iconRight = ContextCompat.getDrawable(requireContext(),
-            R.drawable.ic_baseline_delete_24)?.apply {
-            colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
-        }
-        simpleItemTouchCallback.backgroundLeft = ColorDrawable(Color.parseColor("#0071D5"))
-        simpleItemTouchCallback.iconLeft = ContextCompat.getDrawable(requireContext(),
-            R.drawable.ic_baseline_arrow_upward_24)?.apply {
-            colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
-        }
-        simpleItemTouchCallback.setSwipeItemListener(object : UnionSimpleCallback.SwipeListener{
-            override fun swipeLeft(position: Int) {
-                AlertDialog.Builder(context, R.style.Style_AlertDialog)
-                    .setTitle(R.string.are_you_sure)
-                    .setPositiveButton(R.string.yes) { _, _ ->
-                        viewModel.deleteUnionWithChild(viewModel.data.value!![position].second.id)
-                    }
-                    .setNegativeButton(R.string.no){ _, _ -> }
-                    .setCancelable(false).create().show()
-            }
-
-            override fun swipeRight(position: Int) {
-                AlertDialog.Builder(context, R.style.Style_AlertDialog)
-                .setTitle(R.string.are_you_sure)
-                .setPositiveButton(R.string.yes) { _, _ ->
-                    viewModel.moveUnionUp(position)
-                }
-                .setNegativeButton(R.string.no){ _, _ -> }
-                .setCancelable(false).create().show()
-            }
-        })
-        simpleItemTouchCallback.backgroundDragToViewHolder = ContextCompat.getDrawable(requireContext(),
-            R.drawable.background_drag_to_view_holder)
-        simpleItemTouchCallback.setDragItemListener{ dragFromPosition, dragToPosition ->
-            AlertDialog.Builder(context, R.style.Style_AlertDialog)
-                .setTitle(R.string.are_you_sure)
-                .setPositiveButton(R.string.yes) { _, _ ->
-                    viewModel.editParentUnion(dragFromPosition, dragToPosition)
-                }
-                .setNegativeButton(R.string.no){ _, _ -> }
-                .setCancelable(false).create().show()
-        }
-
-        ItemTouchHelper(simpleItemTouchCallback)
-    }
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         viewModel.information.setData(arguments?.getString("parentID") ?: "",
             null, "")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.updateUnions()
     }
 
 
@@ -177,5 +133,84 @@ abstract class UnionAbstractFragment : Fragment() {
 
         override fun createFolderHolder(binding: ItemRecyclerViewFolderBinding): RawHolder =
             FolderHolder(binding)
+
+        override fun onBindViewHolder(holder: RawHolder, position: Int, payloads: MutableList<Any>) {
+            if (payloads.isNotEmpty())
+                if (payloads.last() is Boolean){
+                    if (payloads.last() as Boolean)
+                        if (position != dragFromPosition && position != dragToPosition)
+                            holder.itemView.alpha = 0.5f
+                        else holder.itemView.alpha = 1f
+                    else holder.itemView.alpha = 1f
+                } else super.onBindViewHolder(holder, position, payloads)
+            else super.onBindViewHolder(holder, position, payloads)
+        }
     }
+
+    // ПРЕДУПРЕЖДЕНИЕ! Инициализация должна происходить после инициализации information в UnionViewModel.
+    val itemTouchHelper by lazy {
+        val simpleItemTouchCallback = UnionSimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+            ItemTouchHelper.LEFT or if (viewModel.information.parentID != "") ItemTouchHelper.RIGHT else 0)
+        simpleItemTouchCallback.backgroundRight = ColorDrawable(Color.parseColor("#CA0000"))
+        simpleItemTouchCallback.iconRight = ContextCompat.getDrawable(requireContext(),
+            R.drawable.ic_baseline_delete_24)?.apply {
+            colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
+        }
+        simpleItemTouchCallback.backgroundLeft = ColorDrawable(Color.parseColor("#0071D5"))
+        simpleItemTouchCallback.iconLeft = ContextCompat.getDrawable(requireContext(),
+            R.drawable.ic_baseline_arrow_upward_24)?.apply {
+            colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
+        }
+        simpleItemTouchCallback.setSwipeItemListener(object : UnionSimpleCallback.SwipeListener{
+            override fun swipeLeft(position: Int) {
+                AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                    .setTitle(R.string.are_you_sure)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        viewModel.deleteUnionWithChild(viewModel.data.value!![position].second.id)
+                    }
+                    .setNegativeButton(R.string.no){ _, _ -> }
+                    .setCancelable(false).create().show()
+            }
+
+            override fun swipeRight(position: Int) {
+                AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                    .setTitle(R.string.are_you_sure)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        viewModel.moveUnionUp(position)
+                    }
+                    .setNegativeButton(R.string.no){ _, _ -> }
+                    .setCancelable(false).create().show()
+            }
+        })
+        simpleItemTouchCallback.setMoveListener{ fromPosition, toPosition ->
+            viewModel.swap(fromPosition, toPosition)
+        }
+        simpleItemTouchCallback.setDragItemListener{ fromPosition, toPosition ->
+            AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                .setTitle(R.string.are_you_sure)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    viewModel.editParentUnion(fromPosition, toPosition)
+                }
+                .setNegativeButton(R.string.no){ _, _ -> }
+                .setCancelable(false).create().show()
+        }
+        simpleItemTouchCallback.setDraggindViewHolderSetter(object : UnionSimpleCallback.DraggindViewHolderSetter{
+            override fun startDrag(dragFromViewHolder: RecyclerView.ViewHolder,
+                                   dragToViewHolder: RecyclerView.ViewHolder) {
+                dragFromPosition = dragFromViewHolder.absoluteAdapterPosition
+                dragToPosition = dragToViewHolder.absoluteAdapterPosition
+                notifyAdapterItemsChange(true)
+            }
+
+            override fun endDrag() {
+                notifyAdapterItemsChange(false)
+            }
+        })
+
+        ItemTouchHelper(simpleItemTouchCallback)
+    }
+
+    private var dragFromPosition: Int = -1
+    private var dragToPosition: Int = -1
+    abstract fun notifyAdapterItemsChange(payload: Boolean)
 }
