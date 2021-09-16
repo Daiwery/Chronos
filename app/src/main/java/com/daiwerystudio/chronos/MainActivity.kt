@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_union_preview ->  navView.visibility = View.VISIBLE
                 R.id.navigation_day ->  navView.visibility = View.VISIBLE
                 R.id.navigation_time_tracker -> navView.visibility = View.VISIBLE
+                R.id.navigation_calendar -> navView.visibility = View.VISIBLE
                 else -> navView.visibility = View.GONE
             }
         }

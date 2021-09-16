@@ -154,7 +154,7 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
 /**
  * Абстрактный класс для холдера Schedule с инициализацией UI и слушателей.
  */
-abstract class ScheduleAbstractHolder(private val binding: ItemRecyclerViewScheduleBinding,
+abstract class ScheduleAbstractHolder(val binding: ItemRecyclerViewScheduleBinding,
                                       private val fragmentManager: FragmentManager):
     RawHolder(binding.root) {
     lateinit var schedule: Schedule
@@ -201,7 +201,7 @@ abstract class ScheduleAbstractHolder(private val binding: ItemRecyclerViewSched
 /**
  * Абстрактный класс для холдера Note с инициализацией UI и слушателей.
  */
-abstract class NoteAbstractHolder(private val binding: ItemRecyclerViewNoteBinding):
+abstract class NoteAbstractHolder(val binding: ItemRecyclerViewNoteBinding):
     RawHolder(binding.root) {
     lateinit var note: Note
 
@@ -237,7 +237,8 @@ abstract class ReminderAbstractHolder(val binding: ItemRecyclerViewReminderBindi
     lateinit var reminder: Reminder
 
     init {
-        itemView.setOnClickListener{
+        itemView.setOnClickListener{ onClicked() }
+        binding.edit.setOnClickListener{
             val dialog = ReminderDialog()
             dialog.arguments = Bundle().apply{
                 putSerializable("reminder", reminder)
@@ -263,13 +264,15 @@ abstract class ReminderAbstractHolder(val binding: ItemRecyclerViewReminderBindi
         binding.timeTextView.text = (formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME)+
                 " - " + formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_DAY))
     }
+
+    abstract fun onClicked()
 }
 
 /**
  * Абстрактный класс для холдера Folder с инициализацией UI и слушателей.
  */
 abstract class FolderAbstractHolder(val binding: ItemRecyclerViewFolderBinding,
-                                        private val fragmentManager: FragmentManager):
+                                    private val fragmentManager: FragmentManager):
     RawHolder(binding.root) {
     lateinit var folder: Folder
 
@@ -502,6 +505,13 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
     }
 
     /**
+     * При длительном нажатии теперь мы не начинам перетаскивать холдер.
+     */
+    override fun isLongPressDragEnabled(): Boolean {
+        return false
+    }
+
+    /**
      * Это означает, что в ItemTouchHelper начнет обрабатывать наложение холдеров,
      * если процент их наложения больше 25% (по умолчанию 50%)
      */
@@ -519,7 +529,7 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
         val curY = current.itemView.translationY+current.itemView.top
         val moveOrDrop = if (current.itemView.translationY > 0)
             curY+current.itemView.height >= target.itemView.top+0.625*target.itemView.height
-        else curY <= target.itemView.top+0.5*target.itemView.height
+        else curY <= target.itemView.top+(1-0.625)*target.itemView.height
 
         return if (moveOrDrop){
             dragToViewHolder = null

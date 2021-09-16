@@ -7,11 +7,10 @@
     <data>
     </data>
 
-    <androidx.constraintlayout.motion.widget.MotionLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/motionLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layoutDescription="@xml/scene_fragment_time_tracker">
+        android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
@@ -27,12 +26,6 @@
                 android:layout_height="?attr/actionBarSize"
                 app:title="31 августа 2021"
                 app:titleCentered="true"/>
-
-            <CalendarView
-                android:id="@+id/calendarView"
-                android:background="@color/white"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
         </com.google.android.material.appbar.AppBarLayout>
 
         <com.daiwerystudio.chronos.ui.widgets.TimeTrackerClockView
@@ -105,5 +98,5 @@
             app:layout_constraintStart_toStartOf="@id/clock"
             app:layout_constraintTop_toTopOf="@id/clock" />
 
-    </androidx.constraintlayout.motion.widget.MotionLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

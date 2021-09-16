@@ -79,7 +79,7 @@
         <item name="titleTextAppearance">@style/Text.TitleToolBar</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.ToolBar</item>
     </style>
-    <style name="Text.TitleToolBar"  parent="@style/TextAppearance.MaterialComponents.Body1">
+    <style name="Text.TitleToolBar"  parent="@style/TextAppearance.MaterialComponents.Headline6">
         <item name="android:textSize">20sp</item>
     </style>
     <style name="ThemeOverlay.ToolBar" parent="">
@@ -96,5 +96,14 @@
     </style>
     <style name="ThemeOverlay.CardView" parent="">
         <item name="colorSurface">@color/white</item>
+    </style>
+
+    <style name="Style.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="titleTextStyle">@style/Text.ActionMode</item>>
+        <item name="background">@color/blue</item>
+    </style>
+    <style name="Text.ActionMode"  parent="@style/TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 </resources>

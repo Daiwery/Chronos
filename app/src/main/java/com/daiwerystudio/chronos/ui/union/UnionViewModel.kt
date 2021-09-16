@@ -19,11 +19,7 @@
 
 package com.daiwerystudio.chronos.ui.union
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.daiwerystudio.chronos.database.*
 import java.util.*
 import java.util.concurrent.Executors
@@ -215,6 +211,12 @@ open class UnionViewModel : ViewModel() {
         mUnionRepository.deleteUnionWithChild(id)
     }
 
+    fun deleteUnionsWithChild(positions: List<Int>){
+        mUnionRepository.deleteUnionsWithChild(mUnions.value!!
+            .map { it.id }
+            .filterIndexed { index, _ -> index in positions })
+    }
+
     fun swap(fromPosition: Int, toPosition: Int){
         Collections.swap(data.value!!, fromPosition, toPosition)
         Collections.swap(mUnions.value!!, fromPosition, toPosition)
@@ -227,15 +229,29 @@ open class UnionViewModel : ViewModel() {
 
     fun moveUnionUp(position: Int){
         mExecutor.execute {
-            val id = data.value!![position].second.id
-            val union = mUnions.value!!.first { it.id == id }
-
             // Не является LiveData, поэтому выполняем в отдельном потоке.
             val parent = mUnionRepository.getParentUnion(information.parentID)
             if (parent != null) {
                 updateUnions()
+
+                val union = mUnions.value!![position]
                 union.parent = parent
                 mUnionRepository.updateUnion(union)
+            }
+        }
+    }
+
+    fun moveUnionsUp(positions: List<Int>){
+        mExecutor.execute {
+            // Не является LiveData, поэтому выполняем в отдельном потоке.
+            val parent = mUnionRepository.getParentUnion(information.parentID)
+            if (parent != null) {
+                updateUnions()
+                for (position in positions){
+                    val union = mUnions.value!![position]
+                    union.parent = parent
+                    mUnionRepository.updateUnion(union)
+                }
             }
         }
     }

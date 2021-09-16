@@ -13,6 +13,7 @@
 
 package com.daiwerystudio.chronos.ui.schedule
 
+import android.animation.ObjectAnimator
 import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -99,6 +100,16 @@ class DayScheduleFragment : Fragment() {
             (binding.recyclerView.adapter as Adapter).setData(it)
             binding.loadingClock.visibility = View.VISIBLE
             binding.clock.setActionsSchedule(it)
+
+            if (binding.clock.scrollY == 0) {
+                if (viewModel.actionsSchedule.value!!.isNotEmpty()) {
+                    val time = viewModel.actionsSchedule.value!![0].startTime - 60 * 60 * 1000
+                    val ratio = time / (24 * 60 * 60 * 1000f)
+                    val scrollY = (binding.clock.getChildAt(0).height * ratio).toInt()
+                    ObjectAnimator.ofInt(binding.clock, "scrollY", scrollY)
+                        .setDuration(1000).start()
+                }
+            }
         })
 
         binding.fab.setOnClickListener {

@@ -290,7 +290,7 @@ class ScheduleView(context: Context, attrs: AttributeSet): View(context, attrs) 
 
         mPaint.color = colorColumn
         canvas?.drawRoundRect(0f, 0f,
-            (stripWidth+spaceWidth)-spaceWidth, height, corner, corner, mPaint)
+            (stripWidth+spaceWidth)*mCount-spaceWidth, height, corner, corner, mPaint)
 
         mActionDrawables.forEach {
             mPaint.color = it.color
@@ -634,12 +634,14 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         val requestedHeight = MeasureSpec.getSize(heightMeasureSpec)
 
-        val desiredWidth = (stripWidth*mCount+spaceWidth*(mCount-1)+sizeDrawable+marginIcon).toInt()
+        var desiredWidth = stripWidth*mCount+spaceWidth*(mCount-1)
+        if (mGoalsTimes.isNotEmpty() && mRemindersTimes.isNotEmpty())
+            desiredWidth += sizeDrawable+marginIcon
 
         val width = when (widthMode) {
             MeasureSpec.EXACTLY -> requestedWidth
-            MeasureSpec.AT_MOST -> desiredWidth.coerceAtMost(requestedWidth)
-            else -> desiredWidth
+            MeasureSpec.AT_MOST -> desiredWidth.toInt().coerceAtMost(requestedWidth)
+            else -> desiredWidth.toInt()
         }
 
         val height = when (heightMode) {
@@ -658,7 +660,7 @@ class MultiScheduleView(context: Context, attrs: AttributeSet): View(context, at
 
         mPaint.color = colorColumn
         canvas?.drawRoundRect(0f, 0f,
-            (stripWidth+spaceWidth)-spaceWidth, height, corner, corner, mPaint)
+            (stripWidth+spaceWidth)*mCount-spaceWidth, height, corner, corner, mPaint)
 
         mActionDrawables.forEach {
             mPaint.color = it.color
@@ -885,7 +887,7 @@ class ActionsView(context: Context, attrs: AttributeSet): View(context, attrs) {
 
         mPaint.color = colorColumn
         canvas?.drawRoundRect(0f, 0f,
-            (stripWidth+spaceWidth)-spaceWidth, height, corner, corner, mPaint)
+            (stripWidth+spaceWidth)*mCount-spaceWidth, height, corner, corner, mPaint)
 
         mActionDrawables.forEach {
             mPaint.color = it.color
@@ -1043,7 +1045,6 @@ class ScheduleClockView(context: Context, attrs: AttributeSet): ScrollView(conte
 
     init {
         inflate(context, R.layout.layout_clock_schedule, this)
-        isVerticalScrollBarEnabled = false
 
         scheduleView = findViewById(R.id.scheduleView)
         scheduleView.setFinishedListener{ mFinishedListener?.finish() }
@@ -1076,7 +1077,6 @@ class DayClockView(context: Context, attrs: AttributeSet): ScrollView(context, a
 
     init {
         inflate(context, R.layout.layout_clock_day, this)
-        isVerticalScrollBarEnabled = false
 
         clockFaceView = findViewById(R.id.clockFaceView)
 
@@ -1128,7 +1128,6 @@ class TimeTrackerClockView(context: Context, attrs: AttributeSet): ScrollView(co
 
     init {
         inflate(context, R.layout.layout_clock_time_tracker, this)
-        isVerticalScrollBarEnabled = false
 
         clockFaceView = findViewById(R.id.clockFaceView)
         actionsView = findViewById(R.id.actionsView)

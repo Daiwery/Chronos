@@ -13,7 +13,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/white">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
@@ -27,7 +28,8 @@
                 android:id="@+id/toolBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:navigationIcon="@drawable/ic_baseline_check_24" />
+                app:menu="@menu/menu_fragment_note"
+                app:navigationIcon="@drawable/ic_baseline_close_24" />
         </com.google.android.material.appbar.AppBarLayout>
 
         <com.google.android.material.textfield.TextInputEditText

@@ -28,8 +28,4 @@ class NoteViewModel : ViewModel() {
             }
         }
     }
-
-    fun deleteUnionWithChild(){
-        mUnionRepository.deleteUnionWithChild(note.id)
-    }
 }

@@ -5,12 +5,17 @@
 
 package com.daiwerystudio.chronos.ui.union
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.ActionMode
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -18,7 +23,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.*
-import java.util.*
+import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 
 /**
  * Абстрактный класс для union фрагмента.
@@ -39,18 +44,57 @@ abstract class UnionAbstractFragment : Fragment() {
     }
 
 
+    @SuppressLint("ClickableViewAccessibility")
     open inner class ActionTypeHolder(binding: ItemRecyclerViewActionTypeBinding):
         ActionTypeAbstractHolder(binding, requireActivity().supportFragmentManager) {
-        override fun onClicked() {
-            val bundle = Bundle().apply {
-                putString("parentID", actionType.id)
+
+        init {
+            binding.dragHandle.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_DOWN)
+                    itemTouchHelper.startDrag(this)
+                false
             }
-            itemView.findNavController().navigate(R.id.action_global_navigation_union_action_type, bundle)
+            itemView.setOnLongClickListener {
+                startActionMode()
+                changeItem(absoluteAdapterPosition)
+                true
+            }
+        }
+
+        override fun onClicked() {
+            if (actionMode == null) {
+                // Восстанавливаем анимацию клика на холдер.
+                itemView.isClickable = true
+
+                val bundle = Bundle().apply {
+                    putString("parentID", actionType.id)
+                }
+                itemView.findNavController()
+                    .navigate(R.id.action_global_navigation_union_action_type, bundle)
+            } else {
+                // Убираем анимацию клика на холдер.
+                itemView.isClickable = false
+                changeItem(absoluteAdapterPosition)
+            }
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     open inner class GoalHolder(binding: ItemRecyclerViewGoalBinding) :
         GoalAbstractHolder(binding, requireActivity().supportFragmentManager){
+
+        init {
+            binding.dragHandle.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_DOWN)
+                    itemTouchHelper.startDrag(this)
+                false
+            }
+            itemView.setOnLongClickListener {
+                startActionMode()
+                changeItem(absoluteAdapterPosition)
+                true
+            }
+        }
 
         override fun onAchieved() {
             // Копируем, чтобы recyclerView смог засечь изменения.
@@ -70,48 +114,164 @@ abstract class UnionAbstractFragment : Fragment() {
         }
 
         override fun onClicked() {
-            val bundle = Bundle().apply {
-                putString("parentID", goal.id)
+            if (actionMode == null) {
+                // Восстанавливаем анимацию клика на холдер.
+                itemView.isClickable = true
+
+                val bundle = Bundle().apply {
+                    putString("parentID", goal.id)
+                }
+                itemView.findNavController()
+                    .navigate(R.id.action_global_navigation_union_goal, bundle)
+            } else {
+                // Убираем анимацию клика на холдер.
+                itemView.isClickable = false
+                changeItem(absoluteAdapterPosition)
             }
-            itemView.findNavController().navigate(R.id.action_global_navigation_union_goal, bundle)
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     open inner class ScheduleHolder(binding: ItemRecyclerViewScheduleBinding):
         ScheduleAbstractHolder(binding, requireActivity().supportFragmentManager) {
+
+        init {
+            binding.dragHandle.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_DOWN)
+                    itemTouchHelper.startDrag(this)
+                false
+            }
+            itemView.setOnLongClickListener {
+                startActionMode()
+                changeItem(absoluteAdapterPosition)
+                true
+            }
+        }
         override fun onActive() {
             schedule.isActive = !schedule.isActive
             viewModel.updateSchedule(schedule)
         }
 
         override fun onClicked() {
-            val bundle = Bundle().apply {
-                putString("parentID", schedule.id)
+            if (actionMode == null) {
+                // Восстанавливаем анимацию клика на холдер.
+                itemView.isClickable = true
+
+                val bundle = Bundle().apply {
+                    putString("parentID", schedule.id)
+                }
+                itemView.findNavController()
+                    .navigate(R.id.action_global_navigation_union_schedule, bundle)
+            } else {
+                // Убираем анимацию клика на холдер.
+                itemView.isClickable = false
+                changeItem(absoluteAdapterPosition)
             }
-            itemView.findNavController().navigate(R.id.action_global_navigation_union_schedule, bundle)
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     open inner class NoteHolder(binding: ItemRecyclerViewNoteBinding):
         NoteAbstractHolder(binding) {
-        override fun onClicked() {
-            val bundle = Bundle().apply {
-                putString("parentID", note.id)
+
+        init {
+            binding.dragHandle.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_DOWN)
+                    itemTouchHelper.startDrag(this)
+                false
             }
-            itemView.findNavController().navigate(R.id.action_global_navigation_union_note, bundle)
+            itemView.setOnLongClickListener {
+                startActionMode()
+                changeItem(absoluteAdapterPosition)
+                true
+            }
+        }
+        override fun onClicked() {
+            if (actionMode == null) {
+                // Восстанавливаем анимацию клика на холдер.
+                itemView.isClickable = true
+
+                val bundle = Bundle().apply {
+                    putString("parentID", note.id)
+                }
+                itemView.findNavController()
+                    .navigate(R.id.action_global_navigation_union_note, bundle)
+            } else {
+                // Убираем анимацию клика на холдер.
+                itemView.isClickable = false
+                changeItem(absoluteAdapterPosition)
+            }
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     open inner class ReminderHolder(binding: ItemRecyclerViewReminderBinding):
-        ReminderAbstractHolder(binding, requireActivity().supportFragmentManager)
+        ReminderAbstractHolder(binding, requireActivity().supportFragmentManager){
 
+        init {
+            binding.dragHandle.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_DOWN)
+                    itemTouchHelper.startDrag(this)
+                false
+            }
+            itemView.setOnLongClickListener {
+                startActionMode()
+                changeItem(absoluteAdapterPosition)
+                true
+            }
+        }
+
+        override fun onClicked() {
+            if (actionMode == null) {
+                // Восстанавливаем анимацию клика на холдер.
+                itemView.isClickable = true
+
+                val dialog = ReminderDialog()
+                dialog.arguments = Bundle().apply {
+                    putSerializable("reminder", reminder)
+                    putBoolean("isCreated", false)
+                }
+                dialog.show(requireActivity().supportFragmentManager, "ReminderDialog")
+            } else {
+                // Убираем анимацию клика на холдер.
+                itemView.isClickable = false
+                changeItem(absoluteAdapterPosition)
+            }
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     open inner class FolderHolder(binding: ItemRecyclerViewFolderBinding):
         FolderAbstractHolder(binding, requireActivity().supportFragmentManager) {
-        override fun onClicked() {
-            val bundle = Bundle().apply {
-                putString("parentID", folder.id)
+
+        init {
+            binding.dragHandle.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_DOWN)
+                    itemTouchHelper.startDrag(this)
+                false
             }
-            itemView.findNavController().navigate(R.id.action_global_navigation_union_folder, bundle)
+            itemView.setOnLongClickListener {
+                startActionMode()
+                changeItem(absoluteAdapterPosition)
+                true
+            }
+        }
+
+        override fun onClicked() {
+            if (actionMode == null) {
+                // Восстанавливаем анимацию клика на холдер.
+                itemView.isClickable = true
+
+                val bundle = Bundle().apply {
+                    putString("parentID", folder.id)
+                }
+                itemView.findNavController()
+                    .navigate(R.id.action_global_navigation_union_folder, bundle)
+            } else {
+                // Убираем анимацию клика на холдер.
+                itemView.isClickable = false
+                changeItem(absoluteAdapterPosition)
+            }
         }
     }
 
@@ -134,13 +294,15 @@ abstract class UnionAbstractFragment : Fragment() {
         override fun createFolderHolder(binding: ItemRecyclerViewFolderBinding): RawHolder =
             FolderHolder(binding)
 
+        /* Если позиция холедра равна dragFromPosition или dragToPosition, или она есть в selectedItems,
+        то мы с ним ничего не делаем. Если же нет, то изменям прозрачность.*/
         override fun onBindViewHolder(holder: RawHolder, position: Int, payloads: MutableList<Any>) {
             if (payloads.isNotEmpty())
                 if (payloads.last() is Boolean){
                     if (payloads.last() as Boolean)
-                        if (position != dragFromPosition && position != dragToPosition)
-                            holder.itemView.alpha = 0.5f
-                        else holder.itemView.alpha = 1f
+                        if (position == dragFromPosition || position == dragToPosition
+                            || position in selectedItems) holder.itemView.alpha = 1f
+                        else holder.itemView.alpha = 0.5f
                     else holder.itemView.alpha = 1f
                 } else super.onBindViewHolder(holder, position, payloads)
             else super.onBindViewHolder(holder, position, payloads)
@@ -210,7 +372,76 @@ abstract class UnionAbstractFragment : Fragment() {
         ItemTouchHelper(simpleItemTouchCallback)
     }
 
+    /* Если позиция холедра равна dragFromPosition или dragToPosition, то мы с ним ничего не делаем.
+     Если же нет, то изменям прозрачность. */
     private var dragFromPosition: Int = -1
     private var dragToPosition: Int = -1
+    // Нужна функция, которая будет сообщать адаптеру, что нужно перерисовать все холдеры.
     abstract fun notifyAdapterItemsChange(payload: Boolean)
+
+
+    // Будем хранить позиции выбранных холдеров.
+    private val selectedItems: MutableList<Int> = mutableListOf()
+    private var actionMode: ActionMode? = null
+
+    private fun startActionMode(){
+        actionMode = requireActivity().startActionMode(callback)
+        actionMode?.title = "0"
+    }
+
+    private fun changeItem(position: Int){
+        val index = selectedItems.indexOf(position)
+        if (index == -1) selectedItems.add(position)
+        else selectedItems.removeAt(index)
+
+        notifyAdapterItemsChange(true)
+        actionMode?.title = selectedItems.size.toString()
+
+        if (selectedItems.size == 0) actionMode?.finish()
+    }
+
+    abstract fun hideFab()
+    abstract fun showFab()
+
+    // ПРЕДУПРЕЖДЕНИЕ! Инициализация должна происходить после инициализации information в UnionViewModel.
+    private val callback by lazy {
+        object : ActionMode.Callback {
+            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                mode?.menuInflater?.inflate(R.menu.menu_action_bar, menu)
+                hideFab()
+
+                if (viewModel.information.parentID == "")
+                    menu?.findItem(R.id.up)?.isVisible = false
+                return true
+            }
+
+            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
+
+            override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                return when (item?.itemId) {
+                    R.id.up -> {
+                        // Нужно передать скопированное значение, из-за того, что
+                        // после этот массив удалится, а действия внутри функции выполняются
+                        // в отдельном потоке.
+                        viewModel.moveUnionsUp(selectedItems.map { it })
+                        actionMode?.finish()
+                        true
+                    }
+                    R.id.delete -> {
+                        viewModel.deleteUnionsWithChild(selectedItems)
+                        actionMode?.finish()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            override fun onDestroyActionMode(mode: ActionMode?) {
+                actionMode = null
+                selectedItems.clear()
+                notifyAdapterItemsChange(false)
+                showFab()
+            }
+        }
+    }
 }

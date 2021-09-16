@@ -9,10 +9,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Note
 import com.daiwerystudio.chronos.database.Union
 import com.daiwerystudio.chronos.databinding.FragmentNoteBinding
@@ -26,7 +28,8 @@ class NoteFragment : Fragment()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.note = arguments?.getSerializable("note") as Note
+        // Нужно скопировать, чтобы изменения были видны тольно после сохранения в базе данных.
+        viewModel.note = (arguments?.getSerializable("note") as Note).copy()
         viewModel.union = arguments?.getSerializable("union") as Union?
     }
 
@@ -44,15 +47,21 @@ class NoteFragment : Fragment()  {
         }
 
         binding.toolBar.setNavigationOnClickListener {
+            binding.root.clearFocus()
             it.findNavController().navigateUp()
+        }
+        binding.toolBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.save -> {
+                    viewModel.saveNote()
+                    binding.root.clearFocus()
+                    requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+                    true
+                }
+                else -> false
+            }
         }
 
         return binding.root
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        viewModel.saveNote()
     }
 }

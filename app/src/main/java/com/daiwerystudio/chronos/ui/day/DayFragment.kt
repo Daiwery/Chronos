@@ -13,6 +13,7 @@
 
 package com.daiwerystudio.chronos.ui.day
 
+import android.animation.ObjectAnimator
 import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -40,11 +41,13 @@ import com.daiwerystudio.chronos.database.TYPE_REMINDER
 import com.daiwerystudio.chronos.databinding.FragmentDayBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewGoalBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewReminderBinding
+import com.daiwerystudio.chronos.ui.FORMAT_DAY
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.union.*
+import com.google.android.material.datepicker.MaterialDatePicker
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -92,7 +95,7 @@ class DayFragment: Fragment() {
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = Adapter(emptyList())
+//            adapter = Adapter(emptyList())
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
@@ -106,7 +109,7 @@ class DayFragment: Fragment() {
 
         viewModel.day.observe(viewLifecycleOwner, {
             binding.toolBar.title =
-                LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
         })
 
         viewModel.actionsSchedule.observe(viewLifecycleOwner, {
@@ -115,7 +118,7 @@ class DayFragment: Fragment() {
         })
 
         viewModel.data.observe(viewLifecycleOwner, {
-            (binding.recyclerView.adapter as Adapter).updateData(it)
+//            (binding.recyclerView.adapter as Adapter).updateData(it)
 
             binding.clock.setGoalsTimes(it.filter { item -> item.first == TYPE_GOAL }
                 .map{ item -> ((item.second as Goal).deadline+viewModel.local)%(24*60*60*1000) })
@@ -124,12 +127,12 @@ class DayFragment: Fragment() {
         })
 
         binding.toolBar.setOnClickListener {
-            if (binding.motionLayout.progress > 0.5) binding.motionLayout.transitionToStart()
-            else binding.motionLayout.transitionToEnd()
-        }
-
-        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            viewModel.day.value = LocalDate.of(year, month+1, dayOfMonth).toEpochDay()
+            val dialog = MaterialDatePicker.Builder.datePicker()
+                .setSelection(viewModel.day.value!!*24*60*60*1000).build()
+            dialog.addOnPositiveButtonClickListener {
+                viewModel.day.value = it/(24*60*60*1000)
+            }
+            dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
         binding.clock.setFinishedListener{ binding.loadingClock.visibility = View.GONE }
@@ -183,17 +186,10 @@ class DayFragment: Fragment() {
     override fun onResume() {
         super.onResume()
 
-        // Мы не можем изначально поставить размер appBarLayout равный ?attr/actionBarSize
-        // или выполнить код ниже в функции выше, так как при этом у CalendarView не будет срабатывать
-        // onClickListener.
-//        val position = viewModel.day.value!!-(System.currentTimeMillis()+viewModel.local)/(1000*60*60*24)
-//        if (position == 0L) binding.motionLayout.transitionToEnd()
-
-        // В функции выше делать нельзя, так как height там пока что равно 0.
-        val currentTime = (System.currentTimeMillis()+viewModel.local)%(24*60*60*1000)-60*60*1000
-        val ratio = currentTime/(24*60*60*1000f)
+        val time = (System.currentTimeMillis()+viewModel.local)%(24*60*60*1000)-60*60*1000
+        val ratio = time/(24*60*60*1000f)
         val scrollY = (binding.clock.getChildAt(0).height*ratio).toInt()
-        binding.clock.scrollY = scrollY
+        ObjectAnimator.ofInt(binding.clock, "scrollY",  scrollY).setDuration(1000).start()
     }
 
 
@@ -208,75 +204,75 @@ class DayFragment: Fragment() {
     }
 
 
-    inner class GoalHolder(binding: ItemRecyclerViewGoalBinding) :
-        GoalAbstractHolder(binding, requireActivity().supportFragmentManager){
-
-        override fun setStaticUI(goal: Goal) {
-            super.setStaticUI(goal)
-            // Делаем невидимым прогресс бар.
-            binding.textView21.visibility = View.GONE
-            binding.progressTextView.visibility = View.GONE
-            binding.progressBar.visibility = View.GONE
-        }
-
-        override fun setDeadline() {
-            binding.deadlineTextView.text = formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME)
-        }
-
-        override fun onAchieved() {
-            goal.isAchieved = binding.checkBox.isChecked
-            viewModel.updateGoal(goal)
-        }
-
-        override fun setPercentAchieved() {}
-        override fun onClicked() {
-            val dialog = GoalDialog()
-            dialog.arguments = Bundle().apply{
-                putSerializable("goal", goal)
-                putBoolean("isTemporal", true)
-                putBoolean("isCreated", false)
-            }
-            dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
-        }
-    }
-
-    inner class ReminderHolder(binding: ItemRecyclerViewReminderBinding):
-        ReminderAbstractHolder(binding, requireActivity().supportFragmentManager){
-            override fun setTime() {
-                binding.timeTextView.text = formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME)
-            }
-        }
-
-    private inner class Adapter(var data: List<Pair<Int, ID>>): RecyclerView.Adapter<RawHolder>(){
-        fun updateData(newData: List<Pair<Int, ID>>){
-            val diffUtilCallback = UnionDiffUtil(data.map { it.second }, newData.map { it.second })
-            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
-
-            data = newData.map{ it.copy() }
-            diffResult.dispatchUpdatesTo(this)
-
-            if (data.isEmpty()) setEmptyView()
-            else setNullView()
-        }
-
-        override fun getItemCount() = data.size
-
-        override fun getItemViewType(position: Int): Int = data[position].first
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RawHolder {
-            return when(viewType){
-                TYPE_GOAL -> GoalHolder(DataBindingUtil.inflate(layoutInflater,
-                    R.layout.item_recycler_view_goal,
-                    parent, false))
-                TYPE_REMINDER -> ReminderHolder(DataBindingUtil.inflate(layoutInflater,
-                    R.layout.item_recycler_view_reminder,
-                    parent, false))
-                else -> throw IllegalArgumentException("Invalid type")
-            }
-        }
-
-        override fun onBindViewHolder(holder: RawHolder, position: Int) {
-            holder.bind(data[position].second)
-        }
-    }
+//    inner class GoalHolder(binding: ItemRecyclerViewGoalBinding) :
+//        GoalAbstractHolder(binding, requireActivity().supportFragmentManager){
+//
+//        override fun setStaticUI(goal: Goal) {
+//            super.setStaticUI(goal)
+//            // Делаем невидимым прогресс бар.
+//            binding.textView21.visibility = View.GONE
+//            binding.progressTextView.visibility = View.GONE
+//            binding.progressBar.visibility = View.GONE
+//        }
+//
+//        override fun setDeadline() {
+//            binding.deadlineTextView.text = formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME)
+//        }
+//
+//        override fun onAchieved() {
+//            goal.isAchieved = binding.checkBox.isChecked
+//            viewModel.updateGoal(goal)
+//        }
+//
+//        override fun setPercentAchieved() {}
+//        override fun onClicked() {
+//            val dialog = GoalDialog()
+//            dialog.arguments = Bundle().apply{
+//                putSerializable("goal", goal)
+//                putBoolean("isTemporal", true)
+//                putBoolean("isCreated", false)
+//            }
+//            dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
+//        }
+//    }
+//
+//    inner class ReminderHolder(binding: ItemRecyclerViewReminderBinding):
+//        ReminderAbstractHolder(binding, requireActivity().supportFragmentManager){
+//            override fun setTime() {
+//                binding.timeTextView.text = formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME)
+//            }
+//        }
+//
+//    private inner class Adapter(var data: List<Pair<Int, ID>>): RecyclerView.Adapter<RawHolder>(){
+//        fun updateData(newData: List<Pair<Int, ID>>){
+//            val diffUtilCallback = UnionDiffUtil(data.map { it.second }, newData.map { it.second })
+//            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+//
+//            data = newData.map{ it.copy() }
+//            diffResult.dispatchUpdatesTo(this)
+//
+//            if (data.isEmpty()) setEmptyView()
+//            else setNullView()
+//        }
+//
+//        override fun getItemCount() = data.size
+//
+//        override fun getItemViewType(position: Int): Int = data[position].first
+//
+//        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RawHolder {
+//            return when(viewType){
+//                TYPE_GOAL -> GoalHolder(DataBindingUtil.inflate(layoutInflater,
+//                    R.layout.item_recycler_view_goal,
+//                    parent, false))
+//                TYPE_REMINDER -> ReminderHolder(DataBindingUtil.inflate(layoutInflater,
+//                    R.layout.item_recycler_view_reminder,
+//                    parent, false))
+//                else -> throw IllegalArgumentException("Invalid type")
+//            }
+//        }
+//
+//        override fun onBindViewHolder(holder: RawHolder, position: Int) {
+//            holder.bind(data[position].second)
+//        }
+//    }
 }

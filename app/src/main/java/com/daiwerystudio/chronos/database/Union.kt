@@ -59,6 +59,13 @@ interface UnionDao{
         "SELECT * FROM union_table WHERE id IN (SELECT id FROM sub_table)")
     fun getNotLiveUnionWithChild(id: String): List<Union>
 
+    @Query("WITH RECURSIVE sub_table(id, parent) " +
+            "AS (SELECT id, parent FROM union_table WHERE id IN (:ids) " +
+            "UNION ALL " +
+            "SELECT a.id, a.parent FROM union_table AS a JOIN sub_table AS b ON a.parent=b.id) " +
+            "SELECT * FROM union_table WHERE id IN (SELECT id FROM sub_table)")
+    fun getNotLiveUnionsWithChild(ids: List<String>): List<Union>
+
     @Query("SELECT parent FROM union_table WHERE id=(:id)")
     fun getParentUnion(id: String): String?
 
@@ -151,6 +158,20 @@ class UnionRepository private constructor(context: Context) {
     fun deleteUnionWithChild(id: String){
         mHandler.post {
             val unions = mDao.getNotLiveUnionWithChild(id)
+
+            mDao.deleteUnions(unions)
+            mActionTypeRepository.deleteActionTypes(unions.filter { it.type == TYPE_ACTION_TYPE }.map { it.id })
+            mGoalRepository.deleteGoals(unions.filter { it.type == TYPE_GOAL }.map { it.id })
+            mScheduleRepository.completelyDeleteSchedules(unions.filter { it.type == TYPE_SCHEDULE }.map { it.id })
+            mNoteRepository.deleteNotes(unions.filter { it.type == TYPE_NOTE }.map { it.id })
+            mReminderRepository.deleteReminders(unions.filter { it.type == TYPE_REMINDER }.map { it.id })
+            mFolderRepository.deleteFolders(unions.filter { it.type == TYPE_FOLDER }.map { it.id })
+        }
+    }
+
+    fun deleteUnionsWithChild(ids: List<String>){
+        mHandler.post {
+            val unions = mDao.getNotLiveUnionsWithChild(ids)
 
             mDao.deleteUnions(unions)
             mActionTypeRepository.deleteActionTypes(unions.filter { it.type == TYPE_ACTION_TYPE }.map { it.id })

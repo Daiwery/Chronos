@@ -5,6 +5,7 @@
 
 package com.daiwerystudio.chronos.ui.time_tracker
 
+import android.animation.ObjectAnimator
 import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -31,6 +32,7 @@ import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.union.UnionDiffUtil
 import com.daiwerystudio.chronos.ui.union.UnionSimpleCallback
+import com.google.android.material.datepicker.MaterialDatePicker
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -83,18 +85,16 @@ class TimeTrackerFragment : Fragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (binding.fab.isShown && dy > 0) binding.fab.hide()
-                if (!binding.fab.isShown && dy < 0) binding.fab.show()
-            }
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) binding.fab.hide()
             }
         })
 
         viewModel.day.observe(viewLifecycleOwner, {
             binding.toolBar.title =
-                LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
         })
 
         viewModel.actions.observe(viewLifecycleOwner, {
@@ -104,12 +104,12 @@ class TimeTrackerFragment : Fragment() {
         })
 
         binding.toolBar.setOnClickListener {
-            if (binding.motionLayout.progress > 0.5) binding.motionLayout.transitionToStart()
-            else binding.motionLayout.transitionToEnd()
-        }
-
-        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            viewModel.day.value = LocalDate.of(year, month+1, dayOfMonth).toEpochDay()
+            val dialog = MaterialDatePicker.Builder.datePicker()
+                .setSelection(viewModel.day.value!!*24*60*60*1000).build()
+            dialog.addOnPositiveButtonClickListener {
+                viewModel.day.value = it/(24*60*60*1000)
+            }
+            dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
         binding.clock.setFinishedListener{ binding.loadingClock.visibility = View.GONE }
@@ -138,17 +138,10 @@ class TimeTrackerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        // Мы не можем изначально поставить размер appBarLayout равный ?attr/actionBarSize
-        // или выполнить код ниже в функции выше, так как при этом у CalendarView не будет срабатывать
-        // onClickListener.
-//        val position = viewModel.day.value!!-(System.currentTimeMillis()+viewModel.local)/(1000*60*60*24)
-//        if (position == 0L) binding.motionLayout.transitionToEnd()
-
-        // В функции выше делать нельзя, так как height там пока что равно 0.
-        val currentTime = (System.currentTimeMillis()+viewModel.local)%(24*60*60*1000)-60*60*1000
-        val ratio = currentTime/(24*60*60*1000f)
+        val time = (System.currentTimeMillis()+viewModel.local)%(24*60*60*1000)-60*60*1000
+        val ratio = time/(24*60*60*1000f)
         val scrollY = (binding.clock.getChildAt(0).height*ratio).toInt()
-        binding.clock.scrollY = scrollY
+        ObjectAnimator.ofInt(binding.clock, "scrollY",  scrollY).setDuration(1000).start()
     }
 
 

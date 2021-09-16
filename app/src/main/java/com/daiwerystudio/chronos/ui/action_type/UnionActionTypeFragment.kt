@@ -7,9 +7,7 @@ package com.daiwerystudio.chronos.ui.action_type
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -102,6 +100,14 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
     private fun setNullView(){
         binding.loadingView.visibility = View.GONE
         binding.emptyView.visibility = View.GONE
+    }
+
+    override fun hideFab(){
+        binding.fab.hide()
+    }
+
+    override fun showFab(){
+        binding.fab.show()
     }
 
 

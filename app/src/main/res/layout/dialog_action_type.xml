@@ -58,7 +58,7 @@
             android:colorFilter="@{actionType.color}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/action_type_name"
-            app:srcCompat="@drawable/oval"
+            app:srcCompat="@drawable/drawable_color_action_type"
             tools:ignore="ContentDescription" />
 
         <Button

@@ -19,5 +19,11 @@
         <item name="materialCalendarTheme">@style/ThemeOverlay.DatePicker</item>
         <item name="toolbarStyle">@style/Style.ToolBar</item>
         <item name="materialCardViewStyle">@style/Style.CardView</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/Style.ActionMode</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_baseline_close_24</item>
+        <item name="android:scrollbarThumbHorizontal">@drawable/drawable_scrollbar</item>
+        <item name="android:scrollbarThumbVertical">@drawable/drawable_scrollbar</item>
+        <item name="android:verticalScrollbarPosition">left</item>
     </style>
 </resources>

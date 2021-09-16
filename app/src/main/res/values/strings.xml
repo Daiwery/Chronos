@@ -18,21 +18,10 @@
     <string name="days">Дней</string>
     <string name="days_">Дней:</string>
     <string name="type_">Тип:</string>
-    <string-array name="week">
-        <item>Понедельник</item>
-        <item>Вторник</item>
-        <item>Среда</item>
-        <item>Четверг</item>
-        <item>Пятница</item>
-        <item>Суббота</item>
-        <item>Воскресенье</item>
-    </string-array>
     <string name="start_">Начало:</string>
     <string name="end_">Конец:</string>
     <string name="start">Начало</string>
     <string name="end">Конец</string>
-    <string name="duration">Длительность</string>
-    <string name="start_after">Начать после</string>
     <string name="select_action_type">Выберите тип действия</string>
     <string name="day">День</string>
     <string name="text">Текст</string>
@@ -49,4 +38,6 @@
     <string name="time">Время</string>
     <string name="search">Поиск</string>
     <string name="indefinite">Бессрочно</string>
+    <string name="save">Сохранить</string>
+    <string name="calendar">Календарь</string>
 </resources>

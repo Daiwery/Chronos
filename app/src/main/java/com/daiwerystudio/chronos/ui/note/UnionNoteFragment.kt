@@ -103,6 +103,14 @@ class UnionNoteFragment : UnionAbstractFragment() {
         binding.emptyView.visibility = View.GONE
     }
 
+    override fun hideFab(){
+        binding.fab.hide()
+    }
+
+    override fun showFab(){
+        binding.fab.show()
+    }
+
 
     override fun notifyAdapterItemsChange(payload: Boolean){
         binding.recyclerView.adapter?.notifyItemRangeChanged(0, viewModel.data.value!!.size, payload)

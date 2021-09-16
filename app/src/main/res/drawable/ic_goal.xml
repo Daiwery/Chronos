@@ -2,14 +2,14 @@
     android:viewportWidth="45.06" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillColor="#fff"
         android:pathData="M22.53,22.53m-20.53,0a20.53,20.53 0,1 1,41.06 0a20.53,20.53 0,1 1,-41.06 0"
-        android:strokeColor="#0071bc" android:strokeWidth="4"/>
+        android:strokeColor="?attr/colorSecondary" android:strokeWidth="4"/>
     <path android:fillColor="#fff"
         android:pathData="M22.53,22.71m-14.02,0a14.02,14.02 0,1 1,28.04 0a14.02,14.02 0,1 1,-28.04 0"
-        android:strokeColor="#0071bc" android:strokeWidth="4"/>
+        android:strokeColor="?attr/colorSecondary" android:strokeWidth="4"/>
     <path android:fillColor="#fff"
         android:pathData="M4.44,41.23L40.82,4.44"
-        android:strokeColor="#0071bc" android:strokeWidth="4"/>
+        android:strokeColor="?attr/colorSecondary" android:strokeWidth="4"/>
     <path android:fillColor="#fff"
         android:pathData="M4.24,4.85L40.82,41.23"
-        android:strokeColor="#0071bc" android:strokeWidth="4"/>
+        android:strokeColor="?attr/colorSecondary" android:strokeWidth="4"/>
 </vector>

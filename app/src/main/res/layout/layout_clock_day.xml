@@ -5,7 +5,8 @@
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="none">
+    android:scrollbarTrackVertical="@drawable/drawable_scrollbar"
+    android:verticalScrollbarPosition="left">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
@@ -28,11 +29,11 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:scrollbars="none"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/clockFaceView"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_max="45dp">
+            app:layout_constraintWidth_max="45dp"
+            android:scrollbarThumbHorizontal="@drawable/drawable_scrollbar">
 
             <FrameLayout
                 android:layout_width="wrap_content"
