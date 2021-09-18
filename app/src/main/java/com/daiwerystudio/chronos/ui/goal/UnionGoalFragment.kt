@@ -19,9 +19,7 @@ import com.daiwerystudio.chronos.databinding.FragmentUnionGoalBinding
 import com.daiwerystudio.chronos.ui.FORMAT_DAY
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
-import com.daiwerystudio.chronos.ui.union.ID
 import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
-import com.daiwerystudio.chronos.ui.union.UnionPopupMenu
 import java.time.format.FormatStyle
 
 class UnionGoalFragment : UnionAbstractFragment() {
@@ -36,7 +34,7 @@ class UnionGoalFragment : UnionAbstractFragment() {
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = Adapter()
+            adapter = UnionAdapter()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
@@ -62,17 +60,10 @@ class UnionGoalFragment : UnionAbstractFragment() {
         })
 
         viewModel.data.observe(viewLifecycleOwner, {
-            (binding.recyclerView.adapter as Adapter).updateData(it)
+            (binding.recyclerView.adapter as UnionAdapter).updateData(it)
         })
 
-        binding.fab.setOnClickListener{
-            val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
-            popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
-                override fun getParent(): String = viewModel.information.parentID
-                override fun getIndex(): Int = viewModel.data.value!!.size
-            })
-            popup.show()
-        }
+        binding.fab.setOnMenuItemClickListener{ createUnionItem(it) }
 
         binding.toolBar.setNavigationOnClickListener {
             it.findNavController().navigateUp()
@@ -108,12 +99,12 @@ class UnionGoalFragment : UnionAbstractFragment() {
         return binding.root
     }
 
-    private fun setEmptyView(){
+    override fun setEmptyView(){
         binding.loadingView.visibility = View.GONE
         binding.emptyView.visibility = View.VISIBLE
     }
 
-    private fun setNullView(){
+    override fun setNullView(){
         binding.loadingView.visibility = View.GONE
         binding.emptyView.visibility = View.GONE
     }
@@ -126,17 +117,7 @@ class UnionGoalFragment : UnionAbstractFragment() {
         binding.fab.show()
     }
 
-
     override fun notifyAdapterItemsChange(payload: Boolean){
         binding.recyclerView.adapter?.notifyItemRangeChanged(0, viewModel.data.value!!.size, payload)
-    }
-
-    private inner class Adapter: UnionAdapter() {
-        override fun updateData(newData: List<Pair<Int, ID>>) {
-            super.updateData(newData)
-
-            if (data.isEmpty()) setEmptyView()
-            else setNullView()
-        }
     }
 }

@@ -13,9 +13,4 @@
         android:id="@+id/navigation_time_tracker"
         android:icon="@drawable/ic_baseline_access_time_filled_24"
         android:title="@string/time_tracker"/>
-
-    <item
-        android:id="@+id/navigation_calendar"
-        android:icon="@drawable/ic_baseline_calendar_today_24"
-        android:title="@string/calendar"/>
 </menu>

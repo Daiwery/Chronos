@@ -8,14 +8,15 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/motionLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -24,8 +25,24 @@
                 android:id="@+id/toolBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:title="31 августа 2021"
-                app:titleCentered="true"/>
+                app:title="31 августа 2021">
+
+                <ImageView
+                    android:id="@+id/imageView9"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:paddingTop="5dp"
+                    android:src="@drawable/ic_baseline_arrow_right_24"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription" />
+            </com.google.android.material.appbar.MaterialToolbar>
+
+            <CalendarView
+                android:id="@+id/calendarView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"/>
         </com.google.android.material.appbar.AppBarLayout>
 
         <com.daiwerystudio.chronos.ui.widgets.DayClockView
@@ -33,7 +50,6 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
@@ -44,7 +60,6 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/clock"

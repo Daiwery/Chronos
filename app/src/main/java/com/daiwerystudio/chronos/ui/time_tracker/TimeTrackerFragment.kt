@@ -104,12 +104,21 @@ class TimeTrackerFragment : Fragment() {
         })
 
         binding.toolBar.setOnClickListener {
-            val dialog = MaterialDatePicker.Builder.datePicker()
-                .setSelection(viewModel.day.value!!*24*60*60*1000).build()
-            dialog.addOnPositiveButtonClickListener {
-                viewModel.day.value = it/(24*60*60*1000)
+            if (binding.calendarView.visibility == View.VISIBLE) {
+                binding.calendarView.visibility = View.GONE
+                binding.imageView9.rotation = 0f
             }
-            dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
+            else {
+                binding.calendarView.visibility = View.VISIBLE
+                binding.imageView9.rotation = 90f
+            }
+        }
+
+        // По какой-то причине, если календарь инициализируется невидимым,
+        // то его размер становится равен 0.
+        binding.calendarView.visibility = View.GONE
+        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            viewModel.day.value = LocalDate.of(year, month+1, dayOfMonth).toEpochDay()
         }
 
         binding.clock.setFinishedListener{ binding.loadingClock.visibility = View.GONE }

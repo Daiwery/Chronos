@@ -5,7 +5,6 @@
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbarTrackVertical="@drawable/drawable_scrollbar"
     android:verticalScrollbarPosition="left">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,25 +14,24 @@
 
         <com.daiwerystudio.chronos.ui.widgets.ClockFaceView
             android:id="@+id/clockFaceView"
-            android:layout_width="50dp"
+            android:layout_width="35dp"
             android:layout_height="wrap_content"
             android:background="@drawable/background_clock_face_view"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            custom:spaceHeight="100dp"
-            custom:textSize="14sp"
+            custom:spaceHeight="50dp"
+            custom:textSize="12sp"
             custom:marginText="0dp"/>
 
         <HorizontalScrollView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/clockFaceView"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_max="45dp"
-            android:scrollbarThumbHorizontal="@drawable/drawable_scrollbar">
+            app:layout_constraintWidth_max="45dp">
 
             <FrameLayout
                 android:layout_width="wrap_content"
@@ -46,7 +44,7 @@
                     android:layout_height="match_parent"
                     custom:colorColumn="@color/white_1000"
                     custom:corner="10dp"
-                    custom:spaceWidth="0dp"
+                    custom:spaceWidth="1dp"
                     custom:stripWidth="15dp"
                     custom:sizeDrawable="24dp"
                     custom:marginIcon="4dp"

@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.databinding.FragmentUnionPreviewBinding
 
-
 class UnionPreviewFragment : UnionAbstractFragment() {
     override val viewModel: UnionViewModel
         by lazy { ViewModelProvider(this).get(UnionViewModel::class.java) }
@@ -33,7 +32,7 @@ class UnionPreviewFragment : UnionAbstractFragment() {
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = Adapter()
+            adapter = UnionAdapter()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
@@ -48,7 +47,7 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         binding.selectFilterType.setTypeShowing(viewModel.information.filterType)
         binding.selectFilterType.setSelectTypeShowingListener {
             binding.loadingView.visibility = View.VISIBLE
-            if ((binding.recyclerView.adapter as Adapter).data.isNotEmpty())
+            if ((binding.recyclerView.adapter as UnionAdapter).data.isNotEmpty())
                 binding.recyclerView.scrollToPosition(0)
             viewModel.information.setFilterType(it)
         }
@@ -56,7 +55,7 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         binding.search.setText(viewModel.information.filterString)
         binding.search.addTextChangedListener {
             binding.loadingView.visibility = View.VISIBLE
-            if ((binding.recyclerView.adapter as Adapter).data.isNotEmpty())
+            if ((binding.recyclerView.adapter as UnionAdapter).data.isNotEmpty())
                 binding.recyclerView.scrollToPosition(0)
             viewModel.information.setFilterName(it?.toString())
         }
@@ -74,27 +73,21 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         }
 
         viewModel.data.observe(viewLifecycleOwner, {
-            (binding.recyclerView.adapter as Adapter).updateData(it)
+            (binding.recyclerView.adapter as UnionAdapter).updateData(it)
         })
 
-        binding.fab.setOnClickListener{
-            val popup = UnionPopupMenu(requireActivity().supportFragmentManager, requireContext(), it)
-            popup.setUnionBuilder(object : UnionPopupMenu.UnionBuilder {
-                override fun getParent(): String = viewModel.information.parentID
-                override fun getIndex(): Int = viewModel.data.value!!.size
-            })
-            popup.show()
-        }
+        binding.fab.setOnMenuItemClickListener{ createUnionItem(it) }
 
         return binding.root
     }
 
-    private fun setEmptyView(){
+
+    override fun setEmptyView(){
         binding.loadingView.visibility = View.GONE
         binding.emptyView.visibility = View.VISIBLE
     }
 
-    private fun setNullView(){
+    override fun setNullView(){
         binding.loadingView.visibility = View.GONE
         binding.emptyView.visibility = View.GONE
     }
@@ -107,17 +100,7 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         binding.fab.show()
     }
 
-
     override fun notifyAdapterItemsChange(payload: Boolean){
         binding.recyclerView.adapter?.notifyItemRangeChanged(0, viewModel.data.value!!.size, payload)
-    }
-
-    private inner class Adapter: UnionAdapter() {
-        override fun updateData(newData: List<Pair<Int, ID>>) {
-            super.updateData(newData)
-
-            if (data.isEmpty()) setEmptyView()
-            else setNullView()
-        }
     }
 }

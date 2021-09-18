@@ -26,28 +26,27 @@
                 android:id="@+id/toolBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:animateLayoutChanges="true"
                 app:title="@string/title_union_preview">
 
                 <ImageView
                     android:id="@+id/imageView9"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
+                    android:paddingTop="5dp"
                     android:src="@drawable/ic_baseline_arrow_right_24"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:paddingTop="5dp"
                     tools:ignore="ContentDescription" />
             </com.google.android.material.appbar.MaterialToolbar>
 
             <com.daiwerystudio.chronos.ui.widgets.SelectFilterType
                 android:id="@+id/select_filter_type"
-                android:background="@color/white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
+                android:background="@color/white"
                 android:paddingTop="8dp"
-                android:paddingBottom="8dp"/>
+                android:paddingBottom="8dp"
+                android:visibility="gone" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -107,14 +106,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/searchConstraintLayout" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <com.daiwerystudio.chronos.ui.widgets.UnionFabMenu
             android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:src="@drawable/ic_baseline_add_24"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:ignore="ContentDescription" />

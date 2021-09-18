@@ -22,8 +22,15 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
+import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.*
+import com.daiwerystudio.chronos.ui.action_type.ActionTypeDialog
+import com.daiwerystudio.chronos.ui.folder.FolderDialog
+import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
+import com.daiwerystudio.chronos.ui.schedule.ScheduleDialog
+import java.lang.IllegalArgumentException
+import java.util.*
 
 /**
  * Абстрактный класс для union фрагмента.
@@ -275,7 +282,17 @@ abstract class UnionAbstractFragment : Fragment() {
         }
     }
 
+    abstract fun setEmptyView()
+    abstract fun setNullView()
+
     open inner class UnionAdapter: UnionAbstractAdapter(emptyList(), layoutInflater){
+        override fun updateData(newData: List<Pair<Int, ID>>) {
+            super.updateData(newData)
+
+            if (data.isEmpty()) setEmptyView()
+            else setNullView()
+        }
+
         override fun createActionTypeHolder(binding: ItemRecyclerViewActionTypeBinding): RawHolder =
             ActionTypeHolder(binding)
 
@@ -308,6 +325,101 @@ abstract class UnionAbstractFragment : Fragment() {
             else super.onBindViewHolder(holder, position, payloads)
         }
     }
+
+
+    fun createUnionItem(item: Int){
+        when (item){
+            TYPE_ACTION_TYPE -> {
+                val id = UUID.randomUUID().toString()
+                val actionType = ActionType(id=id)
+                val union = Union(id=id, parent=viewModel.information.parentID,
+                    indexList=viewModel.data.value!!.size, type=TYPE_ACTION_TYPE)
+
+                val dialog = ActionTypeDialog()
+                dialog.arguments = Bundle().apply{
+                    putSerializable("actionType", actionType)
+                    putSerializable("union", union)
+                    putBoolean("isCreated", true)
+                }
+                dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")
+            }
+
+            TYPE_GOAL -> {
+                val id = UUID.randomUUID().toString()
+                val goal = Goal(id=id)
+                val union = Union(id=id, parent=viewModel.information.parentID,
+                    indexList=viewModel.data.value!!.size, type=TYPE_GOAL)
+
+                val dialog = GoalDialog()
+                dialog.arguments = Bundle().apply{
+                    putSerializable("goal", goal)
+                    putSerializable("union", union)
+                    putBoolean("isCreated", true)
+                }
+                dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
+            }
+
+            TYPE_SCHEDULE -> {
+                val id = UUID.randomUUID().toString()
+                val schedule = Schedule(id=id, type=TYPE_SCHEDULE_PERIODIC)
+                val union = Union(id=id, parent=viewModel.information.parentID,
+                    indexList=viewModel.data.value!!.size, type=TYPE_SCHEDULE)
+
+                val dialog = ScheduleDialog()
+                dialog.arguments = Bundle().apply{
+                    putSerializable("schedule", schedule)
+                    putSerializable("union", union)
+                    putBoolean("isCreated", true)
+                }
+                dialog.show(requireActivity().supportFragmentManager, "ScheduleDialog")
+            }
+
+            TYPE_NOTE -> {
+                val id = UUID.randomUUID().toString()
+                val note = Note(id=id)
+                val union = Union(id=id, parent=viewModel.information.parentID,
+                    indexList=viewModel.data.value!!.size, type=TYPE_NOTE)
+
+                val bundle = Bundle().apply{
+                    putSerializable("note", note)
+                    putSerializable("union", union)
+                }
+                view?.findNavController()?.navigate(R.id.action_global_navigation_note, bundle)
+            }
+
+            TYPE_REMINDER -> {
+                val id = UUID.randomUUID().toString()
+                val reminder = Reminder(id=id)
+                val union = Union(id=id, parent=viewModel.information.parentID,
+                    indexList=viewModel.data.value!!.size, type=TYPE_REMINDER)
+
+                val dialog = ReminderDialog()
+                dialog.arguments = Bundle().apply{
+                    putSerializable("reminder", reminder)
+                    putSerializable("union", union)
+                    putBoolean("isCreated", true)
+                }
+                dialog.show(requireActivity().supportFragmentManager, "ReminderDialog")
+            }
+
+            TYPE_FOLDER -> {
+                val id = UUID.randomUUID().toString()
+                val folder = Folder(id=id)
+                val union = Union(id=id, parent=viewModel.information.parentID,
+                    indexList=viewModel.data.value!!.size, type=TYPE_FOLDER)
+
+                val dialog = FolderDialog()
+                dialog.arguments = Bundle().apply{
+                    putSerializable("folder", folder)
+                    putSerializable("union", union)
+                    putBoolean("isCreated", true)
+                }
+                dialog.show(requireActivity().supportFragmentManager, "FolderDialog")
+            }
+           else -> throw IllegalArgumentException("Invalid type")
+        }
+    }
+
 
     // ПРЕДУПРЕЖДЕНИЕ! Инициализация должна происходить после инициализации information в UnionViewModel.
     val itemTouchHelper by lazy {

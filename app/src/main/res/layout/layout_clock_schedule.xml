@@ -13,20 +13,20 @@
 
         <com.daiwerystudio.chronos.ui.widgets.ClockFaceView
             android:id="@+id/clockFaceView"
-            android:layout_width="50dp"
+            android:layout_width="35dp"
             android:layout_height="wrap_content"
             android:background="@drawable/background_clock_face_view"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            custom:spaceHeight="100dp"
-            custom:textSize="14sp"
+            custom:spaceHeight="50dp"
+            custom:textSize="12sp"
             custom:marginText="0dp"/>
 
         <HorizontalScrollView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/clockFaceView"
@@ -43,11 +43,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     custom:corner="10dp"
-                    custom:spaceWidth="0dp"
+                    custom:spaceWidth="1dp"
                     custom:stripWidth="15dp"
                     custom:colorColumn="@color/white_1000" />
             </FrameLayout>
         </HorizontalScrollView>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

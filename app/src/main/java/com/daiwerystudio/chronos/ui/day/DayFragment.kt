@@ -13,6 +13,7 @@
 
 package com.daiwerystudio.chronos.ui.day
 
+import android.animation.LayoutTransition
 import android.animation.ObjectAnimator
 import android.app.AlertDialog
 import android.graphics.Color
@@ -127,57 +128,27 @@ class DayFragment: Fragment() {
         })
 
         binding.toolBar.setOnClickListener {
-            val dialog = MaterialDatePicker.Builder.datePicker()
-                .setSelection(viewModel.day.value!!*24*60*60*1000).build()
-            dialog.addOnPositiveButtonClickListener {
-                viewModel.day.value = it/(24*60*60*1000)
+            if (binding.calendarView.visibility == View.VISIBLE) {
+                binding.calendarView.visibility = View.GONE
+                binding.imageView9.rotation = 0f
             }
-            dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
+            else {
+                binding.calendarView.visibility = View.VISIBLE
+                binding.imageView9.rotation = 90f
+            }
+        }
+
+        // По какой-то причине, если календарь инициализируется невидимым,
+        // то его размер становится равен 0.
+        binding.calendarView.visibility = View.GONE
+        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            viewModel.day.value = LocalDate.of(year, month+1, dayOfMonth).toEpochDay()
         }
 
         binding.clock.setFinishedListener{ binding.loadingClock.visibility = View.GONE }
         binding.clock.setMustActionTypeListener{}
 
         binding.fab.setOnClickListener{
-            val popup = PopupMenu(context, it)
-            popup.menuInflater.inflate(R.menu.menu_create_day_item, popup.menu)
-            popup.setOnMenuItemClickListener (object : PopupMenu.OnMenuItemClickListener {
-                override fun onMenuItemClick(item: MenuItem?): Boolean {
-                    when (item?.itemId){
-                        R.id.create_goal -> {
-                            val id = UUID.randomUUID().toString()
-                            val goal = Goal(id=id)
-                            goal.deadline = System.currentTimeMillis()
-
-                            val dialog = GoalDialog()
-                            dialog.arguments = Bundle().apply{
-                                putSerializable("goal", goal)
-                                putBoolean("isTemporal", true)
-                                putBoolean("isCreated", true)
-                            }
-                            dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
-
-                            return true
-                        }
-
-                        R.id.create_reminder -> {
-                            val id = UUID.randomUUID().toString()
-                            val reminder = Reminder(id=id)
-
-                            val dialog = ReminderDialog()
-                            dialog.arguments = Bundle().apply{
-                                putSerializable("reminder", reminder)
-                                putBoolean("isCreated", true)
-                            }
-                            dialog.show(requireActivity().supportFragmentManager, "ReminderDialog")
-
-                            return true
-                        }
-                        else -> return false
-                    }
-                }
-            })
-            popup.show()
         }
 
         return binding.root
