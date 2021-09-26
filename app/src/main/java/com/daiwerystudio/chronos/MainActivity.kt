@@ -5,8 +5,11 @@
 
 package com.daiwerystudio.chronos
 
+import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -20,14 +23,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Настройка компонентов навигации.
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         mNavController = navHostFragment.navController
         navView.setupWithNavController(mNavController)
 
-        // Чтобы нижняя панель показывалась только в основных частях приложения.
         mNavController.addOnDestinationChangedListener { _, destination, _ ->
+            val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            manager?.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+            currentFocus?.clearFocus()
             when (destination.id) {
                 R.id.navigation_union_preview ->  navView.visibility = View.VISIBLE
                 R.id.navigation_day ->  navView.visibility = View.VISIBLE
@@ -35,7 +39,6 @@ class MainActivity : AppCompatActivity() {
                 else -> navView.visibility = View.GONE
             }
         }
-
     }
 }
 

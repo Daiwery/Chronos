@@ -8,9 +8,9 @@
     <item
         android:id="@+id/navigation_day"
         android:icon="@drawable/ic_baseline_home_24"
-        android:title="@string/main" />
+        android:title="@string/title_main" />
     <item
         android:id="@+id/navigation_time_tracker"
         android:icon="@drawable/ic_baseline_access_time_filled_24"
-        android:title="@string/time_tracker"/>
+        android:title="@string/title_time_tracker"/>
 </menu>

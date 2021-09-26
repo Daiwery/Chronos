@@ -55,13 +55,12 @@
             android:layout_height="40dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:colorFilter="@{actionType.color}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/action_type_name"
             app:srcCompat="@drawable/drawable_color_action_type"
             tools:ignore="ContentDescription" />
 
-        <Button
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/button"
             style="@style/Widget.BottomDialog.Button"
             android:layout_width="wrap_content"
@@ -69,6 +68,8 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:text="@string/add"
+            app:icon="@drawable/ic_baseline_add_24"
+            app:iconTint="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.578"

@@ -23,7 +23,7 @@ import com.daiwerystudio.chronos.ui.DataViewModel
 import com.daiwerystudio.chronos.ui.FORMAT_DAY
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
-import com.daiwerystudio.chronos.ui.widgets.SelectActionTypeViewModel
+import com.daiwerystudio.chronos.ui.SelectActionTypeViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -76,12 +76,12 @@ class ActionDialog : BottomSheetDialogFragment() {
         viewModel.actionTypes.observe(viewLifecycleOwner, {
             binding.selectActionType.setData(it)
         })
-        val actionType = mActionTypeRepository.getActionType(action.actionTypeId)
+        val actionType = mActionTypeRepository.getActionType(action.actionTypeID)
         actionType.observe(viewLifecycleOwner, {
             if (it != null && binding.selectActionType.selectedActionType != null)
                 binding.selectActionType.setSelectedActionType(it)
         })
-        binding.selectActionType.setOnSelectListener{ action.actionTypeId = it.id }
+        binding.selectActionType.setOnSelectListener{ action.actionTypeID = it.id }
 
         binding.startTime.editText?.setOnClickListener{
             val localTime = action.startTime+local
@@ -140,12 +140,18 @@ class ActionDialog : BottomSheetDialogFragment() {
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
-        if (isCreated) binding.button.text = resources.getString(R.string.add)
-        else binding.button.text = resources.getString(R.string.edit)
+        if (isCreated) {
+            binding.button.text = resources.getString(R.string.add)
+            binding.button.setIconResource(R.drawable.ic_baseline_add_24)
+        }
+        else {
+            binding.button.text = resources.getString(R.string.edit)
+            binding.button.setIconResource(R.drawable.ic_baseline_edit_24)
+        }
 
         binding.button.setOnClickListener {
             var permission = true
-            if (action.actionTypeId == "") permission = false
+            if (action.actionTypeID == "") permission = false
             if (action.startTime > action.endTime) permission = false
 
             if (permission){

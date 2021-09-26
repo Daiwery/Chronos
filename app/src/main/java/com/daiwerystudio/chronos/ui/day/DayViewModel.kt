@@ -14,6 +14,10 @@
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 * Изменения: удаление таблицы с днями в расписании. Измения схема наблюдения: теперь мы
 * сразу получаем действия из базы данных. Без промежуточных этапов. Вся логика теперь в SQLite.
+*
+* Дата изменения: 24.09.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: наследование от ClockViewModel.
 */
 
 package com.daiwerystudio.chronos.ui.day
@@ -21,101 +25,181 @@ package com.daiwerystudio.chronos.ui.day
 import android.icu.util.TimeZone
 import androidx.lifecycle.*
 import com.daiwerystudio.chronos.database.*
-import com.daiwerystudio.chronos.ui.union.ID
+import com.daiwerystudio.chronos.ui.ClockViewModel
+import com.daiwerystudio.chronos.ui.widgets.ActionsView
 import java.util.concurrent.Executors
 
-/**
- * Схема наблюдения следующая. Начальная точка - это номер дня day. На него подписан mActiveSchedules
- * - активные расписания. На mActiveSchedules подписан actionSchedule, который получает действия,
- * которые активны сегодня.
- *
- * Также на day подписаны две LiveData: mLiveGoals и mLiveReminders, которые объединяются
- * с помощью MediatorLiveData.
- */
-class DayViewModel: ViewModel() {
+class DayViewModel: ClockViewModel() {
     private val mScheduleRepository = ScheduleRepository.get()
+    private val mActionTypeRepository = ActionTypeRepository.get()
     private val mGoalRepository = GoalRepository.get()
     private val mReminderRepository = ReminderRepository.get()
-    private val mUnionRepository = UnionRepository.get()
     val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
+
+    /**
+     * Специальный класс, необходимый для адаптера.
+     */
+    data class Section(
+        val data: List<Pair<ActionSchedule, ActionType?>>
+    )
 
     // Локальный день.
     val day: MutableLiveData<Long> = MutableLiveData()
 
     // Массив с целями.
-    private val mLiveGoals: LiveData<List<Goal>> = Transformations.switchMap(day){
+    private val mGoals: LiveData<List<Goal>> = Transformations.switchMap(day){
+        mIsReceivedGoals = false
         // Нужно не забыть перевести время из локального в глобальное.
         mGoalRepository.getGoalsFromTimeInterval(it*1000*60*60*24-local,
             (it+1)*1000*60*60*24-local)
     }
-    private var mGoals: List<Goal> = emptyList()
+    private var mIsReceivedGoals: Boolean = false
 
     // Массив с напоминаниями.
-    private val mLiveReminders: LiveData<List<Reminder>> = Transformations.switchMap(day){
+    private val mReminders: LiveData<List<Reminder>> = Transformations.switchMap(day){
+        mIsReceivedReminders = false
         // Нужно не забыть перевести время из локального в глобальное.
         mReminderRepository.getRemindersFromTimeInterval(it*1000*60*60*24-local,
             (it+1)*1000*60*60*24-local)
     }
-    private var mReminders: List<Reminder> = emptyList()
-
-    /*  Соединяем массив с целями и напоминаниями.  */
-    val data: MediatorLiveData<List<Pair<Int, ID>>> = MediatorLiveData()
-    init {
-        data.addSource(mLiveGoals){ goals ->
-            mGoals = goals
-
-            val newData = mutableListOf<Pair<Int, ID>>()
-            newData.addAll(mReminders.map { Pair(TYPE_REMINDER, it) })
-            newData.addAll(mGoals.map { Pair(TYPE_GOAL, it) })
-            newData.sortBy {
-                when (it.first){
-                    TYPE_GOAL -> (it.second as Goal).deadline
-                    TYPE_REMINDER -> (it.second as Reminder).time
-                    else -> throw IllegalArgumentException("Invalid type")
-                }
-            }
-            data.value = newData
-        }
-        data.addSource(mLiveReminders){ reminders ->
-            mReminders = reminders
-
-            val newData = mutableListOf<Pair<Int, ID>>()
-            newData.addAll(mReminders.map { Pair(TYPE_REMINDER, it) })
-            newData.addAll(mGoals.map { Pair(TYPE_GOAL, it) })
-            newData.sortBy {
-                when (it.first){
-                    TYPE_GOAL -> (it.second as Goal).deadline
-                    TYPE_REMINDER -> (it.second as Reminder).time
-                    else -> throw IllegalArgumentException("Invalid type")
-                }
-            }
-            data.value = newData
-        }
-    }
+    private var mIsReceivedReminders: Boolean = false
 
     /*  Получение активных расписаний.  */
-    val actionsSchedule: LiveData<List<ActionSchedule>> = Transformations.switchMap(day) {
+    val mActionsSchedule: LiveData<List<ActionSchedule>> = Transformations.switchMap(day) {
+        mIsReceivedSections = false
         mScheduleRepository.getActionsScheduleFromDay(it, local)
     }
 
+    /*  Обрабатываем действия.  */
+    private val mActionSections: LiveData<List<ActionSection>> =
+        Transformations.switchMap(mActionsSchedule) { actionsSchedule ->
+            val liveActionSections = MutableLiveData<List<ActionSection>>()
 
-    /*                        Доп. функции                        */
+            Executors.newSingleThreadExecutor().execute {
+                val actionIntervals = mutableListOf<ActionInterval>()
+                actionsSchedule.forEach {
+                    actionIntervals.add(ActionInterval(it.id, it.actionTypeID, it.startTime, it.endTime))
+                }
+                liveActionSections.postValue(processingActionIntervals(actionIntervals))
+            }
+
+            liveActionSections
+        }
+
+    /*  Получаем типы действий, которые используются.  */
+    private val mActionTypes: LiveData<List<ActionType>> =
+        Transformations.switchMap(mActionSections) { actionSections ->
+            val ids = mutableListOf<String>()
+            actionSections.forEach { actionSection ->
+                actionSection.intervals.forEach {
+                    if (it.actionTypeID !in ids) ids.add(it.actionTypeID)
+                }
+            }
+
+            mActionTypeRepository.getActionTypes(ids)
+        }
+
+    /*  Формируем секции с действиями и типами, с которыми они связаны.  */
+    private val mSections: LiveData<List<Section>> =
+        Transformations.switchMap(mActionTypes) { actionTypes ->
+            val sections = mutableListOf<Section>()
+            mActionSections.value!!.forEach { actionSection ->
+                val data = mutableListOf<Pair<ActionSchedule, ActionType?>>()
+                actionSection.intervals.forEach { actionInterval ->
+                    val actionSchedule = mActionsSchedule.value!!.first { it.id == actionInterval.id }
+                    val actionType = actionTypes.firstOrNull { it.id == actionSchedule.actionTypeID }
+                    data.add(Pair(actionSchedule, actionType))
+                }
+                sections.add(Section(data))
+            }
+
+            MutableLiveData(sections)
+        }
+    private var mIsReceivedSections: Boolean = false
+
+    /*  Формируем объекты для рисования.   */
+    val actionDrawables: LiveData<List<ActionsView.ActionDrawable>> =
+        Transformations.switchMap(mActionTypes) { actionTypes ->
+            val actionDrawables = mutableListOf<ActionsView.ActionDrawable>()
+            mActionSections.value!!.forEach { actionSection ->
+                actionSection.intervals.forEach { actionInterval ->
+                    val actionSchedule = mActionsSchedule.value!!.first { it.id == actionInterval.id }
+                    val actionType = actionTypes.firstOrNull { it.id == actionSchedule.actionTypeID }
+
+                    val color = actionType?.color ?: 0
+                    val start = actionInterval.start/(24f*60*60*1000)
+                    val end = actionInterval.end/(24f*60*60*1000)
+                    val left = actionInterval.index.toFloat()
+                    val right = left+1
+
+                    actionDrawables.add(ActionsView.ActionDrawable(color, start, end, left, right))
+                }
+            }
+
+            MutableLiveData(actionDrawables)
+        }
+
+    /*  Соединяем все в один список.  */
+    val data: MediatorLiveData<List<Pair<Int, Any>>> = MediatorLiveData()
+    init {
+        data.addSource(mGoals){
+            mIsReceivedGoals = true
+
+            if (mIsReceivedGoals && mIsReceivedReminders && mIsReceivedSections)
+                data.value = buildData()
+        }
+        data.addSource(mReminders){
+            mIsReceivedReminders = true
+
+            if (mIsReceivedGoals && mIsReceivedReminders && mIsReceivedSections)
+                data.value = buildData()
+        }
+        data.addSource(mSections){
+            mIsReceivedSections = true
+
+            if (mIsReceivedGoals && mIsReceivedReminders && mIsReceivedSections)
+                data.value = buildData()
+        }
+    }
+
+    private fun buildData(): List<Pair<Int, Any>> {
+        val newData = mutableListOf<Pair<Int, Any>>()
+        mSections.value?.also { sections ->
+            newData.addAll(sections.map { Pair(TYPE_SECTION, it) })
+        }
+        mReminders.value?.also { reminders ->
+            newData.addAll(reminders.map { Pair(TYPE_REMINDER, it) })
+        }
+        mGoals.value?.also { goals ->
+            newData.addAll(goals.map { Pair(TYPE_GOAL, it) })
+        }
+        newData.sortBy {
+            when (it.first){
+                TYPE_SECTION -> (it.second as Section).data.first().first.startTime
+                TYPE_GOAL -> (it.second as Goal).deadline
+                TYPE_REMINDER -> (it.second as Reminder).time
+                else -> throw IllegalArgumentException("Invalid type")
+            }
+        }
+
+        return newData
+    }
+
+    // Функция для алгоритма обработки действий.
+    override fun getIndexForInterval(columns: List<String>): Int {
+        // Находим свободный индекс.
+        val freeIndex = columns.indexOfFirst { it == "" }
+        // Если не нашли, то ставим новый столбец.
+        return if (freeIndex == -1) columns.size else freeIndex
+    }
+
     fun updateGoal(goal: Goal){
         mGoalRepository.updateGoal(goal)
     }
 
-    fun deleteItem(position: Int){
-        val item = data.value!![position]
-        when(item.first){
-            TYPE_GOAL -> {
-                mUnionRepository.deleteUnionWithChild(item.second.id)
-                mGoalRepository.deleteGoal(item.second as Goal)
-            }
-            TYPE_REMINDER -> {
-                mUnionRepository.deleteUnionWithChild(item.second.id)
-                mReminderRepository.deleteReminder(item.second as Reminder)
-            }
-            else -> throw IllegalArgumentException("Invalid type")
-        }
+    companion object {
+        const val TYPE_SECTION = 0
+        const val TYPE_REMINDER = 1
+        const val TYPE_GOAL = 2
     }
 }

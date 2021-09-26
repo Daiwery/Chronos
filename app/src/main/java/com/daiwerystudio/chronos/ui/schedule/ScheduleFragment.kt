@@ -41,6 +41,8 @@ class ScheduleFragment : Fragment() {
         TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
             tab.text = resources.getString(R.string.day)+" "+(position+1).toString()
         }.attach()
+        // Убираем swipe.
+        binding.viewPager2.isUserInputEnabled = false
 
         viewModel.schedule.observe(viewLifecycleOwner, {
             binding.toolBar.title = it.name

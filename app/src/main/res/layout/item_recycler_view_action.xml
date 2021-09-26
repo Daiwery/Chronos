@@ -7,90 +7,70 @@
         <variable
             name="actionType"
             type="com.daiwerystudio.chronos.database.ActionType" />
-        <variable
-            name="action"
-            type="com.daiwerystudio.chronos.database.Action" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="4dp">
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingStart="4dp"
             android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:layout_marginEnd="4dp">
+            android:paddingEnd="4dp"
+            android:paddingBottom="8dp">
 
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:layout_marginStart="8dp"
-                android:colorFilter="@{actionType.color}"
-                app:layout_constraintBottom_toBottomOf="@+id/textView1"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/drawable_color_action_type"
+                android:backgroundTint="@{actionType.color}"
+                android:padding="4dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textView1"
-                app:srcCompat="@drawable/drawable_color_action_type"
-                tools:ignore="ContentDescription" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/imageView10"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/textView12"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/textView12"
+                    app:srcCompat="@drawable/ic_action_type"
+                    app:tint="@color/white"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/textView12"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:singleLine="true"
+                    android:text="@{actionType.name}"
+                    android:textAppearance="@style/Text.NameItem"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/imageView10"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Ядерная физика" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
-                android:id="@+id/textView1"
-                android:textAppearance="@style/Text.NameItem"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:paddingBottom="0dp"
-                android:singleLine="true"
-                android:text="@{actionType.name}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/startTextView"
-                app:layout_constraintStart_toEndOf="@+id/imageView"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Test" />
-
-            <TextView
-                android:id="@+id/startTextView"
+                android:id="@+id/time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/start_"
+                android:layout_marginTop="8dp"
                 android:textAppearance="@style/Text.Caption"
-                app:layout_constraintEnd_toStartOf="@+id/start"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/endTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/end_"
-                android:textAppearance="@style/Text.Caption"
-                app:layout_constraintEnd_toStartOf="@+id/end"
-                app:layout_constraintTop_toBottomOf="@+id/startTextView" />
-
-            <TextView
-                android:id="@+id/start"
-                android:textAppearance="@style/Text.Caption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/startTextView"
-                tools:text="14:00" />
-
-            <TextView
-                android:id="@+id/end"
-                android:textAppearance="@style/Text.Caption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="@+id/start"
-                app:layout_constraintTop_toBottomOf="@+id/startTextView"
-                tools:text="15:00" />
+                app:layout_constraintStart_toStartOf="@+id/linearLayout"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+                tools:text="14:00 - 15:00" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
@@ -100,6 +80,5 @@
             android:visibility="gone"
             app:srcCompat="@drawable/drawable_invalid_action_type"
             tools:ignore="ContentDescription" />
-
     </com.google.android.material.card.MaterialCardView>
 </layout>

@@ -14,6 +14,7 @@
 package com.daiwerystudio.chronos.ui.schedule
 
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -70,6 +71,20 @@ class ScheduleDialog : BottomSheetDialogFragment() {
         binding = DialogScheduleBinding.inflate(inflater, container, false)
         binding.schedule = schedule
         binding.scheduleStart.editText?.setText(formatTime(schedule.start, true, FormatStyle.LONG, FORMAT_DAY))
+        if (schedule.type == TYPE_SCHEDULE_PERIODIC) binding.checkBox.isChecked = true
+        if (schedule.type == TYPE_SCHEDULE_ONCE) binding.scheduleCountDays.visibility = View.GONE
+
+        binding.checkBox.setOnClickListener {
+            TransitionManager.beginDelayedTransition(binding.main)
+            if (schedule.type == TYPE_SCHEDULE_PERIODIC) {
+                schedule.type = TYPE_SCHEDULE_ONCE
+                binding.scheduleCountDays.visibility = View.GONE
+            }
+            else {
+                schedule.type = TYPE_SCHEDULE_PERIODIC
+                binding.scheduleCountDays.visibility = View.VISIBLE
+            }
+        }
 
         binding.scheduleName.editText?.doOnTextChanged { text, _, _, _ ->
             schedule.name = text.toString()
@@ -77,14 +92,12 @@ class ScheduleDialog : BottomSheetDialogFragment() {
             else binding.scheduleName.error = null
         }
 
-        if (schedule.type == TYPE_SCHEDULE_PERIODIC) {
-            binding.scheduleCountDays.editText?.doOnTextChanged { text, _, _, _ ->
-                if (text.toString() != "") {
-                    schedule.countDays = text.toString().toInt()
-                    binding.scheduleCountDays.error = null
-                } else binding.scheduleCountDays.error = " "
-            }
-        } else binding.scheduleCountDays.visibility = View.GONE
+        binding.scheduleCountDays.editText?.doOnTextChanged { text, _, _, _ ->
+            if (text.toString() != "") {
+                schedule.countDays = text.toString().toInt()
+                binding.scheduleCountDays.error = null
+            } else binding.scheduleCountDays.error = " "
+        }
 
         binding.scheduleStart.editText?.setOnClickListener {
             val dialog = MaterialDatePicker.Builder.datePicker().setSelection(schedule.start+local).build()
@@ -95,8 +108,15 @@ class ScheduleDialog : BottomSheetDialogFragment() {
             dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")
         }
 
-        if (isCreated) binding.button.text = resources.getString(R.string.add)
-        else binding.button.text = resources.getString(R.string.edit)
+        if (isCreated) {
+            binding.button.text = resources.getString(R.string.add)
+            binding.button.setIconResource(R.drawable.ic_baseline_add_24)
+        }
+        else {
+            binding.button.text = resources.getString(R.string.edit)
+            binding.button.setIconResource(R.drawable.ic_baseline_edit_24)
+        }
+
         binding.button.setOnClickListener {
             var permission = true
             if (schedule.name == ""){

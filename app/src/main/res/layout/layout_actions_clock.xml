@@ -14,15 +14,16 @@
 
         <com.daiwerystudio.chronos.ui.widgets.ClockFaceView
             android:id="@+id/clockFaceView"
-            android:layout_width="35dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/background_clock_face_view"
+            android:background="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             custom:spaceHeight="50dp"
             custom:textSize="12sp"
-            custom:marginText="0dp"/>
+            custom:marginText="4dp"
+            android:textColor="@color/white_300"/>
 
         <HorizontalScrollView
             android:layout_width="wrap_content"
@@ -38,18 +39,14 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <com.daiwerystudio.chronos.ui.widgets.MultiScheduleView
-                    android:id="@+id/multiScheduleView"
+                <com.daiwerystudio.chronos.ui.widgets.ActionsView
+                    android:id="@+id/actionsView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     custom:colorColumn="@color/white_1000"
                     custom:corner="10dp"
                     custom:spaceWidth="1dp"
-                    custom:stripWidth="15dp"
-                    custom:sizeDrawable="24dp"
-                    custom:marginIcon="4dp"
-                    custom:drawableGoal="@drawable/ic_goal"
-                    custom:drawableReminder="@drawable/ic_reminder"/>
+                    custom:stripWidth="15dp"/>
             </FrameLayout>
         </HorizontalScrollView>
 

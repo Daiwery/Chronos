@@ -19,6 +19,7 @@
 
 package com.daiwerystudio.chronos.ui.union
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.daiwerystudio.chronos.database.*
 import java.util.*
@@ -49,13 +50,13 @@ open class UnionViewModel : ViewModel() {
             private set
         var filterType: Int? = null
             private set
-        var filterString: String = ""
+        var filterString: String? = null
             private set
 
         fun setData(parentID: String, filterType: Int?, filterName: String?){
             this.parentID = parentID
             this.filterType = filterType
-            this.filterString = filterName ?: ""
+            this.filterString = filterName
             value = parentID
         }
 
@@ -65,7 +66,7 @@ open class UnionViewModel : ViewModel() {
         }
 
         fun setFilterName(filterName: String?){
-            this.filterString = filterName ?: ""
+            this.filterString = filterName
             value = parentID
         }
     }
@@ -78,7 +79,8 @@ open class UnionViewModel : ViewModel() {
         Transformations.switchMap(information) {
             when {
                 information.filterType != null -> mUnionRepository.getUnionsFromType(information.filterType!!)
-                information.filterString != "" -> mUnionRepository.getAllUnions()
+                information.filterString == "" -> MutableLiveData(emptyList())
+                information.filterString != null -> mUnionRepository.getAllUnions()
                 else -> mUnionRepository.getUnionsFromParent(it)
             }
         }
@@ -86,34 +88,52 @@ open class UnionViewModel : ViewModel() {
 
     /*                         Второй этап наблюдения                        */
     private var mActionTypesLiveData: LiveData<List<ActionType>> =
-        Transformations.switchMap(mUnions) { mUnionRepository.getActionTypes(it) }
+        Transformations.switchMap(mUnions) {
+            mIsReceivedActionTypes = false
+            mUnionRepository.getActionTypes(it)
+        }
     private var mActionTypes: List<ActionType> = emptyList()
-    private var mReceivedActionTypes: Boolean = false
+    private var mIsReceivedActionTypes: Boolean = false
 
     private var mGoalsLiveData: LiveData<List<Goal>> =
-        Transformations.switchMap(mUnions) { mUnionRepository.getGoals(it) }
+        Transformations.switchMap(mUnions) {
+            mIsReceivedGoals = false
+            mUnionRepository.getGoals(it)
+        }
     private var mGoals: List<Goal> = emptyList()
-    private var mReceivedGoals: Boolean = false
+    private var mIsReceivedGoals = false
 
     private var mSchedulesLiveData: LiveData<List<Schedule>> =
-        Transformations.switchMap(mUnions) { mUnionRepository.getSchedules(it) }
+        Transformations.switchMap(mUnions) {
+            mIsReceivedSchedules = false
+            mUnionRepository.getSchedules(it)
+        }
     private var mSchedules: List<Schedule> = emptyList()
-    private var mReceivedSchedules: Boolean = false
+    private var mIsReceivedSchedules = false
 
     private var mNotesLiveData: LiveData<List<Note>> =
-        Transformations.switchMap(mUnions) { mUnionRepository.getNotes(it) }
+        Transformations.switchMap(mUnions) {
+            mIsReceivedNotes = false
+            mUnionRepository.getNotes(it)
+        }
     private var mNotes: List<Note> = emptyList()
-    private var mReceivedNotes: Boolean = false
+    private var mIsReceivedNotes: Boolean = false
 
     private var mRemindersLiveData: LiveData<List<Reminder>> =
-        Transformations.switchMap(mUnions) { mUnionRepository.getReminders(it) }
+        Transformations.switchMap(mUnions) {
+            mIsReceivedReminders = false
+            mUnionRepository.getReminders(it)
+        }
     private var mReminders: List<Reminder> = emptyList()
-    private var mReceivedReminders: Boolean = false
+    private var mIsReceivedReminders: Boolean = false
 
     private var mFoldersLiveData: LiveData<List<Folder>> =
-        Transformations.switchMap(mUnions) { mUnionRepository.getFolders(it) }
+        Transformations.switchMap(mUnions) {
+            mIsReceivedFolders = false
+            mUnionRepository.getFolders(it)
+        }
     private var mFolders: List<Folder> = emptyList()
-    private var mReceivedFolders: Boolean = false
+    private var mIsReceivedFolders: Boolean = false
 
 
     /*                        Третий этап наблюдения                        */
@@ -123,60 +143,68 @@ open class UnionViewModel : ViewModel() {
     init {
         data.addSource(mActionTypesLiveData) { actionTypes ->
             val filter = information.filterString
-            mActionTypes = if (filter != "") actionTypes.filter { it.name.contains(filter, ignoreCase=true) } else actionTypes
-            mReceivedActionTypes = true
+            mActionTypes = if (filter != "" && filter != null)
+                actionTypes.filter { it.name.contains(filter, ignoreCase=true) }
+            else actionTypes
+            mIsReceivedActionTypes = true
 
-            if (mReceivedActionTypes && mReceivedGoals && mReceivedSchedules
-                && mReceivedNotes && mReceivedReminders && mReceivedFolders)
+            if (mIsReceivedActionTypes && mIsReceivedGoals && mIsReceivedSchedules
+                && mIsReceivedNotes && mIsReceivedReminders && mIsReceivedFolders)
                 mExecutor.execute { data.postValue(updateData()) }
         }
         data.addSource(mGoalsLiveData){ goals ->
             val filter = information.filterString
-            mGoals = if (filter != "") goals.filter {
+            mGoals = if (filter != "" && filter != null) goals.filter {
                 it.name.contains(filter, ignoreCase=true) || it.note.contains(filter, ignoreCase=true)
             } else goals
-            mReceivedGoals = true
+            mIsReceivedGoals = true
 
-            if (mReceivedActionTypes && mReceivedGoals && mReceivedSchedules
-                && mReceivedNotes && mReceivedReminders && mReceivedFolders)
+            if (mIsReceivedActionTypes && mIsReceivedGoals && mIsReceivedSchedules
+                && mIsReceivedNotes && mIsReceivedReminders && mIsReceivedFolders)
                 mExecutor.execute { data.postValue(updateData()) }
         }
         data.addSource(mSchedulesLiveData){ schedules ->
             val filter = information.filterString
-            mSchedules = if (filter != "") schedules.filter { it.name.contains(filter, ignoreCase=true) } else schedules
-            mReceivedSchedules = true
+            mSchedules = if (filter != "" && filter != null)
+                schedules.filter { it.name.contains(filter, ignoreCase=true) }
+            else schedules
+            mIsReceivedSchedules = true
 
-            if (mReceivedActionTypes && mReceivedGoals && mReceivedSchedules
-                && mReceivedNotes && mReceivedReminders && mReceivedFolders)
+            if (mIsReceivedActionTypes && mIsReceivedGoals && mIsReceivedSchedules
+                && mIsReceivedNotes && mIsReceivedReminders && mIsReceivedFolders)
                 mExecutor.execute { data.postValue(updateData()) }
         }
         data.addSource(mNotesLiveData){ notes ->
             val filter = information.filterString
-            mNotes = if (filter != "") notes.filter {
+            mNotes = if (filter != "" && filter != null) notes.filter {
                 it.name.contains(filter, ignoreCase=true) || it.note.contains(filter, ignoreCase=true)
             } else notes
-            mReceivedNotes = true
+            mIsReceivedNotes = true
 
-            if (mReceivedActionTypes && mReceivedGoals && mReceivedSchedules
-                && mReceivedNotes && mReceivedReminders && mReceivedFolders)
+            if (mIsReceivedActionTypes && mIsReceivedGoals && mIsReceivedSchedules
+                && mIsReceivedNotes && mIsReceivedReminders && mIsReceivedFolders)
                 mExecutor.execute { data.postValue(updateData()) }
         }
         data.addSource(mRemindersLiveData){ reminders ->
             val filter = information.filterString
-            mReminders = if (filter != "") reminders .filter { it.text.contains(filter, ignoreCase=true) } else reminders
-            mReceivedReminders = true
+            mReminders = if (filter != "" && filter != null)
+                reminders.filter { it.text.contains(filter, ignoreCase=true) }
+            else reminders
+            mIsReceivedReminders = true
 
-            if (mReceivedActionTypes && mReceivedGoals && mReceivedSchedules
-                && mReceivedNotes && mReceivedReminders && mReceivedFolders)
+            if (mIsReceivedActionTypes && mIsReceivedGoals && mIsReceivedSchedules
+                && mIsReceivedNotes && mIsReceivedReminders && mIsReceivedFolders)
                 mExecutor.execute { data.postValue(updateData()) }
         }
         data.addSource(mFoldersLiveData){ folders ->
             val filter = information.filterString
-            mFolders = if (filter != "") folders.filter { it.name.contains(filter, ignoreCase=true) } else folders
-            mReceivedFolders = true
+            mFolders = if (filter != "" && filter != null)
+                folders.filter { it.name.contains(filter, ignoreCase=true) }
+            else folders
+            mIsReceivedFolders = true
 
-            if (mReceivedActionTypes && mReceivedGoals && mReceivedSchedules
-                && mReceivedNotes && mReceivedReminders && mReceivedFolders)
+            if (mIsReceivedActionTypes && mIsReceivedGoals && mIsReceivedSchedules
+                && mIsReceivedNotes && mIsReceivedReminders && mIsReceivedFolders)
                 mExecutor.execute { data.postValue(updateData()) }
         }
     }
@@ -190,9 +218,11 @@ open class UnionViewModel : ViewModel() {
         newData.addAll(mSchedules.map { Pair(TYPE_SCHEDULE, it) })
         newData.addAll(mActionTypes.map { Pair(TYPE_ACTION_TYPE, it) })
 
-        updateUnionsIndexList()
-        return if (information.filterType != null || information.filterString != "") newData
-        else newData.sortedBy { mUnions.value!!.indexOfFirst { union -> union.id == it.second.id } }
+        return if (information.filterType != null || information.filterString != null) newData
+        else {
+            updateUnionsIndexList()
+            newData.sortedBy { mUnions.value!!.indexOfFirst { union -> union.id == it.second.id } }
+        }
     }
 
     // Так как мы сортируем по indexList, то возможна ситуация, когда номер в массиве
@@ -223,8 +253,10 @@ open class UnionViewModel : ViewModel() {
     }
 
     fun updateUnions(){
-        updateUnionsIndexList()
-        mUnionRepository.updateUnions(mUnions.value!!)
+        if (information.filterType == null && information.filterString == null){
+            updateUnionsIndexList()
+            mUnionRepository.updateUnions(mUnions.value!!)
+        }
     }
 
     fun moveUnionUp(position: Int){

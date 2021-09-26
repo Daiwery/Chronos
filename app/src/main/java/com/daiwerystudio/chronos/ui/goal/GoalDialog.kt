@@ -10,6 +10,7 @@
 package com.daiwerystudio.chronos.ui.goal
 
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -77,7 +78,11 @@ class GoalDialog : BottomSheetDialogFragment() {
         binding.goal = goal
         binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
         binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
-        if (goal.deadline == 0L) binding.checkBox.isChecked = true
+        if (goal.deadline == 0L) {
+            binding.checkBox.isChecked = true
+            binding.day.visibility = View.GONE
+            binding.time.visibility = View.GONE
+        }
 
         binding.goalName.editText?.doOnTextChanged { text, _, _, _ ->
             goal.name = text.toString()
@@ -88,11 +93,21 @@ class GoalDialog : BottomSheetDialogFragment() {
 
         if (isTemporal == true) binding.checkBox.visibility = View.GONE
         binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) goal.deadline = 0L
-            else goal.deadline = System.currentTimeMillis()
+            if (isChecked) {
+                goal.deadline = 0L
+                binding.day.visibility = View.GONE
+                binding.time.visibility = View.GONE
+            } else {
+                goal.deadline = System.currentTimeMillis()
+                binding.day.visibility = View.VISIBLE
+                binding.time.visibility = View.VISIBLE
+            }
+
             binding.goal = goal
-            binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
-            binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
+            if (goal.deadline != 0L) {
+                binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
+                binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
+            }
         }
 
         binding.time.editText?.setOnClickListener{
@@ -123,8 +138,14 @@ class GoalDialog : BottomSheetDialogFragment() {
             dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")
         }
 
-        if (isCreated) binding.button.text = resources.getString(R.string.add)
-        else binding.button.text = resources.getString(R.string.edit)
+        if (isCreated) {
+            binding.button.text = resources.getString(R.string.add)
+            binding.button.setIconResource(R.drawable.ic_baseline_add_24)
+        }
+        else {
+            binding.button.text = resources.getString(R.string.edit)
+            binding.button.setIconResource(R.drawable.ic_baseline_edit_24)
+        }
 
         binding.button.setOnClickListener{
             var permission = true

@@ -21,13 +21,6 @@ import androidx.databinding.BindingAdapter
  * В данном файле написаны все кастомные Binding Adapter, использующиеся в приложении.
  */
 
-
-@BindingAdapter("android:colorFilter")
-fun setColorFilter(imageView: ImageView, color: Int) {
-    imageView.setColorFilter(color)
-}
-
-
 @BindingAdapter("android:booleanVisibility")
 fun setBooleanVisibility(view: View, visibility: Boolean){
     if (visibility) view.visibility = View.VISIBLE

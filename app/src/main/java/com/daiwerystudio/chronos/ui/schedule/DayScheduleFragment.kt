@@ -9,65 +9,40 @@
 * Дата изменения: 11.09.2021.
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 * Изменения: удаление таблицы дня в расписании. Теперь только один тип.
+*
+* Дата изменения: 23.09.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: добавления логики работы с ClockViewModel и добавление отдельного холдера
+* для пересечения.
 */
 
 package com.daiwerystudio.chronos.ui.schedule
 
-import android.animation.ObjectAnimator
 import android.app.AlertDialog
 import android.graphics.Color
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import android.view.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.ActionSchedule
 import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.databinding.FragmentDayScheduleBinding
-import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionScheduleBinding
+import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
+import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionSectionBinding
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
-import com.daiwerystudio.chronos.ui.union.UnionSimpleCallback
 import java.time.format.FormatStyle
 
 class DayScheduleFragment : Fragment() {
     private val viewModel: DayScheduleViewModel
             by lazy { ViewModelProvider(this).get(DayScheduleViewModel::class.java) }
     private lateinit var binding: FragmentDayScheduleBinding
-    private val itemTouchHelper by lazy {
-        val simpleItemTouchCallback = UnionSimpleCallback(0, ItemTouchHelper.LEFT )
-        simpleItemTouchCallback.backgroundRight = ColorDrawable(Color.parseColor("#CA0000"))
-        simpleItemTouchCallback.iconRight = ContextCompat.getDrawable(requireContext(),
-            R.drawable.ic_baseline_delete_24)?.apply {
-            colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
-        }
-        simpleItemTouchCallback.setSwipeItemListener(object : UnionSimpleCallback.SwipeListener{
-            override fun swipeLeft(position: Int) {
-                AlertDialog.Builder(context, R.style.Style_AlertDialog)
-                    .setTitle(R.string.are_you_sure)
-                    .setPositiveButton(R.string.yes) { _, _ ->
-                        viewModel.deleteActionSchedule(viewModel.actionsSchedule.value!![position])
-                    }
-                    .setNegativeButton(R.string.no){ _, _ -> }
-                    .setCancelable(false).create().show()
-            }
-
-            override fun swipeRight(position: Int) {}
-        })
-
-        ItemTouchHelper(simpleItemTouchCallback)
-    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,9 +59,7 @@ class DayScheduleFragment : Fragment() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = Adapter(emptyList())
-            // itemAnimator = ItemAnimator()
         }
-        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
@@ -96,31 +69,23 @@ class DayScheduleFragment : Fragment() {
             }
         })
 
-        viewModel.actionsSchedule.observe(viewLifecycleOwner, {
+        viewModel.mActionsSchedule.observe(viewLifecycleOwner, { setLoadingView() })
+        viewModel.sections.observe(viewLifecycleOwner, {
             (binding.recyclerView.adapter as Adapter).setData(it)
-            binding.loadingClock.visibility = View.VISIBLE
-            binding.clock.setActionsSchedule(it)
-
-            if (binding.clock.scrollY == 0) {
-                if (viewModel.actionsSchedule.value!!.isNotEmpty()) {
-                    val time = viewModel.actionsSchedule.value!![0].startTime - 60 * 60 * 1000
-                    val ratio = time / (24 * 60 * 60 * 1000f)
-                    val scrollY = (binding.clock.getChildAt(0).height * ratio).toInt()
-                    ObjectAnimator.ofInt(binding.clock, "scrollY", scrollY)
-                        .setDuration(1000).start()
-                }
-            }
+        })
+        viewModel.actionDrawables.observe(viewLifecycleOwner, {
+            binding.clock.setActionDrawables(it)
         })
 
         binding.fab.setOnClickListener {
             val actionSchedule = ActionSchedule(scheduleID=viewModel.daySchedule.value!!.first,
             dayIndex=viewModel.daySchedule.value!!.second)
 
-            val actionsSchedule = viewModel.actionsSchedule.value!!
-            if (actionsSchedule.isNotEmpty()) actionSchedule.startTime =
-                (actionsSchedule[actionsSchedule.size-1].endTime+30*60*1000)%(25*60*60*1000)
+            val sections = viewModel.sections.value!!
+            if (sections.isNotEmpty()) actionSchedule.startTime =
+                (sections.last().data.last().first.endTime+30*60*1000)%(24*60*60*1000)
             else actionSchedule.startTime = 0
-            actionSchedule.endTime = (actionSchedule.startTime+90*60*1000)%(25*60*60*1000)
+            actionSchedule.endTime = (actionSchedule.startTime+90*60*1000)%(24*60*60*1000)
 
             val dialog = ActionScheduleDialog()
             dialog.arguments = Bundle().apply {
@@ -130,8 +95,6 @@ class DayScheduleFragment : Fragment() {
             }
             dialog.show(activity?.supportFragmentManager!!, "ActionScheduleDialog")
         }
-
-        binding.clock.setFinishedListener { binding.loadingClock.visibility = View.GONE }
 
         return binding.root
     }
@@ -146,74 +109,215 @@ class DayScheduleFragment : Fragment() {
         binding.emptyView.visibility = View.GONE
     }
 
-
-    private inner class Holder(private val binding: ItemRecyclerViewActionScheduleBinding):
-        RecyclerView.ViewHolder(binding.root){
-        private lateinit var actionSchedule: ActionSchedule
-
-        init {
-            itemView.setOnClickListener {
-                val dialog = ActionScheduleDialog()
-                dialog.arguments = Bundle().apply {
-                    putSerializable("actionSchedule", actionSchedule)
-                    putBoolean("isCreated", false)
-                    putString("parentID", viewModel.daySchedule.value!!.first)
-                }
-                dialog.show(activity?.supportFragmentManager!!, "ActionScheduleDialog")
-            }
-        }
-
-        fun bind(actionSchedule: ActionSchedule) {
-            this.actionSchedule = actionSchedule
-            binding.actionSchedule = actionSchedule
-            binding.start.text = formatTime(actionSchedule.startTime, false, FormatStyle.SHORT, FORMAT_TIME)
-            binding.end.text = formatTime(actionSchedule.endTime, false, FormatStyle.SHORT, FORMAT_TIME)
-
-            val actionType = viewModel.getActionType(actionSchedule.actionTypeId)
-            actionType.observe(viewLifecycleOwner, {
-                if (it == null) {
-                    binding.actionType = ActionType(id="", color=0, name="???")
-                    binding.invalid.visibility = View.VISIBLE
-                } else {
-                    binding.invalid.visibility = View.GONE
-                    binding.actionType = it
-                }
-            })
-        }
+    private fun setLoadingView(){
+        binding.loadingView.visibility = View.VISIBLE
+        binding.emptyView.visibility = View.GONE
     }
 
-    private inner class Adapter(var actionsSchedule: List<ActionSchedule>): RecyclerView.Adapter<Holder>(){
-        fun setData(newData: List<ActionSchedule>){
-             val diffUtilCallback = ActionScheduleDiffUtil(actionsSchedule, newData)
-             val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
 
-             actionsSchedule = newData.map { it.copy() }
-             diffResult.dispatchUpdatesTo(this)
+    private inner class Adapter(var sections: List<DayScheduleViewModel.Section>):
+        RecyclerView.Adapter<SectionHolder>(){
 
-             if (actionsSchedule.isEmpty()) setEmptyView()
-             else setNullView()
+        fun setData(newData: List<DayScheduleViewModel.Section>){
+            val diffUtilCallback = SectionDiffUtil(sections, newData)
+            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+
+            sections = newData
+            diffResult.dispatchUpdatesTo(this)
+
+            if (sections.isEmpty()) setEmptyView() else setNullView()
         }
 
-        override fun getItemCount() = actionsSchedule.size
+        override fun getItemCount() = sections.size
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder{
-            return Holder(DataBindingUtil.inflate(layoutInflater,
-                    R.layout.item_recycler_view_action_schedule,
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SectionHolder{
+            return SectionHolder(DataBindingUtil.inflate(layoutInflater,
+                    R.layout.item_recycler_view_action_section,
                     parent, false))
         }
 
-        override fun onBindViewHolder(holder: Holder, position: Int) {
-            holder.bind(actionsSchedule[position])
+        override fun onBindViewHolder(holder: SectionHolder, position: Int) {
+            holder.bind(sections[position].data)
+        }
+
+        override fun onBindViewHolder(holder: SectionHolder, position: Int, payloads: MutableList<Any>) {
+            if (payloads.isNotEmpty()) holder.sendPayload(payloads.last())
+            else onBindViewHolder(holder, position)
         }
     }
 
-    class ActionScheduleDiffUtil(private val oldList: List<ActionSchedule>,
-                                 private val newList: List<ActionSchedule>): DiffUtil.Callback() {
+    private inner class SectionHolder(val binding: ItemRecyclerViewActionSectionBinding):
+        RecyclerView.ViewHolder(binding.root){
+        private lateinit var data: List<Pair<ActionSchedule, ActionType?>>
+
+        init {
+            binding.recyclerView.apply {
+                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                adapter = SectionAdapter(emptyList())
+            }
+        }
+
+        fun bind(data: List<Pair<ActionSchedule, ActionType?>>){
+            this.data = data.map { it.copy() }
+            (binding.recyclerView.adapter as SectionAdapter).updateData(data)
+        }
+
+        fun sendPayload(payload: Any){
+            binding.recyclerView.adapter?.notifyItemRangeChanged(0, data.size, payload)
+        }
+    }
+
+    private inner class SectionAdapter(var data: List<Pair<ActionSchedule, ActionType?>>):
+        RecyclerView.Adapter<ActionHolder>(){
+
+        fun updateData(newData: List<Pair<ActionSchedule, ActionType?>>){
+            data = newData
+            notifyItemRangeChanged(0, data.size)
+        }
+
+        override fun getItemCount(): Int = data.size
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionHolder {
+            return ActionHolder(DataBindingUtil.inflate(layoutInflater,
+                R.layout.item_recycler_view_action,
+                parent, false))
+        }
+
+        override fun onBindViewHolder(holder: ActionHolder, position: Int) {
+            holder.bind(data[position])
+            if (itemCount == 1) holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+            else holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+        }
+
+        /* Если холдер есть в selectedItems, то мы с ним ничего не делаем.
+        Если же нет, то изменям прозрачность. */
+        override fun onBindViewHolder(holder: ActionHolder, position: Int, payloads: MutableList<Any>) {
+            if (payloads.isNotEmpty())
+                if (selectedItems.isNotEmpty())
+                    if (data[position].first.id in selectedItems) holder.itemView.alpha = 1f
+                    else holder.itemView.alpha = 0.5f
+                else holder.itemView.alpha = 1f
+            else super.onBindViewHolder(holder, position, payloads)
+        }
+
+    }
+
+    private inner class ActionHolder(private val binding: ItemRecyclerViewActionBinding):
+        RecyclerView.ViewHolder(binding.root){
+        private lateinit var actionSchedule: ActionSchedule
+        private var actionType: ActionType? = null
+
+        init {
+            itemView.setOnClickListener {
+                if (actionMode == null) {
+                    // Восстанавливаем анимацию клика на холдер.
+                    itemView.isClickable = true
+
+                    val dialog = ActionScheduleDialog()
+                    dialog.arguments = Bundle().apply {
+                        putSerializable("actionSchedule", actionSchedule)
+                        putBoolean("isCreated", false)
+                        putString("parentID", viewModel.daySchedule.value!!.first)
+                    }
+                    dialog.show(requireActivity().supportFragmentManager, "ActionScheduleDialog")
+                } else {
+                    // Убираем анимацию клика на холдер.
+                    itemView.isClickable = false
+                    changeItem(actionSchedule.id)
+                }
+            }
+            itemView.setOnLongClickListener {
+                startActionMode()
+                changeItem(actionSchedule.id)
+                true
+            }
+        }
+
+        fun bind(item: Pair<ActionSchedule, ActionType?>) {
+            this.actionSchedule = item.first
+            this.actionType = item.second
+
+            binding.time.text = (formatTime(actionSchedule.startTime, false, FormatStyle.SHORT, FORMAT_TIME) +
+                    " - " + formatTime(actionSchedule.endTime, false, FormatStyle.SHORT, FORMAT_TIME))
+            if (actionType == null) {
+                binding.actionType = ActionType(id="", color=Color.BLACK, name="???")
+                binding.invalid.visibility = View.VISIBLE
+            } else {
+                binding.invalid.visibility = View.GONE
+                binding.actionType = actionType
+            }
+        }
+    }
+
+    // Будем хранить позиции выбранных холдеров.
+    private val selectedItems: MutableList<String> = mutableListOf()
+    private var actionMode: ActionMode? = null
+
+    private fun startActionMode(){
+        actionMode = requireActivity().startActionMode(callback)
+        actionMode?.title = "0"
+    }
+
+    private fun changeItem(id: String){
+        val index = selectedItems.indexOf(id)
+        if (index == -1) selectedItems.add(id)
+        else selectedItems.removeAt(index)
+
+        binding.recyclerView.adapter?.notifyItemRangeChanged(0, viewModel.sections.value!!.size, true)
+        actionMode?.title = selectedItems.size.toString()
+
+        if (selectedItems.size == 0) actionMode?.finish()
+    }
+
+    private val callback by lazy {
+        object : ActionMode.Callback {
+            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                mode?.menuInflater?.inflate(R.menu.menu_action_bar, menu)
+                menu?.findItem(R.id.up)?.isVisible = false
+                binding.fab.hide()
+                return true
+            }
+
+            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
+
+            override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                return when (item?.itemId) {
+                    R.id.delete -> {
+                        AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                            .setTitle(R.string.are_you_sure)
+                            .setPositiveButton(R.string.yes) { _, _ ->
+                                // Нужно передать скопированное значение, из-за того, что
+                                // после этот массив удалится, а дфункция выполняется
+                                // в отдельном потоке.
+                                viewModel.deleteActionsSchedule(selectedItems.map { it })
+                                actionMode?.finish()
+                            }
+                            .setNegativeButton(R.string.no){ _, _ ->
+                                actionMode?.finish()
+                            }
+                            .setCancelable(false).create().show()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            override fun onDestroyActionMode(mode: ActionMode?) {
+                actionMode = null
+                selectedItems.clear()
+                binding.recyclerView.adapter?.notifyItemRangeChanged(0, viewModel.sections.value!!.size, false)
+                binding.fab.show()
+            }
+        }
+    }
+
+    private class SectionDiffUtil(private val oldList: List<DayScheduleViewModel.Section>,
+                                  private val newList: List<DayScheduleViewModel.Section>): DiffUtil.Callback() {
         override fun getOldListSize() = oldList.size
         override fun getNewListSize() = newList.size
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].id == newList[newItemPosition].id
+            return oldList[oldItemPosition] == newList[newItemPosition]
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

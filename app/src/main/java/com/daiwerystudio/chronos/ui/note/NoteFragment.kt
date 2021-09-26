@@ -5,11 +5,13 @@
 
 package com.daiwerystudio.chronos.ui.note
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -47,14 +49,12 @@ class NoteFragment : Fragment()  {
         }
 
         binding.toolBar.setNavigationOnClickListener {
-            binding.root.clearFocus()
             it.findNavController().navigateUp()
         }
         binding.toolBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.save -> {
                     viewModel.saveNote()
-                    binding.root.clearFocus()
                     requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
                     true
                 }

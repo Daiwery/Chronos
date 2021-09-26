@@ -90,14 +90,11 @@ abstract class ActionTypeAbstractHolder(val binding: ItemRecyclerViewActionTypeB
     override fun bind(item: ID) {
         this.actionType = item as ActionType
         binding.actionType = actionType
+        binding.color.setColorFilter(actionType.color)
     }
 
     override fun updateUI(old: ID, new: ID) {
-        new as ActionType
-        old as ActionType
-        this.actionType = new
-        if (old.name != new.name) binding.name.text = new.name
-        if (old.color != new.color) binding.color.setColorFilter(new.color)
+        bind(new)
     }
 
     abstract fun onClicked()
@@ -372,7 +369,7 @@ abstract class UnionAbstractAdapter(var data: List<Pair<Int, ID>>,
 }
 
 
-class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
+open class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
     ItemTouchHelper.SimpleCallback(dragDirs, swipeDirs) {
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
@@ -519,7 +516,7 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
 
     /**
      * Здесь мы определяем, какое событие должно произойти: move или drag. Если current холдер
-     * персекает холдер больше, меньше, чем на 62.5 процента, то это событие drag. Иначе move.
+     * персекает холдер больше, меньше, чем на 90 процентов, то это событие drag. Иначе move.
      * Если функция вернет true, то target холдер будет передаваться дальше и в конечном итоге
      * попадет в onMove.
      */
@@ -528,8 +525,8 @@ class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
                              target: RecyclerView.ViewHolder): Boolean {
         val curY = current.itemView.translationY+current.itemView.top
         val moveOrDrop = if (current.itemView.translationY > 0)
-            curY+current.itemView.height >= target.itemView.top+0.625*target.itemView.height
-        else curY <= target.itemView.top+(1-0.625)*target.itemView.height
+            curY+current.itemView.height >= target.itemView.top+0.9*target.itemView.height
+        else curY <= target.itemView.top+(1-0.9)*target.itemView.height
 
         return if (moveOrDrop){
             dragToViewHolder = null

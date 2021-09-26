@@ -60,8 +60,15 @@ class FolderDialog : BottomSheetDialogFragment() {
             else binding.folderName.error = null
         }
 
-        if (isCreated) binding.button.text = resources.getString(R.string.add)
-        else binding.button.text = resources.getString(R.string.edit)
+        if (isCreated) {
+            binding.button.text = resources.getString(R.string.add)
+            binding.button.setIconResource(R.drawable.ic_baseline_add_24)
+        }
+        else {
+            binding.button.text = resources.getString(R.string.edit)
+            binding.button.setIconResource(R.drawable.ic_baseline_edit_24)
+        }
+
         binding.button.setOnClickListener{
             var permission = true
             if (folder.name == "") {

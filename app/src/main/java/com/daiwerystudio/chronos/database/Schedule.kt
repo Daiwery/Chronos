@@ -60,7 +60,7 @@ data class Schedule(
  * @property id уникальный идентификатор.
  * @property scheduleID id расписания, к которому относится данное действие.
  * @property dayIndex номер дня, к которому относится данное действие.
- * @property actionTypeId id типа действия, к которому относится данное действие в расписании.
+ * @property actionTypeID id типа действия, к которому относится данное действие в расписании.
  * @property startTime фактическое время начала действия.
  * В этом случае время находится в окне с 00:00 до startDayTime в СЛЕДУЮЩЕМ дне.
  * @property endTime фактическое время конца действия.
@@ -70,7 +70,7 @@ data class ActionSchedule(
     @PrimaryKey override val id: String = UUID.randomUUID().toString(),
     var scheduleID: String,
     var dayIndex: Int,
-    var actionTypeId: String = "",
+    var actionTypeID: String = "",
     var startTime: Long = 0,
     var endTime: Long = 0,
 ) : Serializable, ID
@@ -103,6 +103,9 @@ interface ScheduleDao {
     @Query("DELETE FROM action_schedule_table WHERE scheduleID IN (:scheduleIDs)")
     fun deleteActionsScheduleFromSchedulesID(scheduleIDs: List<String>)
 
+    @Query("DELETE FROM action_schedule_table WHERE id IN (:ids)")
+    fun deleteActionsSchedule(ids: List<String>)
+
     @Update
     fun updateSchedule(schedule: Schedule)
 
@@ -114,9 +117,6 @@ interface ScheduleDao {
 
     @Insert
     fun addActionSchedule(actionSchedule: ActionSchedule)
-
-    @Delete
-    fun deleteActionSchedule(actionSchedule: ActionSchedule)
 }
 
 
@@ -177,8 +177,8 @@ class ScheduleRepository private constructor(context: Context) {
         mHandler.post { mDao.addActionSchedule(actionSchedule) }
     }
 
-    fun deleteActionSchedule(actionSchedule: ActionSchedule){
-        mHandler.post { mDao.deleteActionSchedule(actionSchedule) }
+    fun deleteActionsSchedule(ids: List<String>){
+        mHandler.post { mDao.deleteActionsSchedule(ids) }
     }
 
 

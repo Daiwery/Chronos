@@ -35,10 +35,11 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:ignore="ContentDescription" />
 
-        <com.daiwerystudio.chronos.ui.widgets.ScheduleClockView
+        <com.daiwerystudio.chronos.ui.widgets.ActionsClockView
             android:id="@+id/clock"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
+            android:layout_marginStart="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -56,17 +57,6 @@
             tools:visibility="gone" />
 
         <include
-            android:id="@+id/loading_clock"
-            layout="@layout/layout_loading"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/clock"
-            app:layout_constraintEnd_toEndOf="@id/clock"
-            app:layout_constraintStart_toStartOf="@id/clock"
-            app:layout_constraintTop_toTopOf="@id/clock" />
-
-        <include
             android:id="@+id/empty_view"
             layout="@layout/layout_empty"
             android:layout_width="0dp"
@@ -76,6 +66,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/recyclerView"
             app:layout_constraintTop_toTopOf="parent" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

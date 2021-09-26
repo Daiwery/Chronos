@@ -12,6 +12,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -61,7 +62,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:booleanVisibility="@{goal.deadline != 0}"
             android:hint="@string/day"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/checkBox">
@@ -80,7 +80,6 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:hint="@string/time"
-            android:booleanVisibility="@{goal.deadline != 0}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/day">
 
@@ -92,7 +91,7 @@
                 tools:text="15:21" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/button"
             style="@style/Widget.BottomDialog.Button"
             android:layout_width="wrap_content"
@@ -100,6 +99,8 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:text="@string/add"
+            app:icon="@drawable/ic_baseline_add_24"
+            app:iconTint="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

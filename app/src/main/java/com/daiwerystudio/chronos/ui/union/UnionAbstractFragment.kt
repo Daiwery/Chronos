@@ -42,7 +42,7 @@ abstract class UnionAbstractFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         viewModel.information.setData(arguments?.getString("parentID") ?: "",
-            null, "")
+            null, null)
     }
 
     override fun onStop() {
@@ -315,13 +315,18 @@ abstract class UnionAbstractFragment : Fragment() {
         то мы с ним ничего не делаем. Если же нет, то изменям прозрачность.*/
         override fun onBindViewHolder(holder: RawHolder, position: Int, payloads: MutableList<Any>) {
             if (payloads.isNotEmpty())
-                if (payloads.last() is Boolean){
+                if (payloads.last() is Boolean)
                     if (payloads.last() as Boolean)
-                        if (position == dragFromPosition || position == dragToPosition
-                            || position in selectedItems) holder.itemView.alpha = 1f
-                        else holder.itemView.alpha = 0.5f
+                        if (dragFromPosition != -1 && dragToPosition != -1)
+                            if (position == dragFromPosition || position == dragToPosition)
+                                holder.itemView.alpha = 1f
+                            else holder.itemView.alpha = 0.5f
+                        else if (selectedItems.isNotEmpty())
+                                if (position in selectedItems) holder.itemView.alpha = 1f
+                                else holder.itemView.alpha = 0.5f
+                            else holder.itemView.alpha = 1f
                     else holder.itemView.alpha = 1f
-                } else super.onBindViewHolder(holder, position, payloads)
+                else super.onBindViewHolder(holder, position, payloads)
             else super.onBindViewHolder(holder, position, payloads)
         }
     }
@@ -423,8 +428,15 @@ abstract class UnionAbstractFragment : Fragment() {
 
     // ПРЕДУПРЕЖДЕНИЕ! Инициализация должна происходить после инициализации information в UnionViewModel.
     val itemTouchHelper by lazy {
-        val simpleItemTouchCallback = UnionSimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-            ItemTouchHelper.LEFT or if (viewModel.information.parentID != "") ItemTouchHelper.RIGHT else 0)
+        val simpleItemTouchCallback = object : UnionSimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+            ItemTouchHelper.LEFT or if (viewModel.information.parentID != "") ItemTouchHelper.RIGHT else 0){
+
+            override fun getMovementFlags(recyclerView: RecyclerView,
+                                          viewHolder: RecyclerView.ViewHolder): Int {
+                return if (actionMode != null) 0 else super.getMovementFlags(recyclerView, viewHolder)
+            }
+        }
+
         simpleItemTouchCallback.backgroundRight = ColorDrawable(Color.parseColor("#CA0000"))
         simpleItemTouchCallback.iconRight = ContextCompat.getDrawable(requireContext(),
             R.drawable.ic_baseline_delete_24)?.apply {
@@ -435,6 +447,7 @@ abstract class UnionAbstractFragment : Fragment() {
             R.drawable.ic_baseline_arrow_upward_24)?.apply {
             colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
         }
+
         simpleItemTouchCallback.setSwipeItemListener(object : UnionSimpleCallback.SwipeListener{
             override fun swipeLeft(position: Int) {
                 AlertDialog.Builder(context, R.style.Style_AlertDialog)
@@ -477,6 +490,8 @@ abstract class UnionAbstractFragment : Fragment() {
             }
 
             override fun endDrag() {
+                dragFromPosition = -1
+                dragToPosition = -1
                 notifyAdapterItemsChange(false)
             }
         })
@@ -532,16 +547,32 @@ abstract class UnionAbstractFragment : Fragment() {
             override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
                 return when (item?.itemId) {
                     R.id.up -> {
-                        // Нужно передать скопированное значение, из-за того, что
-                        // после этот массив удалится, а действия внутри функции выполняются
-                        // в отдельном потоке.
-                        viewModel.moveUnionsUp(selectedItems.map { it })
-                        actionMode?.finish()
+                        AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                            .setTitle(R.string.are_you_sure)
+                            .setPositiveButton(R.string.yes) { _, _ ->
+                                // Нужно передать скопированное значение, из-за того, что
+                                // после этот массив удалится, а действия внутри функции выполняются
+                                // в отдельном потоке.
+                                viewModel.moveUnionsUp(selectedItems.map { it })
+                                actionMode?.finish()
+                            }
+                            .setNegativeButton(R.string.no){ _, _ ->
+                                actionMode?.finish()
+                            }
+                            .setCancelable(false).create().show()
                         true
                     }
                     R.id.delete -> {
-                        viewModel.deleteUnionsWithChild(selectedItems)
-                        actionMode?.finish()
+                        AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                            .setTitle(R.string.are_you_sure)
+                            .setPositiveButton(R.string.yes) { _, _ ->
+                                viewModel.deleteUnionsWithChild(selectedItems)
+                                actionMode?.finish()
+                            }
+                            .setNegativeButton(R.string.no){ _, _ ->
+                                actionMode?.finish()
+                            }
+                            .setCancelable(false).create().show()
                         true
                     }
                     else -> false

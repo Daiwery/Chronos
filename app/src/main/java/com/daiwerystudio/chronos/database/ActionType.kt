@@ -44,9 +44,6 @@ interface ActionTypeDao {
     @Query("DELETE FROM action_type_table WHERE id IN (:ids)")
     fun deleteActionTypes(ids: List<String>)
 
-    @Query("SELECT color FROM action_type_table WHERE id=(:id)")
-    fun getColor(id: String): Int
-
     @Update
     fun updateActionType(actionType: ActionType)
 
@@ -81,8 +78,6 @@ class ActionTypeRepository private constructor(context: Context) {
     fun getActionTypes(ids: List<String>): LiveData<List<ActionType>> = mDao.getActionTypes(ids)
 
     fun getActionType(id: String): LiveData<ActionType> = mDao.getActionType(id)
-
-    fun getColor(id: String): Int = mDao.getColor(id)
 
     fun deleteActionTypes(ids: List<String>){
         mHandler.post { mDao.deleteActionTypes(ids) }

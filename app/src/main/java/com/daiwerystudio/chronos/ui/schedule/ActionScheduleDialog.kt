@@ -26,7 +26,7 @@ import com.daiwerystudio.chronos.databinding.DialogActionScheduleBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
-import com.daiwerystudio.chronos.ui.widgets.SelectActionTypeViewModel
+import com.daiwerystudio.chronos.ui.SelectActionTypeViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -74,12 +74,12 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
         viewModel.actionTypes.observe(viewLifecycleOwner, {
             binding.selectActionType.setData(it)
         })
-        val actionType = mActionTypeRepository.getActionType(actionSchedule.actionTypeId)
+        val actionType = mActionTypeRepository.getActionType(actionSchedule.actionTypeID)
         actionType.observe(viewLifecycleOwner, {
             if (it != null && binding.selectActionType.selectedActionType == null)
                 binding.selectActionType.setSelectedActionType(it)
         })
-        binding.selectActionType.setOnSelectListener{ actionSchedule.actionTypeId = it.id }
+        binding.selectActionType.setOnSelectListener{ actionSchedule.actionTypeID = it.id }
         binding.selectActionType.setOnEditIsAllListener{ viewModel.isAll.value = it }
 
         binding.startTime.editText?.setOnClickListener {
@@ -115,7 +115,7 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
 
         binding.button.setOnClickListener {
             var permission = true
-            if (actionSchedule.actionTypeId == "") permission = false
+            if (actionSchedule.actionTypeID == "") permission = false
             if (actionSchedule.startTime > actionSchedule.endTime) permission = false
 
             if (permission){

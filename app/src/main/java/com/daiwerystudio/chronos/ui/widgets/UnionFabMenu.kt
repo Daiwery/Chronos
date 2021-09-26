@@ -29,6 +29,7 @@ class UnionFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context
     private val createSchedule: FloatingActionButton
     private val createActionType: FloatingActionButton
     private val lightening: ImageView
+    private var isOpened: Boolean = false
 
     init {
         inflate(context, R.layout.layout_union_fab_menu, this)
@@ -36,10 +37,16 @@ class UnionFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context
         motionLayout = findViewById(R.id.motionLayout)
 
         open = findViewById(R.id.open)
-        open.setOnClickListener { motionLayout.transitionToEnd() }
+        open.setOnClickListener {
+            isOpened = true
+            motionLayout.transitionToEnd()
+        }
 
         close = findViewById(R.id.close)
-        close.setOnClickListener { motionLayout.transitionToStart() }
+        close.setOnClickListener {
+            isOpened = false
+            motionLayout.transitionToStart()
+        }
 
         createFolder = findViewById(R.id.create_folder)
         createFolder.setOnClickListener {
@@ -82,7 +89,16 @@ class UnionFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context
         lightening.setOnClickListener { motionLayout.transitionToStart() }
     }
 
+    override fun isFocused(): Boolean = isOpened
+
+    override fun clearFocus() {
+        isOpened = false
+        motionLayout.transitionToStart()
+    }
+
     fun hide(){
+        isOpened = false
+        motionLayout.transitionToStart()
         open.hide()
     }
 

@@ -3,7 +3,7 @@
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 */
 
-package com.daiwerystudio.chronos.ui.widgets
+package com.daiwerystudio.chronos.ui
 
 import androidx.lifecycle.*
 import com.daiwerystudio.chronos.database.ActionType

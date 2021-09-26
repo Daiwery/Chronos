@@ -22,14 +22,14 @@ private const val ACTION_DATABASE_NAME = "action-database"
 
 /**
  * @property id уникальный идентификатор.
- * @property actionTypeId id типа действие
+ * @property actionTypeID id типа действие
  * @property startTime начало действия. Время от начала эпохи.
  * @property endTime конец действия. Время от начала эпохи.
  */
 @Entity(tableName = "action_table")
 data class Action(
     @PrimaryKey override val id: String = UUID.randomUUID().toString(),
-    var actionTypeId: String="",
+    var actionTypeID: String="",
     var startTime: Long = System.currentTimeMillis()-60*60*1000,
     var endTime: Long = System.currentTimeMillis()
 ) : Serializable, ID
@@ -42,14 +42,14 @@ interface ActionDao {
             "OR (endTime >= (:time1) AND endTime <= (:time2)) ORDER BY startTime")
     fun getActionsFromTimeInterval(time1: Long, time2: Long): LiveData<List<Action>>
 
+    @Query("DELETE FROM action_table WHERE id in (:ids)")
+    fun deleteActions(ids: List<String>)
+
     @Update
     fun updateAction(action: Action)
 
     @Insert
     fun addAction(action: Action)
-
-    @Delete
-    fun deleteAction(action: Action)
 }
 
 
@@ -86,8 +86,9 @@ class ActionRepository private constructor(context: Context) {
     fun addAction(action: Action) {
         mHandler.post { mDao.addAction(action) }
     }
-    fun deleteAction(action: Action) {
-        mHandler.post { mDao.deleteAction(action) }
+
+    fun deleteActions(ids: List<String>) {
+        mHandler.post { mDao.deleteActions(ids) }
     }
 
 

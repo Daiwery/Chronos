@@ -1,26 +1,28 @@
 /*
 * Дата создания: 06.09.2021
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+*
+* Дата изменения: 24.09.2021.
+* Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
+* Изменения: добавления логики работы с ClockViewModel и добавление отдельного холдера
+* для пересечения.
 */
 
 package com.daiwerystudio.chronos.ui.time_tracker
 
+import android.animation.LayoutTransition
 import android.animation.ObjectAnimator
 import android.app.AlertDialog
 import android.graphics.Color
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import android.view.*
+import android.view.animation.OvershootInterpolator
+import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
@@ -28,43 +30,17 @@ import com.daiwerystudio.chronos.database.Action
 import com.daiwerystudio.chronos.database.ActionType
 import com.daiwerystudio.chronos.databinding.FragmentTimeTrackerBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
+import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionSectionBinding
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
-import com.daiwerystudio.chronos.ui.union.UnionDiffUtil
-import com.daiwerystudio.chronos.ui.union.UnionSimpleCallback
-import com.google.android.material.datepicker.MaterialDatePicker
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.*
 
 class TimeTrackerFragment : Fragment() {
     private val viewModel: TimeTrackerViewModel
         by lazy { ViewModelProvider(this).get(TimeTrackerViewModel::class.java) }
     private lateinit var binding: FragmentTimeTrackerBinding
-    private val itemTouchHelper by lazy {
-        val simpleItemTouchCallback = UnionSimpleCallback(0, ItemTouchHelper.LEFT )
-        simpleItemTouchCallback.backgroundRight = ColorDrawable(Color.parseColor("#CA0000"))
-        simpleItemTouchCallback.iconRight = ContextCompat.getDrawable(requireContext(),
-            R.drawable.ic_baseline_delete_24)?.apply {
-            colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
-        }
-        simpleItemTouchCallback.setSwipeItemListener(object : UnionSimpleCallback.SwipeListener{
-            override fun swipeLeft(position: Int) {
-                AlertDialog.Builder(context, R.style.Style_AlertDialog)
-                    .setTitle(R.string.are_you_sure)
-                    .setPositiveButton(R.string.yes) { _, _ ->
-                        viewModel.deleteAction(viewModel.actions.value!![position])
-                    }
-                    .setNegativeButton(R.string.no){ _, _ -> }
-                    .setCancelable(false).create().show()
-            }
-
-            override fun swipeRight(position: Int) {}
-        })
-
-        ItemTouchHelper(simpleItemTouchCallback)
-    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,12 +53,12 @@ class TimeTrackerFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentTimeTrackerBinding.inflate(inflater, container, false)
+        binding.motionLayout.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = Adapter(emptyList())
         }
-        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
@@ -96,32 +72,47 @@ class TimeTrackerFragment : Fragment() {
             binding.toolBar.title =
                 LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
         })
-
-        viewModel.actions.observe(viewLifecycleOwner, {
-            binding.loadingClock.visibility = View.VISIBLE
-            (binding.recyclerView.adapter as Adapter).updateData(it)
-            binding.clock.setActions(it, viewModel.local, viewModel.day.value!!)
+        viewModel.mActions.observe(viewLifecycleOwner, { setLoadingView() })
+        viewModel.sections.observe(viewLifecycleOwner, {
+            (binding.recyclerView.adapter as Adapter).setData(it)
+        })
+        viewModel.actionDrawables.observe(viewLifecycleOwner, {
+            binding.clock.setActionDrawables(it)
         })
 
         binding.toolBar.setOnClickListener {
+            // Календарь ведет себя очень странно. Если делать по-другому, то он не будет работать.
+            binding.motionLayout.transitionToStart()
             if (binding.calendarView.visibility == View.VISIBLE) {
                 binding.calendarView.visibility = View.GONE
-                binding.imageView9.rotation = 0f
+                ObjectAnimator.ofFloat(binding.imageView9, "rotation",  0f)
+                    .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
             }
             else {
                 binding.calendarView.visibility = View.VISIBLE
-                binding.imageView9.rotation = 90f
+                ObjectAnimator.ofFloat(binding.imageView9, "rotation",  90f)
+                    .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
             }
         }
+        binding.motionLayout.setTransitionListener(object : MotionLayout.TransitionListener{
+            override fun onTransitionTrigger(motionLayout: MotionLayout?, triggerId: Int,
+                                             positive: Boolean, progress: Float) {}
+            override fun onTransitionStarted(motionLayout: MotionLayout?, startId: Int, endId: Int) {}
+            override fun onTransitionChange(motionLayout: MotionLayout?, startId: Int,
+                                            endId: Int, progress: Float) {}
+            override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
+                if (currentId == R.id.end) {
+                    binding.calendarView.visibility = View.GONE
+                    ObjectAnimator.ofFloat(binding.imageView9, "rotation",  0f)
+                        .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
+                }
+            }
+        })
 
-        // По какой-то причине, если календарь инициализируется невидимым,
-        // то его размер становится равен 0.
         binding.calendarView.visibility = View.GONE
         binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             viewModel.day.value = LocalDate.of(year, month+1, dayOfMonth).toEpochDay()
         }
-
-        binding.clock.setFinishedListener{ binding.loadingClock.visibility = View.GONE }
 
         binding.fab.setOnClickListener{
             val dialog = ActionDialog()
@@ -164,64 +155,218 @@ class TimeTrackerFragment : Fragment() {
         binding.emptyView.visibility = View.GONE
     }
 
+    private fun setLoadingView(){
+        binding.loadingView.visibility = View.VISIBLE
+        binding.emptyView.visibility = View.GONE
+    }
 
-    inner class Holder(val binding: ItemRecyclerViewActionBinding) :
-        RecyclerView.ViewHolder(binding.root){
 
-        private lateinit var action: Action
+    private inner class Adapter(var sections: List<TimeTrackerViewModel.Section>):
+        RecyclerView.Adapter<SectionHolder>(){
 
-        init {
-            itemView.setOnClickListener {
-                val dialog = ActionDialog()
-                dialog.arguments = Bundle().apply{
-                    putSerializable("action", action)
-                    putBoolean("isCreated", false)
-                }
-                dialog.show(requireActivity().supportFragmentManager, "ActionDialog")
-            }
+        fun setData(newData: List<TimeTrackerViewModel.Section>){
+            val diffUtilCallback = SectionDiffUtil(sections, newData)
+            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+
+            sections = newData
+            diffResult.dispatchUpdatesTo(this)
+
+            if (sections.isEmpty()) setEmptyView() else setNullView()
         }
 
-        fun bind(action: Action){
-            this.action = action
-            binding.action = action
-            binding.start.text = formatTime(action.startTime, true, FormatStyle.SHORT, FORMAT_TIME)
-            binding.end.text = formatTime(action.endTime, true, FormatStyle.SHORT, FORMAT_TIME)
+        override fun getItemCount() = sections.size
 
-            val actionType = viewModel.getActionType(action.actionTypeId)
-            actionType.observe(viewLifecycleOwner, {
-                if (it == null) {
-                    binding.actionType = ActionType(id=UUID.randomUUID().toString(), color=0, name="???")
-                    binding.invalid.visibility = View.VISIBLE
-                } else {
-                    binding.invalid.visibility = View.GONE
-                    binding.actionType = it
-                }
-            })
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SectionHolder{
+            return SectionHolder(DataBindingUtil.inflate(layoutInflater,
+                R.layout.item_recycler_view_action_section,
+                parent, false))
+        }
+
+        override fun onBindViewHolder(holder: SectionHolder, position: Int) {
+            holder.bind(sections[position].data)
+        }
+
+        override fun onBindViewHolder(holder: SectionHolder, position: Int, payloads: MutableList<Any>) {
+            if (payloads.isNotEmpty()) holder.sendPayload(payloads.last())
+            else onBindViewHolder(holder, position)
         }
     }
 
-    private inner class Adapter(var actions: List<Action>): RecyclerView.Adapter<Holder>(){
-        fun updateData(newData: List<Action>){
-            val diffUtilCallback = UnionDiffUtil(actions, newData)
-            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+    private inner class SectionHolder(val binding: ItemRecyclerViewActionSectionBinding):
+        RecyclerView.ViewHolder(binding.root){
+        private lateinit var data: List<Pair<Action, ActionType?>>
 
-            actions = newData.map{ it.copy() }
-            diffResult.dispatchUpdatesTo(this)
-
-            if (actions.isEmpty()) setEmptyView()
-            else setNullView()
+        init {
+            binding.recyclerView.apply {
+                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                adapter = SectionAdapter(emptyList())
+            }
         }
 
-        override fun getItemCount() = actions.size
+        fun bind(data: List<Pair<Action, ActionType?>>){
+            this.data = data.map { it.copy() }
+            (binding.recyclerView.adapter as SectionAdapter).updateData(data)
+        }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-            return Holder(DataBindingUtil.inflate(layoutInflater,
+        fun sendPayload(payload: Any){
+            binding.recyclerView.adapter?.notifyItemRangeChanged(0, data.size, payload)
+        }
+    }
+
+    private inner class SectionAdapter(var data: List<Pair<Action, ActionType?>>):
+        RecyclerView.Adapter<ActionHolder>(){
+
+        fun updateData(newData: List<Pair<Action, ActionType?>>){
+            data = newData
+            notifyItemRangeChanged(0, data.size)
+        }
+
+        override fun getItemCount(): Int = data.size
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionHolder {
+            return ActionHolder(DataBindingUtil.inflate(layoutInflater,
                 R.layout.item_recycler_view_action,
                 parent, false))
         }
 
-        override fun onBindViewHolder(holder: Holder, position: Int) {
-            holder.bind(actions[position])
+        override fun onBindViewHolder(holder: ActionHolder, position: Int) {
+            holder.bind(data[position])
+            if (itemCount == 1) holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+            else holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+        }
+
+        /* Если холдер есть в selectedItems, то мы с ним ничего не делаем.
+        Если же нет, то изменям прозрачность. */
+        override fun onBindViewHolder(holder: ActionHolder, position: Int, payloads: MutableList<Any>) {
+            if (payloads.isNotEmpty())
+                if (selectedItems.isNotEmpty())
+                    if (data[position].first.id in selectedItems) holder.itemView.alpha = 1f
+                    else holder.itemView.alpha = 0.5f
+                else holder.itemView.alpha = 1f
+            else super.onBindViewHolder(holder, position, payloads)
+        }
+
+    }
+
+    private inner class ActionHolder(private val binding: ItemRecyclerViewActionBinding):
+        RecyclerView.ViewHolder(binding.root){
+        private lateinit var action: Action
+        private var actionType: ActionType? = null
+
+        init {
+            itemView.setOnClickListener {
+                if (actionMode == null) {
+                    // Восстанавливаем анимацию клика на холдер.
+                    itemView.isClickable = true
+
+                    val dialog = ActionDialog()
+                    dialog.arguments = Bundle().apply{
+                        putSerializable("action", action)
+                        putBoolean("isCreated", false)
+                    }
+                    dialog.show(requireActivity().supportFragmentManager, "ActionDialog")
+                } else {
+                    // Убираем анимацию клика на холдер.
+                    itemView.isClickable = false
+                    changeItem(action.id)
+                }
+            }
+            itemView.setOnLongClickListener {
+                startActionMode()
+                changeItem(action.id)
+                true
+            }
+        }
+
+        fun bind(item: Pair<Action, ActionType?>) {
+            this.action = item.first
+            this.actionType = item.second
+
+            binding.time.text = (formatTime(action.startTime, false, FormatStyle.SHORT, FORMAT_TIME) +
+                    " - " + formatTime(action.endTime, false, FormatStyle.SHORT, FORMAT_TIME))
+            if (actionType == null) {
+                binding.actionType = ActionType(id="", color=Color.BLACK, name="???")
+                binding.invalid.visibility = View.VISIBLE
+            } else {
+                binding.invalid.visibility = View.GONE
+                binding.actionType = actionType
+            }
+        }
+    }
+
+    // Будем хранить позиции выбранных холдеров.
+    private val selectedItems: MutableList<String> = mutableListOf()
+    private var actionMode: ActionMode? = null
+
+    private fun startActionMode(){
+        actionMode = requireActivity().startActionMode(callback)
+        actionMode?.title = "0"
+    }
+
+    private fun changeItem(id: String){
+        val index = selectedItems.indexOf(id)
+        if (index == -1) selectedItems.add(id)
+        else selectedItems.removeAt(index)
+
+        binding.recyclerView.adapter?.notifyItemRangeChanged(0, viewModel.sections.value!!.size, true)
+        actionMode?.title = selectedItems.size.toString()
+
+        if (selectedItems.size == 0) actionMode?.finish()
+    }
+
+    private val callback by lazy {
+        object : ActionMode.Callback {
+            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                mode?.menuInflater?.inflate(R.menu.menu_action_bar, menu)
+                menu?.findItem(R.id.up)?.isVisible = false
+                binding.fab.hide()
+                return true
+            }
+
+            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
+
+            override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                return when (item?.itemId) {
+                    R.id.delete -> {
+                        AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                            .setTitle(R.string.are_you_sure)
+                            .setPositiveButton(R.string.yes) { _, _ ->
+                                // Нужно передать скопированное значение, из-за того, что
+                                // после этот массив удалится, а дфункция выполняется
+                                // в отдельном потоке.
+                                viewModel.deleteActions(selectedItems.map { it })
+                                actionMode?.finish()
+                            }
+                            .setNegativeButton(R.string.no){ _, _ ->
+                                actionMode?.finish()
+                            }
+                            .setCancelable(false).create().show()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            override fun onDestroyActionMode(mode: ActionMode?) {
+                actionMode = null
+                selectedItems.clear()
+                binding.recyclerView.adapter?.notifyItemRangeChanged(0, viewModel.sections.value!!.size, false)
+                binding.fab.show()
+            }
+        }
+    }
+
+    private class SectionDiffUtil(private val oldList: List<TimeTrackerViewModel.Section>,
+                                  private val newList: List<TimeTrackerViewModel.Section>): DiffUtil.Callback() {
+        override fun getOldListSize() = oldList.size
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
         }
     }
 }

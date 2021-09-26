@@ -10,15 +10,24 @@
 package com.daiwerystudio.chronos.ui.union
 
 import android.animation.LayoutTransition
+import android.animation.ObjectAnimator
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.OvershootInterpolator
+import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionPreviewBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
+
 
 class UnionPreviewFragment : UnionAbstractFragment() {
     override val viewModel: UnionViewModel
@@ -57,19 +66,58 @@ class UnionPreviewFragment : UnionAbstractFragment() {
             binding.loadingView.visibility = View.VISIBLE
             if ((binding.recyclerView.adapter as UnionAdapter).data.isNotEmpty())
                 binding.recyclerView.scrollToPosition(0)
-            viewModel.information.setFilterName(it?.toString())
+            if (binding.search.isFocused)
+                viewModel.information.setFilterName(it?.toString())
+        }
+        binding.search.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                binding.toolBar.isClickable = false
+                setNullView()
+                binding.search.setText("")
+                viewModel.information.setFilterName("")
+
+                binding.fab.hide()
+                binding.imageView8.setImageResource(R.drawable.ic_baseline_arrow_back_24)
+                ObjectAnimator.ofFloat(requireActivity().findViewById<BottomNavigationView>(R.id.nav_view),
+                    "alpha", 0f).setDuration(300).start()
+                binding.selectFilterType.visibility = View.VISIBLE
+                ObjectAnimator.ofFloat(binding.imageView9, "rotation",  90f)
+                    .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
+            }
+            else {
+                binding.toolBar.isClickable = true
+                setLoadingView()
+                binding.search.setText("")
+                viewModel.information.setFilterName(null)
+
+                binding.fab.show()
+                binding.imageView8.setImageResource(R.drawable.ic_baseline_search_24)
+                ObjectAnimator.ofFloat(requireActivity().findViewById<BottomNavigationView>(R.id.nav_view),
+                    "alpha", 1f).setDuration(300).start()
+                if (viewModel.information.filterType == null){
+                    binding.selectFilterType.visibility = View.GONE
+                    ObjectAnimator.ofFloat(binding.imageView9, "rotation",  0f)
+                        .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
+                }
+            }
+        }
+        binding.imageView8.setOnClickListener {
+            val manager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            manager?.hideSoftInputFromWindow(binding.search.windowToken, 0)
+            binding.search.clearFocus()
         }
 
         binding.toolBar.setOnClickListener {
             if (binding.selectFilterType.visibility == View.VISIBLE) {
                 binding.selectFilterType.visibility = View.GONE
-                binding.imageView9.rotation = 0f
+                ObjectAnimator.ofFloat(binding.imageView9, "rotation",  0f)
+                    .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
             }
             else {
                 binding.selectFilterType.visibility = View.VISIBLE
-                binding.imageView9.rotation = 90f
+                ObjectAnimator.ofFloat(binding.imageView9, "rotation",  90f)
+                    .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
             }
-            binding.selectFilterType.requestLayout()
         }
 
         viewModel.data.observe(viewLifecycleOwner, {
@@ -78,9 +126,21 @@ class UnionPreviewFragment : UnionAbstractFragment() {
 
         binding.fab.setOnMenuItemClickListener{ createUnionItem(it) }
 
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.search.isFocused || binding.fab.isFocused) {
+                    binding.search.clearFocus()
+                    binding.fab.clearFocus()
+                } else {
+                    isEnabled = false
+                    activity?.onBackPressed()
+                }
+            }
+        })
+
         return binding.root
     }
-
 
     override fun setEmptyView(){
         binding.loadingView.visibility = View.GONE
@@ -89,6 +149,11 @@ class UnionPreviewFragment : UnionAbstractFragment() {
 
     override fun setNullView(){
         binding.loadingView.visibility = View.GONE
+        binding.emptyView.visibility = View.GONE
+    }
+
+    private fun setLoadingView(){
+        binding.loadingView.visibility = View.VISIBLE
         binding.emptyView.visibility = View.GONE
     }
 

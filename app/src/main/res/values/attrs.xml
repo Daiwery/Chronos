@@ -4,48 +4,20 @@
     <declare-styleable name="SelectActionTypeView"/>
     <declare-styleable name="UnionFabMenu"/>
 
-    <attr name="stripWidth" format="dimension" />
-    <attr name="spaceWidth" format="dimension" />
-    <attr name="corner" format="dimension" />
-    <attr name="colorColumn" format="color" />
-
-    <declare-styleable name="ScheduleView">
-        <attr name="stripWidth"/>
-        <attr name="spaceWidth"/>
-        <attr name="corner"/>
-        <attr name="colorColumn"/>
-    </declare-styleable>
-
-    <declare-styleable name="MultiScheduleView">
-        <attr name="stripWidth"/>
-        <attr name="spaceWidth"/>
-        <attr name="corner"/>
-        <attr name="colorColumn"/>
-        <attr name="sizeDrawable" format="dimension"/>
-        <attr name="marginIcon" format="dimension"/>
-        <attr name="drawableGoal" format="reference" />
-        <attr name="drawableReminder" format="reference" />
-    </declare-styleable>
-
     <declare-styleable name="ActionsView">
-        <attr name="stripWidth"/>
-        <attr name="spaceWidth"/>
-        <attr name="corner"/>
-        <attr name="colorColumn"/>
+        <attr name="stripWidth" format="dimension" />
+        <attr name="spaceWidth" format="dimension" />
+        <attr name="corner" format="dimension" />
+        <attr name="colorColumn" format="color" />
     </declare-styleable>
 
     <declare-styleable name="ClockFaceView">
         <attr name="textSize" format="dimension" />
         <attr name="spaceHeight" format="dimension" />
         <attr name="marginText" format="dimension" />
+        <attr name="android:textColor"/>
     </declare-styleable>
 
-    <declare-styleable name="ScheduleClockView">
-    </declare-styleable>
-
-    <declare-styleable name="DayClockView">
-    </declare-styleable>
-
-    <declare-styleable name="TimeTrackerClockView">
+    <declare-styleable name="ActionsClockView">
     </declare-styleable>
 </resources>

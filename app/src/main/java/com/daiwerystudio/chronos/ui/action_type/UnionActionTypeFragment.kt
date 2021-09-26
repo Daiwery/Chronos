@@ -8,6 +8,7 @@ package com.daiwerystudio.chronos.ui.action_type
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -81,6 +82,17 @@ class UnionActionTypeFragment: UnionAbstractFragment() {
                 else -> false
             }
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (binding.fab.isFocused) binding.fab.clearFocus()
+                    else {
+                        isEnabled = false
+                        activity?.onBackPressed()
+                    }
+                }
+            })
 
         return binding.root
     }
