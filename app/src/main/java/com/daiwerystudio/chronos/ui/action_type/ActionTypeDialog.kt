@@ -68,7 +68,7 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogActionTypeBinding.inflate(inflater, container, false)
         binding.actionType = actionType
-        binding.color.setBackgroundColor(actionType.color)
+        binding.color.setColorFilter(actionType.color)
 
         binding.color.setOnClickListener{
             ColorPickerDialog.Builder(context, R.style.Style_ColorPickerDialog)
@@ -76,7 +76,7 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                 .setPositiveButton(resources.getString(R.string.select), object : ColorEnvelopeListener {
                         override fun onColorSelected(envelope: ColorEnvelope, fromUser: Boolean) {
                             actionType.color = envelope.color
-                            binding.color.setBackgroundColor(actionType.color)
+                            binding.color.setColorFilter(actionType.color)
                         }
                     })
                 .setNegativeButton(resources.getString(R.string.cancel)) { dialogInterface, _ -> dialogInterface.dismiss() }
