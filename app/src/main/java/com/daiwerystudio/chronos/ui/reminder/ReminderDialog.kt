@@ -5,12 +5,18 @@
 
 package com.daiwerystudio.chronos.ui.reminder
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
+import com.daiwerystudio.chronos.NotificationReceiver
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Reminder
 import com.daiwerystudio.chronos.database.ReminderRepository
@@ -71,6 +77,7 @@ class ReminderDialog : BottomSheetDialogFragment() {
             if (reminder.text == "") binding.reminderText.error = resources.getString(R.string.error_name)
             else binding.reminderText.error = null
         }
+        if (isCreated) binding.reminderText.requestFocus()
 
         binding.time.editText?.setOnClickListener{
             val localTime = reminder.time+local
@@ -119,6 +126,15 @@ class ReminderDialog : BottomSheetDialogFragment() {
             if (permission) {
                 if (isCreated) mReminderRepository.addReminder(reminder)
                 else mReminderRepository.updateReminder(reminder)
+
+                val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                val intent = Intent(requireContext(), NotificationReceiver::class.java).apply {
+                    putExtra("reminder_text", reminder.text)
+                }
+                val pendingIntent = PendingIntent.getBroadcast(requireContext(),
+                    (UUID.fromString(reminder.id).mostSignificantBits and Long.MAX_VALUE).toInt(),
+                    intent, 0)
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminder.time, pendingIntent)
 
                 if (union != null) mUnionRepository.addUnion(union!!)
 

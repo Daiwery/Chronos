@@ -118,7 +118,7 @@ class DayScheduleViewModel : ClockViewModel() {
         }
 
     // Функция для алгоритма обработки действий.
-    override fun getIndexForInterval(columns: List<String>): Int {
+    override fun getIndexForInterval(point: ActionPoint, columns: List<String>): Int {
         // Находим свободный индекс.
         val freeIndex = columns.indexOfFirst { it == "" }
         // Если не нашли, то ставим новый столбец.

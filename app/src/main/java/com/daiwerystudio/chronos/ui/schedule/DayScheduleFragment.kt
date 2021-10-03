@@ -22,6 +22,7 @@ import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -290,6 +291,7 @@ class DayScheduleFragment : Fragment() {
                                 // после этот массив удалится, а дфункция выполняется
                                 // в отдельном потоке.
                                 viewModel.deleteActionsSchedule(selectedItems.map { it })
+                                Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_LONG).show()
                                 actionMode?.finish()
                             }
                             .setNegativeButton(R.string.no){ _, _ ->

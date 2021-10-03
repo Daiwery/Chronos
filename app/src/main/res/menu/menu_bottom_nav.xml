@@ -7,10 +7,10 @@
 
     <item
         android:id="@+id/navigation_day"
-        android:icon="@drawable/ic_baseline_home_24"
+        android:icon="@drawable/ic_baseline_calendar_today_24"
         android:title="@string/title_main" />
     <item
         android:id="@+id/navigation_time_tracker"
-        android:icon="@drawable/ic_baseline_access_time_filled_24"
+        android:icon="@drawable/ic_action_type"
         android:title="@string/title_time_tracker"/>
 </menu>

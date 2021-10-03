@@ -27,10 +27,12 @@ import com.daiwerystudio.chronos.ui.DataViewModel
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.SelectActionTypeViewModel
+import com.daiwerystudio.chronos.ui.action_type.ActionTypeDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import java.time.format.FormatStyle
+import java.util.*
 
 class ActionScheduleDialog : BottomSheetDialogFragment() {
     private val viewModel: SelectActionTypeViewModel
@@ -38,7 +40,6 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
     private val dataViewModel: DataViewModel
         by lazy { ViewModelProvider(this).get(DataViewModel::class.java) }
     private val mScheduleRepository = ScheduleRepository.get()
-    private val mActionTypeRepository = ActionTypeRepository.get()
     private lateinit var binding: DialogActionScheduleBinding
     private lateinit var actionSchedule: ActionSchedule
     private var isCreated: Boolean = false
@@ -63,24 +64,30 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogActionScheduleBinding.inflate(inflater, container, false)
         binding.actionSchedule = actionSchedule
-        binding.startTime.editText?.setText(
-            formatTime(actionSchedule.startTime, false, FormatStyle.SHORT, FORMAT_TIME))
-        binding.endTime.editText?.setText(
-            formatTime(actionSchedule.endTime, false, FormatStyle.SHORT, FORMAT_TIME))
-
-        // Отмена клавиатуры.
-        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+        binding.startTime.editText?.setText(formatTime(actionSchedule.startTime, false, FormatStyle.SHORT, FORMAT_TIME))
+        binding.endTime.editText?.setText(formatTime(actionSchedule.endTime, false, FormatStyle.SHORT, FORMAT_TIME))
 
         viewModel.actionTypes.observe(viewLifecycleOwner, {
             binding.selectActionType.setData(it)
         })
-        val actionType = mActionTypeRepository.getActionType(actionSchedule.actionTypeID)
-        actionType.observe(viewLifecycleOwner, {
-            if (it != null && binding.selectActionType.selectedActionType == null)
-                binding.selectActionType.setSelectedActionType(it)
-        })
+        binding.selectActionType.setSelectedActionType(actionSchedule.actionTypeID)
         binding.selectActionType.setOnSelectListener{ actionSchedule.actionTypeID = it.id }
         binding.selectActionType.setOnEditIsAllListener{ viewModel.isAll.value = it }
+        binding.selectActionType.setOnAddListener{
+            val id = UUID.randomUUID().toString()
+            val actionType = ActionType(id=id)
+            val union = Union(id=id,
+                parent=if (it == "" && viewModel.isAll.value == false) viewModel.parentID else it,
+                indexList=0, type=TYPE_ACTION_TYPE)
+
+            val dialog = ActionTypeDialog()
+            dialog.arguments = Bundle().apply{
+                putSerializable("actionType", actionType)
+                putSerializable("union", union)
+                putBoolean("isCreated", true)
+            }
+            dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")
+        }
 
         binding.startTime.editText?.setOnClickListener {
             val hour = actionSchedule.startTime.toInt()/(1000*60*60)

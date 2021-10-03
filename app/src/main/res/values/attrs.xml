@@ -3,6 +3,7 @@
     <declare-styleable name="SelectFilterType"/>
     <declare-styleable name="SelectActionTypeView"/>
     <declare-styleable name="UnionFabMenu"/>
+    <declare-styleable name="DayFabMenu"/>
 
     <declare-styleable name="ActionsView">
         <attr name="stripWidth" format="dimension" />
@@ -16,6 +17,7 @@
         <attr name="spaceHeight" format="dimension" />
         <attr name="marginText" format="dimension" />
         <attr name="android:textColor"/>
+        <attr name="android:fontFamily" />
     </declare-styleable>
 
     <declare-styleable name="ActionsClockView">

@@ -8,8 +8,6 @@ package com.daiwerystudio.chronos.ui.union
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +29,8 @@ import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.schedule.ScheduleDialog
 import java.time.format.FormatStyle
+import androidx.constraintlayout.widget.ConstraintSet
+
 
 /**
  * Данный интерфейс означает, что у класса есть поле id. Нужен для обобщения DiffUtil на
@@ -52,11 +52,6 @@ class UnionDiffUtil(private val oldList: List<ID>,
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return oldList[oldItemPosition] == newList[newItemPosition]
     }
-
-    // Если только изменения UI, то посылаем пару из старых и новых данных.
-    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any {
-        return Pair(oldList[oldItemPosition], newList[newItemPosition])
-    }
 }
 
 /**
@@ -64,7 +59,6 @@ class UnionDiffUtil(private val oldList: List<ID>,
  */
 open class RawHolder(view: View) : RecyclerView.ViewHolder(view) {
     open fun bind(item: ID) {}
-    open fun updateUI(old: ID, new: ID) {}
 }
 
 /**
@@ -93,10 +87,6 @@ abstract class ActionTypeAbstractHolder(val binding: ItemRecyclerViewActionTypeB
         binding.color.setColorFilter(actionType.color)
     }
 
-    override fun updateUI(old: ID, new: ID) {
-        bind(new)
-    }
-
     abstract fun onClicked()
 }
 
@@ -122,25 +112,23 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
     }
 
     override fun bind(item: ID) {
-        setStaticUI(item as Goal)
-        binding.checkBox.isChecked = item.isAchieved
-    }
-
-    open fun setStaticUI(goal: Goal){
-        this.goal = goal
+        this.goal = item as Goal
         binding.goal = goal
-        setDeadline()
-        setPercentAchieved()
-    }
-
-    override fun updateUI(old: ID, new: ID) {
-        setStaticUI(new as Goal)
-        if (new.isAchieved != binding.checkBox.isChecked) binding.checkBox.isChecked = new.isAchieved
-    }
-
-    open fun setDeadline(){
+        if (binding.checkBox.isChecked != goal.isAchieved) binding.checkBox.isChecked = goal.isAchieved
         binding.deadlineTextView.text = (formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME)+
                 " - " + formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_DAY))
+        setPercentAchieved()
+
+        if (goal.note != "") binding.note.visibility = View.VISIBLE
+        else binding.note.visibility = View.GONE
+
+        if (goal.deadline != 0L) {
+            binding.textView13.visibility = View.VISIBLE
+            binding.deadlineTextView.visibility = View.VISIBLE
+        } else {
+            binding.textView13.visibility = View.GONE
+            binding.deadlineTextView.visibility = View.GONE
+        }
     }
 
     abstract fun onAchieved()
@@ -170,25 +158,26 @@ abstract class ScheduleAbstractHolder(val binding: ItemRecyclerViewScheduleBindi
     }
 
     override fun bind(item: ID) {
-        setStaticUI(item as Schedule)
-        binding.activeSwitch.isChecked = schedule.isActive
-    }
-
-    open fun setStaticUI(schedule: Schedule){
-        this.schedule = schedule
+        this.schedule = item as Schedule
         binding.schedule = schedule
-        binding.start.text =  formatTime(schedule.start, true, FormatStyle.SHORT, FORMAT_DAY)
+        binding.start.text = formatTime(schedule.start, true, FormatStyle.SHORT, FORMAT_DAY)
         when (schedule.type){
             TYPE_SCHEDULE_PERIODIC -> binding.type.text = itemView.context.getString(R.string.periodic_schedule)
             TYPE_SCHEDULE_ONCE -> binding.type.text = itemView.context.getString(R.string.once_schedule)
             else -> throw java.lang.IllegalArgumentException("Invalid type")
         }
-    }
-
-    override fun updateUI(old: ID, new: ID) {
-        setStaticUI(new as Schedule)
-        if (schedule.isActive != binding.activeSwitch.isChecked)
+        if (binding.activeSwitch.isChecked != schedule.isActive)
             binding.activeSwitch.isChecked = schedule.isActive
+
+        if (schedule.type == TYPE_SCHEDULE_PERIODIC){
+            binding.textView5.visibility = View.VISIBLE
+            binding.countDays.visibility = View.VISIBLE
+            binding.textView.visibility = View.VISIBLE
+        } else {
+            binding.textView5.visibility = View.GONE
+            binding.countDays.visibility = View.GONE
+            binding.textView.visibility = View.GONE
+        }
     }
 
     abstract fun onActive()
@@ -215,11 +204,17 @@ abstract class NoteAbstractHolder(val binding: ItemRecyclerViewNoteBinding):
     override fun bind(item: ID) {
         this.note = item as Note
         binding.note = note
-    }
 
-    override fun updateUI(old: ID, new: ID) {
-        this.note = new as Note
-        binding.note = note
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(binding.constraintLayout)
+        if (note.note == "") constraintSet.connect(R.id.name, ConstraintSet.BOTTOM,
+                R.id.constraintLayout, ConstraintSet.BOTTOM)
+        else constraintSet.clear(R.id.name, ConstraintSet.BOTTOM)
+        constraintSet.applyTo(binding.constraintLayout)
+
+        // Изменения должны быть последовательноми, я не происходить одновременно.
+        if (note.note == "") binding.noteTextView.visibility = View.GONE
+        else binding.noteTextView.visibility = View.VISIBLE
     }
 
     abstract fun onClicked()
@@ -248,16 +243,6 @@ abstract class ReminderAbstractHolder(val binding: ItemRecyclerViewReminderBindi
     override fun bind(item: ID) {
         this.reminder = item as Reminder
         binding.reminder = reminder
-        setTime()
-    }
-
-    override fun updateUI(old: ID, new: ID) {
-        this.reminder = new as Reminder
-        binding.reminder = reminder
-        setTime()
-    }
-
-    open fun setTime(){
         binding.timeTextView.text = (formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME)+
                 " - " + formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_DAY))
     }
@@ -288,13 +273,6 @@ abstract class FolderAbstractHolder(val binding: ItemRecyclerViewFolderBinding,
     override fun bind(item: ID) {
         this.folder = item as Folder
         binding.folder = folder
-    }
-
-    override fun updateUI(old: ID, new: ID) {
-        new as Folder
-        old as Folder
-        this.folder = new
-        if (old.name != new.name) binding.name.text = new.name
     }
 
     abstract fun onClicked()
@@ -354,14 +332,6 @@ abstract class UnionAbstractAdapter(var data: List<Pair<Int, ID>>,
     abstract fun createNoteHolder(binding: ItemRecyclerViewNoteBinding): RawHolder
     abstract fun createReminderHolder(binding: ItemRecyclerViewReminderBinding): RawHolder
     abstract fun createFolderHolder(binding: ItemRecyclerViewFolderBinding): RawHolder
-
-    override fun onBindViewHolder(holder: RawHolder, position: Int, payloads: MutableList<Any>) {
-        if (payloads.isEmpty()) onBindViewHolder(holder, position)
-        else {
-            val pair = payloads.last() as Pair<*, *>
-            holder.updateUI(pair.first as ID, pair.second as ID)
-        }
-    }
 
     override fun onBindViewHolder(holder: RawHolder, position: Int) {
         holder.bind(data[position].second)
@@ -510,9 +480,9 @@ open class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
 
     /**
      * Это означает, что в ItemTouchHelper начнет обрабатывать наложение холдеров,
-     * если процент их наложения больше 25% (по умолчанию 50%)
+     * если процент их наложения больше x% (по умолчанию 50%)
      */
-    override fun getMoveThreshold(viewHolder: RecyclerView.ViewHolder): Float = .25f
+    override fun getMoveThreshold(viewHolder: RecyclerView.ViewHolder): Float = .5f
 
     /**
      * Здесь мы определяем, какое событие должно произойти: move или drag. Если current холдер

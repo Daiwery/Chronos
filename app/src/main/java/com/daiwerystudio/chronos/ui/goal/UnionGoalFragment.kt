@@ -52,6 +52,17 @@ class UnionGoalFragment : UnionAbstractFragment() {
             binding.deadline.text = (formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME) +
                     " - " + formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_DAY))
 
+            if (goal.note == "") binding.scrollView2.visibility = View.GONE
+            else binding.scrollView2.visibility = View.VISIBLE
+
+            if (goal.deadline == 0L) {
+                binding.textView13.visibility = View.GONE
+                binding.deadline.visibility = View.GONE
+            } else {
+                binding.textView13.visibility = View.VISIBLE
+                binding.deadline.visibility = View.VISIBLE
+            }
+
             // Percent удаляется, так как это не RoomLiveData.
             val percent = viewModel.getPercentAchieved(goal.id)
             percent.observe(viewLifecycleOwner, {

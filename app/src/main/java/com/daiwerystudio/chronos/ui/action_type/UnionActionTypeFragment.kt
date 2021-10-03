@@ -7,7 +7,9 @@ package com.daiwerystudio.chronos.ui.action_type
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -15,9 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionActionTypeBinding
-import com.daiwerystudio.chronos.ui.union.ID
 import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
-import com.daiwerystudio.chronos.ui.widgets.UnionFabMenu
 
 class UnionActionTypeFragment: UnionAbstractFragment() {
     override val viewModel: UnionActionTypeViewModel

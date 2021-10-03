@@ -34,6 +34,7 @@ class DayViewModel: ClockViewModel() {
     private val mActionTypeRepository = ActionTypeRepository.get()
     private val mGoalRepository = GoalRepository.get()
     private val mReminderRepository = ReminderRepository.get()
+    private val mUnionRepository = UnionRepository.get()
     val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
 
     /**
@@ -186,15 +187,48 @@ class DayViewModel: ClockViewModel() {
     }
 
     // Функция для алгоритма обработки действий.
-    override fun getIndexForInterval(columns: List<String>): Int {
-        // Находим свободный индекс.
-        val freeIndex = columns.indexOfFirst { it == "" }
+    private lateinit var mActiveSchedules: MutableMap<Int, String>  // Словарь типа: номер столбца - id расписания.
+    override fun getIndexForInterval(point: ActionPoint, columns: List<String>): Int {
+        // Не забываем про первое действие, которое могло существовать без пересечений.
+        if (columns.size == 1) {
+            mActiveSchedules = mutableMapOf()
+            mActiveSchedules[0] = mActionsSchedule.value!!.first { it.id == columns[0] }.scheduleID
+        }
+
+        // Находим свободные столбцы.
+        val freeIndexes = columns.mapIndexed { index, s -> if (s == "") index else -1 }.filter { it != -1 }
+        // Находим свободный столбец, в котором сейчас расписание текущего действия.
+        // Если не нашли, то reeIndex = null.
+        var freeIndex: Int? = null
+        freeIndexes.forEach { index ->
+            if (freeIndex == null)
+                if (index in mActiveSchedules)
+                    if (mActiveSchedules[index] == mActionsSchedule.value!!.first { it.id == point.id }.scheduleID)
+                        freeIndex = index
+        }
         // Если не нашли, то ставим новый столбец.
-        return if (freeIndex == -1) columns.size else freeIndex
+        return if (freeIndex == null) {
+            mActiveSchedules[columns.size] = mActionsSchedule.value!!.first { it.id == point.id }.scheduleID
+            columns.size
+        } else freeIndex!!
     }
 
     fun updateGoal(goal: Goal){
         mGoalRepository.updateGoal(goal)
+    }
+
+    fun deleteItem(position: Int){
+        val item = data.value!![position]
+        when (item.first) {
+            TYPE_GOAL -> {
+                mUnionRepository.deleteUnionWithChild((item.second as Goal).id)
+                mGoalRepository.deleteGoal(item.second as Goal)
+            }
+            TYPE_REMINDER -> {
+                mUnionRepository.deleteUnionWithChild((item.second as Reminder).id)
+                mReminderRepository.deleteReminder(item.second as Reminder)
+            }
+        }
     }
 
     companion object {

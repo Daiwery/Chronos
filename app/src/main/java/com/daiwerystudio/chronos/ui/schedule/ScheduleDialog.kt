@@ -91,6 +91,7 @@ class ScheduleDialog : BottomSheetDialogFragment() {
             if (schedule.name == "") binding.scheduleName.error = resources.getString(R.string.error_name)
             else binding.scheduleName.error = null
         }
+        if (isCreated) binding.scheduleName.requestFocus()
 
         binding.scheduleCountDays.editText?.doOnTextChanged { text, _, _, _ ->
             if (text.toString() != "") {

@@ -58,11 +58,6 @@ abstract class ActionDatabase : RoomDatabase() {
     abstract fun dao(): ActionDao
 }
 
-/**
- * Класс, с помощью которого можно обратится к базе данных из любой точки программы.
- * Является синглтоном и объявляется в DataBaseApplication.
- * @see DataBaseApplication
- */
 class ActionRepository private constructor(context: Context) {
     private val mDatabase: ActionDatabase = Room.databaseBuilder(context.applicationContext,
         ActionDatabase::class.java,

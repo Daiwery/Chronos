@@ -57,10 +57,6 @@ abstract class ActionTypeDatabase : RoomDatabase() {
     abstract fun dao(): ActionTypeDao
 }
 
-/**
- * Является синглтоном и инициализируется в DataBaseApplication.
- * @see DataBaseApplication
- */
 class ActionTypeRepository private constructor(context: Context) {
     private val mDatabase: ActionTypeDatabase = Room.databaseBuilder(context.applicationContext,
         ActionTypeDatabase::class.java,

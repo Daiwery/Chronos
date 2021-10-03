@@ -13,7 +13,6 @@ import android.animation.LayoutTransition
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionPreviewBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-
 
 class UnionPreviewFragment : UnionAbstractFragment() {
     override val viewModel: UnionViewModel
@@ -48,8 +46,11 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) binding.fab.hide()
+                if (actionMode != null && viewModel.information.filterType != null
+                    && viewModel.information.filterString != null) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
+                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) binding.fab.hide()
+                }
             }
         })
 
@@ -78,8 +79,7 @@ class UnionPreviewFragment : UnionAbstractFragment() {
 
                 binding.fab.hide()
                 binding.imageView8.setImageResource(R.drawable.ic_baseline_arrow_back_24)
-                ObjectAnimator.ofFloat(requireActivity().findViewById<BottomNavigationView>(R.id.nav_view),
-                    "alpha", 0f).setDuration(300).start()
+                requireActivity().findViewById<BottomNavigationView>(R.id.nav_view).visibility = View.GONE
                 binding.selectFilterType.visibility = View.VISIBLE
                 ObjectAnimator.ofFloat(binding.imageView9, "rotation",  90f)
                     .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
@@ -92,8 +92,7 @@ class UnionPreviewFragment : UnionAbstractFragment() {
 
                 binding.fab.show()
                 binding.imageView8.setImageResource(R.drawable.ic_baseline_search_24)
-                ObjectAnimator.ofFloat(requireActivity().findViewById<BottomNavigationView>(R.id.nav_view),
-                    "alpha", 1f).setDuration(300).start()
+                requireActivity().findViewById<BottomNavigationView>(R.id.nav_view).visibility = View.VISIBLE
                 if (viewModel.information.filterType == null){
                     binding.selectFilterType.visibility = View.GONE
                     ObjectAnimator.ofFloat(binding.imageView9, "rotation",  0f)

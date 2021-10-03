@@ -9,10 +9,12 @@
 
 package com.daiwerystudio.chronos.ui.action_type
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
@@ -26,6 +28,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.skydoves.colorpickerview.ColorEnvelope
 import com.skydoves.colorpickerview.ColorPickerDialog
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
+
 
 /**
  * Ключевой особенностью является тот факт, что диалог всегда получает тип действия.
@@ -65,6 +68,7 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogActionTypeBinding.inflate(inflater, container, false)
         binding.actionType = actionType
+        binding.color.setBackgroundColor(actionType.color)
 
         binding.color.setOnClickListener{
             ColorPickerDialog.Builder(context, R.style.Style_ColorPickerDialog)
@@ -72,7 +76,7 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                 .setPositiveButton(resources.getString(R.string.select), object : ColorEnvelopeListener {
                         override fun onColorSelected(envelope: ColorEnvelope, fromUser: Boolean) {
                             actionType.color = envelope.color
-                            binding.color.setColorFilter(envelope.color)
+                            binding.color.setBackgroundColor(actionType.color)
                         }
                     })
                 .setNegativeButton(resources.getString(R.string.cancel)) { dialogInterface, _ -> dialogInterface.dismiss() }
@@ -84,6 +88,7 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
             if (actionType.name == "")  binding.actionTypeName.error = resources.getString(R.string.error_name)
             else binding.actionTypeName.error = null
         }
+        if (isCreated) binding.actionTypeName.requestFocus()
 
         if (isCreated) {
             binding.button.text = resources.getString(R.string.add)
@@ -108,6 +113,9 @@ class ActionTypeDialog : BottomSheetDialogFragment() {
                 }
                 else mActionTypeRepository.updateActionType(actionType)
 
+                // Убираем клавиатуру перед закрытием диалога. Нужно для ActionDialog и ActionScheduleDialog.э
+                val manager = requireContext().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                manager.hideSoftInputFromWindow(requireView().windowToken, 0)
                 this.dismiss()
             }
         }

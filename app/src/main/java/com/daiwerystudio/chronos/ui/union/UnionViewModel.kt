@@ -19,7 +19,6 @@
 
 package com.daiwerystudio.chronos.ui.union
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.daiwerystudio.chronos.database.*
 import java.util.*

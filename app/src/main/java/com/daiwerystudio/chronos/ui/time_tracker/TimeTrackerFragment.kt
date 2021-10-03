@@ -17,8 +17,10 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.view.animation.OvershootInterpolator
+import android.widget.Toast
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -231,8 +233,23 @@ class TimeTrackerFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ActionHolder, position: Int) {
             holder.bind(data[position])
-            if (itemCount == 1) holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
-            else holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+            if (itemCount == 1) {
+                holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+
+                val constraintSet = ConstraintSet()
+                constraintSet.clone(holder.binding.constraintLayout)
+                constraintSet.connect(R.id.linearLayout, ConstraintSet.END,
+                    R.id.constraintLayout, ConstraintSet.END)
+                constraintSet.applyTo(holder.binding.constraintLayout)
+            }
+            else {
+                holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+
+                val constraintSet = ConstraintSet()
+                constraintSet.clone(holder.binding.constraintLayout)
+                constraintSet.clear(R.id.linearLayout, ConstraintSet.END)
+                constraintSet.applyTo(holder.binding.constraintLayout)
+            }
         }
 
         /* Если холдер есть в selectedItems, то мы с ним ничего не делаем.
@@ -248,7 +265,7 @@ class TimeTrackerFragment : Fragment() {
 
     }
 
-    private inner class ActionHolder(private val binding: ItemRecyclerViewActionBinding):
+    private inner class ActionHolder(val binding: ItemRecyclerViewActionBinding):
         RecyclerView.ViewHolder(binding.root){
         private lateinit var action: Action
         private var actionType: ActionType? = null
@@ -282,8 +299,8 @@ class TimeTrackerFragment : Fragment() {
             this.action = item.first
             this.actionType = item.second
 
-            binding.time.text = (formatTime(action.startTime, false, FormatStyle.SHORT, FORMAT_TIME) +
-                    " - " + formatTime(action.endTime, false, FormatStyle.SHORT, FORMAT_TIME))
+            binding.time.text = (formatTime(action.startTime, true, FormatStyle.SHORT, FORMAT_TIME) +
+                    " - " + formatTime(action.endTime, true, FormatStyle.SHORT, FORMAT_TIME))
             if (actionType == null) {
                 binding.actionType = ActionType(id="", color=Color.BLACK, name="???")
                 binding.invalid.visibility = View.VISIBLE
@@ -335,6 +352,7 @@ class TimeTrackerFragment : Fragment() {
                                 // после этот массив удалится, а дфункция выполняется
                                 // в отдельном потоке.
                                 viewModel.deleteActions(selectedItems.map { it })
+                                Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_LONG).show()
                                 actionMode?.finish()
                             }
                             .setNegativeButton(R.string.no){ _, _ ->

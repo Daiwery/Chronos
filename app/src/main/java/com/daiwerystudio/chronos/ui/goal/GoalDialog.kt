@@ -90,8 +90,8 @@ class GoalDialog : BottomSheetDialogFragment() {
             else binding.goalName.error = null
         }
         binding.goalNote.editText?.doOnTextChanged { text, _, _, _ -> goal.note = text.toString() }
+        if (isCreated) binding.goalName.requestFocus()
 
-        if (isTemporal == true) binding.checkBox.visibility = View.GONE
         binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 goal.deadline = 0L
@@ -108,6 +108,10 @@ class GoalDialog : BottomSheetDialogFragment() {
                 binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
                 binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
             }
+        }
+        if (isTemporal == true) {
+            binding.checkBox.isChecked = false  // Срабатывает слушатель, так как он уже установлен.
+            binding.checkBox.visibility = View.GONE
         }
 
         binding.time.editText?.setOnClickListener{

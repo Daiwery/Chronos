@@ -103,12 +103,6 @@ abstract class UnionDatabase : RoomDatabase() {
     abstract fun dao(): UnionDao
 }
 
-/**
- * Является синглтоном и инициализируется в DataBaseApplication.
- *
- * Ключевой особенностью является то, что он может посылать запросы другим репозиториям.
- * @see DataBaseApplication
- */
 class UnionRepository private constructor(context: Context) {
     private val mDatabase: UnionDatabase = Room.databaseBuilder(context.applicationContext,
         UnionDatabase::class.java,

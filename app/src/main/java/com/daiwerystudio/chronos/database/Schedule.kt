@@ -29,8 +29,7 @@ import java.util.*
 
 private const val SCHEDULE_DATABASE_NAME = "schedule-database"
 
-/* Предупреждение: данные константы не используются в Data Binding в item_recycler_view_schedule,
-* getActionsScheduleFromDay*/
+/* Предупреждение: данные константы не используются в getActionsScheduleFromDay*/
 const val TYPE_SCHEDULE_PERIODIC = 0
 const val TYPE_SCHEDULE_ONCE = 1
 
@@ -125,11 +124,6 @@ abstract class ScheduleDatabase : RoomDatabase() {
     abstract fun dao(): ScheduleDao
 }
 
-/**
- * Класс, с помощью которого можно обратится к базе данных из любой точки программы.
- * Является синглтоном и объявляется в DataBaseApplication.
- * @see DataBaseApplication
- */
 class ScheduleRepository private constructor(context: Context) {
     private val mDatabase: ScheduleDatabase = Room.databaseBuilder(context.applicationContext,
         ScheduleDatabase::class.java,

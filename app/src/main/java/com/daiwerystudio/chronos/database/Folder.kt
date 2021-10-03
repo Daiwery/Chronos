@@ -50,11 +50,6 @@ abstract class FolderDatabase : RoomDatabase() {
     abstract fun dao(): FolderDao
 }
 
-
-/**
- * Является синглтоном и инициализируется в DataBaseApplication.
- * @see DataBaseApplication
- */
 class FolderRepository private constructor(context: Context) {
     private val mDatabase: FolderDatabase =
         Room.databaseBuilder(context.applicationContext,

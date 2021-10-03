@@ -7,7 +7,6 @@ package com.daiwerystudio.chronos
 
 import android.content.Context
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity

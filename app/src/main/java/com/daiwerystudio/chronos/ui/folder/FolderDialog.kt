@@ -59,6 +59,7 @@ class FolderDialog : BottomSheetDialogFragment() {
             if (folder.name == "")  binding.folderName.error = resources.getString(R.string.error_name)
             else binding.folderName.error = null
         }
+        if (isCreated) binding.folderName.requestFocus()
 
         if (isCreated) {
             binding.button.text = resources.getString(R.string.add)

@@ -12,7 +12,7 @@ android {
         applicationId "com.daiwerystudio.chronos"
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 4
+        versionCode 5
         versionName "1.0-demo"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -38,18 +38,18 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.5.21"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.5.0"
     implementation 'androidx.core:core-ktx:1.6.0'
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+    implementation 'androidx.work:work-runtime-ktx:2.6.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-
 
     // Navigation component
     implementation("androidx.navigation:navigation-fragment-ktx:2.3.5")
@@ -57,7 +57,7 @@ dependencies {
 
     // Room component
     implementation 'androidx.room:room-runtime:2.4.0-alpha04'
-    kapt 'androidx.room:room-compiler:2.4.0-alpha04'
+    kapt 'androidx.room:room-compiler:2.4.0-alpha05'
 
     // lifecycle component
     implementation'androidx.lifecycle:lifecycle-extensions:2.2.0'

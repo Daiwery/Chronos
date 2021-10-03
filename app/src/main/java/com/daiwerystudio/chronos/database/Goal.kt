@@ -70,10 +70,6 @@ abstract class GoalDatabase : RoomDatabase() {
     abstract fun dao(): GoalTypeDao
 }
 
-/**
- * Является синглтоном и инициализируется в DataBaseApplication.
- * @see DataBaseApplication
- */
 class GoalRepository private constructor(context: Context) {
     private val mDatabase: GoalDatabase = Room.databaseBuilder(context.applicationContext,
         GoalDatabase::class.java,

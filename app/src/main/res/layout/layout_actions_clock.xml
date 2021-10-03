@@ -23,7 +23,8 @@
             custom:spaceHeight="50dp"
             custom:textSize="12sp"
             custom:marginText="4dp"
-            android:textColor="@color/white_300"/>
+            android:textColor="@color/white_300"
+            android:fontFamily="@font/montserrat_medium"/>
 
         <HorizontalScrollView
             android:layout_width="wrap_content"

@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Style.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.BottomNavigationView</item>
         <item name="android:background">@color/white</item>
+        <item name="itemTextAppearanceInactive">@style/Text.BottomNavigationView</item>
+        <item name="itemTextAppearanceActive">@style/Text.BottomNavigationView</item>
     </style>
-    <style name="ThemeOverlay.BottomNavigationView" parent="">
+    <style name="Text.BottomNavigationView" parent="@style/TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/montserrat_medium</item>
     </style>
 
     <style name="Style.BottomDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/Widget.BottomDialog.BottomSheet</item>
-        <item name="android:windowIsFloating">false</item>
         <item name="android:windowSoftInputMode">adjustResize|stateVisible</item>
     </style>
     <style name="Widget.BottomDialog.BottomSheet" parent="Widget.Design.BottomSheet.Modal">
@@ -21,6 +22,7 @@
         <item name="android:elevation">0dp</item>
         <item name="backgroundTint">@color/blue</item>
         <item name="android:textColor">@color/white</item>
+        <item name="fontFamily">@font/montserrat_medium</item>
     </style>
 
     <style name="Style.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
@@ -47,6 +49,7 @@
     <style name="Widget.ColorPickerDialog.Button" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/white_300</item>
+        <item name="fontFamily">@font/montserrat_medium</item>
     </style>
 
     <style name="Style.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
@@ -54,10 +57,12 @@
         <item name="android:buttonBarNegativeButtonStyle">@style/Widget.AlertDialog.Button</item>
         <item name="android:background">@color/white_1000</item>
         <item name="android:textSize">18sp</item>
+        <item name="fontFamily">@font/montserrat_medium</item>
     </style>
     <style name="Widget.AlertDialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/white_300</item>
+        <item name="fontFamily">@font/montserrat_medium</item>
     </style>
 
     <style name="Style.TabLayout" parent="Widget.MaterialComponents.TabLayout">
@@ -72,6 +77,7 @@
     <style name="Text.TabLayout" parent="@style/TextAppearance.MaterialComponents.Tooltip">
         <item name="android:textSize">16sp</item>
         <item name="android:textAlignment">center</item>
+        <item name="fontFamily">@font/montserrat_medium</item>
     </style>
 
     <style name="Style.ToolBar" parent="Widget.MaterialComponents.Toolbar">
@@ -81,6 +87,7 @@
     </style>
     <style name="Text.TitleToolBar"  parent="@style/TextAppearance.MaterialComponents.Headline6">
         <item name="android:textSize">20sp</item>
+        <item name="fontFamily">@font/montserrat_semibold</item>
     </style>
     <style name="ThemeOverlay.ToolBar" parent="">
         <item name="colorSecondary">@color/white</item>
@@ -105,5 +112,6 @@
     <style name="Text.ActionMode"  parent="@style/TextAppearance.MaterialComponents.Headline6">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/white</item>
+        <item name="fontFamily">@font/montserrat_medium</item>
     </style>
 </resources>

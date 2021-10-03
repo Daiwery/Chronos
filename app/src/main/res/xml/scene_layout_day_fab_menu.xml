@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        app:constraintSetEnd="@id/end"
+        app:constraintSetStart="@+id/start"
+        app:duration="300">
+        <KeyFrameSet >
+            <KeyAttribute
+                app:motionTarget="@+id/close"
+                app:framePosition="0"
+                android:alpha="1" />
+            <KeyAttribute
+                app:motionTarget="@+id/create_reminder"
+                app:framePosition="80"
+                android:translationY="0dp" />
+            <KeyAttribute
+                app:motionTarget="@+id/create_goal"
+                app:framePosition="80"
+                android:translationY="0dp" />
+            <KeyAttribute
+                app:motionTarget="@+id/textView6"
+                app:framePosition="50"
+                android:alpha="0" />
+            <KeyAttribute
+                app:motionTarget="@+id/textView7"
+                app:framePosition="50"
+                android:alpha="0" />
+        </KeyFrameSet>
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint android:id="@+id/open">
+            <PropertySet app:visibilityMode="ignore" />
+        </Constraint>
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@+id/close"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="16dp"
+            android:visibility="visible"
+            android:layout_marginEnd="16dp" />
+        <Constraint
+            android:id="@+id/open"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:visibility="invisible" >
+            <PropertySet app:visibilityMode="ignore" />
+        </Constraint>
+        <Constraint
+            android:id="@+id/create_reminder"
+            app:layout_constraintEnd_toEndOf="@+id/close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/create_goal"
+            app:layout_constraintStart_toStartOf="@+id/close" />
+        <Constraint
+            android:id="@+id/create_goal"
+            app:layout_constraintEnd_toEndOf="@+id/close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/close"
+            app:layout_constraintStart_toStartOf="@+id/close"
+            android:layout_marginBottom="8dp" />
+        <Constraint
+            android:id="@+id/textView6"
+            app:layout_constraintEnd_toStartOf="@+id/create_goal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/create_goal"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="@+id/create_goal" />
+        <Constraint
+            android:id="@+id/textView7"
+            app:layout_constraintEnd_toStartOf="@+id/create_reminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/create_reminder"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="@+id/create_reminder" />
+        <Constraint
+            android:id="@+id/imageView6"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toTopOf="@+id/textView7"
+            android:alpha="0.9"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </ConstraintSet>
+</MotionScene>

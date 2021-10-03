@@ -53,10 +53,6 @@ abstract class NoteDatabase : RoomDatabase() {
 }
 
 
-/**
- * Является синглтоном и инициализируется в DataBaseApplication.
- * @see DataBaseApplication
- */
 class NoteRepository private constructor(context: Context) {
     private val mDatabase: NoteDatabase =
         Room.databaseBuilder(context.applicationContext,

@@ -56,10 +56,6 @@ abstract class ReminderDatabase : RoomDatabase() {
 }
 
 
-/**
- * Является синглтоном и инициализируется в DataBaseApplication.
- * @see DataBaseApplication
- */
 class ReminderRepository private constructor(context: Context) {
     private val mDatabase: ReminderDatabase =
         Room.databaseBuilder(context.applicationContext,
@@ -81,10 +77,12 @@ class ReminderRepository private constructor(context: Context) {
         mDao.getRemindersFromTimeInterval(time1, time2)
 
     fun deleteReminders(ids: List<String>) {
+        ids.forEach { mDeleteReminderListener?.deletedReminder(it) }
         mHandler.post { mDao.deleteReminders(ids) }
     }
 
     fun deleteReminder(reminder: Reminder){
+        mDeleteReminderListener?.deletedReminder(reminder.id)
         mHandler.post { mDao.deleteReminder(reminder) }
     }
 
@@ -96,12 +94,20 @@ class ReminderRepository private constructor(context: Context) {
         mHandler.post { mDao.addReminder(reminder) }
     }
 
+    private var mDeleteReminderListener: DeleteReminderListener? = null
+    fun interface DeleteReminderListener {
+        fun deletedReminder(id: String)
+    }
+    fun setDeleteReminderListener(deleteReminderListener: DeleteReminderListener){
+        mDeleteReminderListener = deleteReminderListener
+    }
 
     companion object {
         private var INSTANCE: ReminderRepository? = null
-        fun initialize(context: Context) {
+        fun initialize(context: Context, deleteReminderListener: DeleteReminderListener) {
             if (INSTANCE == null) {
                 INSTANCE = ReminderRepository(context)
+                INSTANCE?.setDeleteReminderListener(deleteReminderListener)
             }
         }
 

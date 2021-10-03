@@ -22,7 +22,7 @@ abstract class ClockViewModel: ViewModel() {
      * Вспомогательный класс. Хранит информацию об одной точке. Нужен в алгоритме для обработки
      * данных.
      */
-    private data class ActionPoint(
+    data class ActionPoint(
         val id: String,
         val isStart: Boolean,
         val coordinate: Float
@@ -62,7 +62,7 @@ abstract class ClockViewModel: ViewModel() {
     /**
      * Выозвращает индекс для интервала.
      */
-    abstract fun getIndexForInterval(columns: List<String>): Int
+    abstract fun getIndexForInterval(point: ActionPoint, columns: List<String>): Int
 
     fun processingActionIntervals(intervals: List<ActionInterval>): List<ActionSection> {
         val rawPoints = mutableListOf<ActionPoint>()
@@ -129,9 +129,9 @@ abstract class ClockViewModel: ViewModel() {
 
                 // Если больше одного, то действия пересекаются.
                 if (active.size > 1) {
-                    val index = getIndexForInterval(columns)
+                    val index = getIndexForInterval(point, columns)
                     intervals.first { it.id == point.id }.index = index
-                    if (columns.size >= index) columns.add(point.id)
+                    if (columns.size <= index) columns.add(point.id)
                     else columns[index] = point.id
                 }
             } else {

@@ -52,7 +52,8 @@ class TimeTrackerViewModel : ClockViewModel() {
                 val actionIntervals = mutableListOf<ActionInterval>()
                 actions.forEach {
                     actionIntervals.add(ActionInterval(it.id, it.actionTypeID,
-                        (it.startTime+local)%(24*60*60*1000), (it.endTime+local)%(24*60*60*1000)))
+                        (it.startTime+local)-day.value!!*(24*60*60*1000),
+                        (it.endTime+local)-day.value!!*(24*60*60*1000)))
                 }
                 liveActionSections.postValue(processingActionIntervals(actionIntervals))
             }
@@ -113,7 +114,7 @@ class TimeTrackerViewModel : ClockViewModel() {
         }
 
     // Функция для алгоритма обработки действий.
-    override fun getIndexForInterval(columns: List<String>): Int {
+    override fun getIndexForInterval(point: ActionPoint, columns: List<String>): Int {
         // Находим свободный индекс.
         val freeIndex = columns.indexOfFirst { it == "" }
         // Если не нашли, то ставим новый столбец.

@@ -16,6 +16,7 @@ import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -454,6 +455,7 @@ abstract class UnionAbstractFragment : Fragment() {
                     .setTitle(R.string.are_you_sure)
                     .setPositiveButton(R.string.yes) { _, _ ->
                         viewModel.deleteUnionWithChild(viewModel.data.value!![position].second.id)
+                        Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_LONG).show()
                     }
                     .setNegativeButton(R.string.no){ _, _ -> }
                     .setCancelable(false).create().show()
@@ -464,6 +466,7 @@ abstract class UnionAbstractFragment : Fragment() {
                     .setTitle(R.string.are_you_sure)
                     .setPositiveButton(R.string.yes) { _, _ ->
                         viewModel.moveUnionUp(position)
+                        Toast.makeText(requireContext(), R.string.text_toast_move, Toast.LENGTH_LONG).show()
                     }
                     .setNegativeButton(R.string.no){ _, _ -> }
                     .setCancelable(false).create().show()
@@ -477,6 +480,7 @@ abstract class UnionAbstractFragment : Fragment() {
                 .setTitle(R.string.are_you_sure)
                 .setPositiveButton(R.string.yes) { _, _ ->
                     viewModel.editParentUnion(fromPosition, toPosition)
+                    Toast.makeText(requireContext(), R.string.text_toast_move, Toast.LENGTH_LONG).show()
                 }
                 .setNegativeButton(R.string.no){ _, _ -> }
                 .setCancelable(false).create().show()
@@ -509,7 +513,8 @@ abstract class UnionAbstractFragment : Fragment() {
 
     // Будем хранить позиции выбранных холдеров.
     private val selectedItems: MutableList<Int> = mutableListOf()
-    private var actionMode: ActionMode? = null
+    var actionMode: ActionMode? = null
+        private set
 
     private fun startActionMode(){
         actionMode = requireActivity().startActionMode(callback)
@@ -554,6 +559,7 @@ abstract class UnionAbstractFragment : Fragment() {
                                 // после этот массив удалится, а действия внутри функции выполняются
                                 // в отдельном потоке.
                                 viewModel.moveUnionsUp(selectedItems.map { it })
+                                Toast.makeText(requireContext(), R.string.text_toast_move, Toast.LENGTH_LONG).show()
                                 actionMode?.finish()
                             }
                             .setNegativeButton(R.string.no){ _, _ ->
@@ -567,6 +573,7 @@ abstract class UnionAbstractFragment : Fragment() {
                             .setTitle(R.string.are_you_sure)
                             .setPositiveButton(R.string.yes) { _, _ ->
                                 viewModel.deleteUnionsWithChild(selectedItems)
+                                Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_LONG).show()
                                 actionMode?.finish()
                             }
                             .setNegativeButton(R.string.no){ _, _ ->

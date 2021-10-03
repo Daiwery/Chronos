@@ -26,7 +26,11 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ScrollView
+import androidx.core.content.res.ResourcesCompat
 import com.daiwerystudio.chronos.R
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 /*  В данном файле описаны виджеты для визуализации действий.  */
 
@@ -133,9 +137,9 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
     private var textColor: Int
     private var spaceHeight: Int
     private var marginText: Int
+    private var fontFamilyID: Int
     private var mPaint: Paint = Paint()
-    // Эта переменная нужна, чтобы определить размеры текста.
-    private val bounds: Rect = Rect()
+    private var mTextHours: MutableList<TextHour> = mutableListOf()
 
     init {
         context.theme.obtainStyledAttributes(attrs, R.styleable.ClockFaceView,
@@ -145,6 +149,7 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
                 textColor = getColor(R.styleable.ClockFaceView_android_textColor, Color.BLACK)
                 spaceHeight = getDimensionPixelSize(R.styleable.ClockFaceView_spaceHeight, 0)
                 marginText = getDimensionPixelSize(R.styleable.ClockFaceView_marginText, 0)
+                fontFamilyID = getResourceId(R.styleable.ClockFaceView_android_fontFamily, 0)
             } finally {
                 recycle()
             }
@@ -153,7 +158,21 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
         mPaint.color = textColor
         mPaint.textSize = textSize
         mPaint.isAntiAlias = true
+        mPaint.typeface = ResourcesCompat.getFont(getContext(), fontFamilyID)
+
+        for (i in 0..23){
+            val textHour = TextHour(LocalTime.ofSecondOfDay(i*3600L)
+                .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)), i/24f)
+            mPaint.getTextBounds(textHour.text, 0, textHour.text.length, textHour.bounds)
+            mTextHours.add(textHour)
+        }
     }
+
+    private data class TextHour(
+        var text: String,
+        var y: Float,
+        var bounds: Rect = Rect()
+    )
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
@@ -162,7 +181,7 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         val requestedHeight = MeasureSpec.getSize(heightMeasureSpec)
 
-        val desiredWidth = (mPaint.measureText("24:00")+marginText*2).toInt()
+        val desiredWidth = (mPaint.measureText(mTextHours.last().text)+marginText*2).toInt()
         val desiredHeight = ((textSize+spaceHeight+textSize)*24).toInt()
 
         val width = when (widthMode) {
@@ -186,21 +205,18 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
         val height = height.toFloat()
         val width = width.toFloat()
 
-        for (i in 0..23){
-            val text = if (i < 10) "0$i:00" else "$i:00"
-            val y = i/24f
-            val widthText = mPaint.measureText(text)
+        mTextHours.forEachIndexed { index, textHour ->
+            if (index != 0) {
+                canvas?.drawText(textHour.text, (width-textHour.bounds.width())/2,
+                    height*textHour.y+textHour.bounds.height()/2, mPaint)
+                canvas?.drawLine(0f, height*textHour.y,
+                    (width-textHour.bounds.width()-marginText)/2 , height*textHour.y, mPaint)
+                canvas?.drawLine((width+textHour.bounds.width()+marginText)/2, height*textHour.y,
+                    width , height*textHour.y, mPaint)
+            } else canvas?.drawText(textHour.text, (width-textHour.bounds.width())/2,
+                height*textHour.y+textHour.bounds.height(), mPaint)
 
-            mPaint.getTextBounds(text, 0, text.length, bounds)
-            val heightText = bounds.height()
-
-            if (i != 0) {
-                canvas?.drawText(text, (width-widthText)/2, height*y+heightText/2, mPaint)
-                canvas?.drawLine(0f, height*y, (width-widthText-marginText)/2 , height*y, mPaint)
-                canvas?.drawLine((width+widthText+marginText)/2, height*y, width , height*y, mPaint)
-            } else canvas?.drawText(text, (width-widthText)/2, height*y+heightText, mPaint)
-
-            val position = y+1/48f
+            val position = textHour.y+1/48f
             canvas?.drawLine(3*width/8f, height*position, 5*width/8f, height*position, mPaint)
         }
     }

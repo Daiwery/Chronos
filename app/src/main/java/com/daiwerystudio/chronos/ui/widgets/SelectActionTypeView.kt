@@ -43,8 +43,7 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
      * из этого массива.
      */
     private var mIDs: MutableList<String> = mutableListOf("")
-    var selectedActionType: ActionType? = null
-        private set
+    private var selectedActionType: ActionType? = null
     private var color: ImageView
     private var name: TextView
     private var isAll: CheckBox
@@ -88,14 +87,20 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
         isAll.visibility = visibility
     }
 
+    /* Интерфейс для события нажатия на "+". */
+    private var mOnAddListener: OnAddListener? = null
+    fun interface OnAddListener{
+        fun onAdd(parent: String)
+    }
+    fun setOnAddListener(onAddListener: OnAddListener){
+        mOnAddListener = onAddListener
+    }
+
     /**
      * Устанавливает типы действий, из которых нужно выбрать пользователю.
      */
     fun setData(actionTypes: List<Pair<String, ActionType>>){
         mActionTypes = actionTypes
-        // Устанавливаем mIDs в начальное значение.
-        mIDs = mutableListOf("")
-        (mRecyclerView.adapter as Adapter).setData(mIDs)
         // После уведовляем, что могли изменится данные.
         mRecyclerView.adapter?.notifyItemRangeChanged(0, mIDs.size)
     }
@@ -103,12 +108,21 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
     /**
      * Устанавливает выбранный тип действия.
      */
-    fun setSelectedActionType(actionType: ActionType){
+    private fun setSelectedActionType(actionType: ActionType){
         selectedActionType = actionType
 
         color.visibility = View.VISIBLE
         color.setColorFilter(actionType.color)
         name.text = actionType.name
+    }
+
+    /**
+     * Устанавливает выбранный тип действия.
+     */
+    fun setSelectedActionType(id: String){
+        val index = mActionTypes.indexOfFirst { it.second.id == id }
+        if (index != -1)
+            setSelectedActionType(mActionTypes[-1].second)
     }
 
 
@@ -145,9 +159,12 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
             val holder = Holder(LayoutInflater.from(parent.context)
-                .inflate(R.layout.layout_line_select_action_type, parent, false))
+                .inflate(R.layout.layout_select_action_type_line, parent, false))
             holder.setOnSelectListener{ position, actionType ->
                 updateIDs(position, actionType)
+            }
+            holder.setOnAddListener{
+                mOnAddListener?.onAdd(it)
             }
             return holder
         }
@@ -163,6 +180,8 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
     private class Holder(view: View): RecyclerView.ViewHolder(view){
         private var recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
         private var emptyView: View = view.findViewById(R.id.empty_view)
+        private var addView: ImageView = view.findViewById(R.id.addView)
+        private lateinit var id: String
 
         init{
             recyclerView.apply {
@@ -172,9 +191,14 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
             (recyclerView.adapter as ActionTypeAdapter).setOnSelectListener{
                 mOnSelectListener?.onSelect(absoluteAdapterPosition, it)
             }
+            addView.setOnClickListener {
+                mOnAddListener?.onAdd(id)
+            }
         }
 
         fun bind(rawActionTypes: List<Pair<String, ActionType>>, id: String) {
+            this.id = id
+
             var actionTypes = rawActionTypes.filter { it.first == id }.map { it.second }
             actionTypes = actionTypes.sortedBy { it.name }
 
@@ -192,6 +216,15 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
         fun setOnSelectListener(onSelectListener: OnSelectListener){
             mOnSelectListener = onSelectListener
         }
+
+        /* Интерфейс для события нажатия на "+". */
+        private var mOnAddListener: OnAddListener? = null
+        fun interface OnAddListener{
+            fun onAdd(parent: String)
+        }
+        fun setOnAddListener(onAddListener: OnAddListener){
+            mOnAddListener = onAddListener
+        }
     }
 
     /**
@@ -208,7 +241,10 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
             val diffUtilCallback = UnionDiffUtil(actionTypes, newData)
             val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
 
+            val oldSelect = mSelectPosition
             mSelectPosition = -1
+            notifyItemChanged(oldSelect)
+
             actionTypes = newData.map{ it.copy() }
             diffResult.dispatchUpdatesTo(this)
         }
@@ -217,8 +253,8 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActionTypeHolder {
             val holder = ActionTypeHolder(LayoutInflater.from(parent.context)
-                .inflate(R.layout.layout_item_select_action_type, parent, false))
-            holder.setOnSelectListener{position, actionType ->
+                .inflate(R.layout.layout_select_action_type_item, parent, false))
+            holder.setOnSelectListener { position, actionType ->
                 val oldSelect = mSelectPosition
                 mSelectPosition = position
 
@@ -253,7 +289,6 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
         private val color: ImageView  = view.findViewById(R.id.imageView)
         private val name: TextView = view.findViewById(R.id.textView1)
         private val frame: ImageView = view.findViewById(R.id.frame)
-//        private val countChild: TextView = view.findViewById(R.id.textView3)
 
         init {
             itemView.setOnClickListener{
@@ -266,12 +301,6 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
 
             color.setColorFilter(actionType.color)
             name.text = actionType.name
-
-//                val count = mActionTypes.count{ it.first == actionType.id }
-//                if (count != 0){
-//                    countChild.visibility = View.VISIBLE
-//                    countChild.text = (resources.getString(R.string.inside_)+" "+count.toString())
-//                } else countChild.visibility = View.GONE
         }
 
         fun setVisibilityFrame(visibility: Int){

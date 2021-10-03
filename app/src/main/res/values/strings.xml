@@ -19,7 +19,6 @@
     <string name="days_">Дней:</string>
     <string name="type_">Тип:</string>
     <string name="start_">Начало:</string>
-    <string name="end_">Конец:</string>
     <string name="start">Начало</string>
     <string name="end">Конец</string>
     <string name="select_action_type">Выберите тип действия</string>
@@ -39,4 +38,7 @@
     <string name="search">Поиск</string>
     <string name="indefinite">Бессрочно</string>
     <string name="save">Сохранить</string>
+    <string name="name_reminder_channel">Напоминания</string>
+    <string name="text_toast_delete">Удалено</string>
+    <string name="text_toast_move">Перемещено</string>
 </resources>

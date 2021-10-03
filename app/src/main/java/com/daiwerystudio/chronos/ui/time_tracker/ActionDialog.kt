@@ -24,6 +24,7 @@ import com.daiwerystudio.chronos.ui.FORMAT_DAY
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.SelectActionTypeViewModel
+import com.daiwerystudio.chronos.ui.action_type.ActionTypeDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -37,7 +38,6 @@ class ActionDialog : BottomSheetDialogFragment() {
     private val viewModel: SelectActionTypeViewModel
         by lazy { ViewModelProvider(this).get(SelectActionTypeViewModel::class.java) }
     private val mActionRepository = ActionRepository.get()
-    private val mActionTypeRepository = ActionTypeRepository.get()
     private lateinit var binding: DialogActionBinding
     private lateinit var action: Action
     private var isCreated: Boolean = false
@@ -69,19 +69,27 @@ class ActionDialog : BottomSheetDialogFragment() {
         binding.endDay.editText?.setText(formatTime(action.endTime, true, FormatStyle.LONG, FORMAT_DAY))
         binding.endTime.editText?.setText(formatTime(action.endTime, true, FormatStyle.SHORT, FORMAT_TIME))
 
-        // Отмена клавиатуры.
-        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
 
         binding.selectActionType.setVisibilityIsAll(View.GONE)
         viewModel.actionTypes.observe(viewLifecycleOwner, {
             binding.selectActionType.setData(it)
         })
-        val actionType = mActionTypeRepository.getActionType(action.actionTypeID)
-        actionType.observe(viewLifecycleOwner, {
-            if (it != null && binding.selectActionType.selectedActionType != null)
-                binding.selectActionType.setSelectedActionType(it)
-        })
+        binding.selectActionType.setSelectedActionType(action.actionTypeID)
         binding.selectActionType.setOnSelectListener{ action.actionTypeID = it.id }
+        binding.selectActionType.setOnAddListener{
+            val id = UUID.randomUUID().toString()
+            val actionType = ActionType(id=id)
+            val union = Union(id=id, parent=it, indexList=0, type=TYPE_ACTION_TYPE)
+
+            val dialog = ActionTypeDialog()
+            dialog.arguments = Bundle().apply{
+                putSerializable("actionType", actionType)
+                putSerializable("union", union)
+                putBoolean("isCreated", true)
+            }
+            dialog.show(requireActivity().supportFragmentManager, "ActionTypeDialog")
+        }
+
 
         binding.startTime.editText?.setOnClickListener{
             val localTime = action.startTime+local
@@ -110,7 +118,6 @@ class ActionDialog : BottomSheetDialogFragment() {
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
-
 
         binding.endTime.editText?.setOnClickListener{
             val localTime = action.endTime+local
