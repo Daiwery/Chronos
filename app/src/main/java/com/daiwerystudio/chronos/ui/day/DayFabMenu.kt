@@ -5,69 +5,123 @@
 
 package com.daiwerystudio.chronos.ui.day
 
+import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
+import android.view.animation.*
 import android.widget.ImageView
-import androidx.constraintlayout.motion.widget.MotionLayout
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.daiwerystudio.chronos.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
-class DayFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context, attrs){
-    private val motionLayout: MotionLayout
+class DayFabMenu(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs){
     private val open: FloatingActionButton
     private val close: FloatingActionButton
     private val createReminder: FloatingActionButton
+    private val reminderTextView: TextView
     private val createGoal: FloatingActionButton
+    private val goalTextView: TextView
     private val lightening: ImageView
-    private var state: Int = STATE_CLOSED
+    var state: Int = STATE_CLOSED
+        private set
 
     init {
         inflate(context, R.layout.layout_day_fab_menu, this)
-        // По какой-то причине использование this.transitionToEnd() не работает.
-        motionLayout = findViewById(R.id.motionLayout)
 
         open = findViewById(R.id.open)
-        open.setOnClickListener {
-            state = STATE_OPENED
-            motionLayout.transitionToEnd()
-        }
+        open.setOnClickListener { transitionToOpen() }
 
         close = findViewById(R.id.close)
-        close.setOnClickListener {
-            state = STATE_CLOSED
-            motionLayout.transitionToStart()
-        }
+        close.setOnClickListener { transitionToClose() }
 
         createReminder = findViewById(R.id.create_reminder)
+        reminderTextView = findViewById(R.id.reminderTextView)
         createReminder.setOnClickListener {
             mOnMenuItemClickListener?.onMenuItemClick(TYPE_REMINDER)
-            motionLayout.transitionToStart()
+            transitionToClose()
         }
 
         createGoal = findViewById(R.id.create_goal)
+        goalTextView = findViewById(R.id.goalTextView)
         createGoal.setOnClickListener {
             mOnMenuItemClickListener?.onMenuItemClick(TYPE_GOAL)
-            motionLayout.transitionToStart()
+            transitionToClose()
         }
 
         lightening = findViewById(R.id.imageView6)
-        lightening.setOnClickListener { motionLayout.transitionToStart() }
+        lightening.setOnClickListener { transitionToClose() }
     }
 
-    override fun isFocused(): Boolean = state == STATE_OPENED
-    val isVisible: Boolean
-        get() = state != STATE_INVISIBLE
+    private fun transitionToOpen(){
+        state = STATE_OPENED
 
-    override fun clearFocus() {
-        state = STATE_CLOSED
-        motionLayout.transitionToStart()
+        close.rotation = 225f
+        close.visibility = View.VISIBLE
+        open.visibility = View.INVISIBLE
+        createReminder.visibility = View.VISIBLE
+        createGoal.visibility = View.VISIBLE
+        lightening.visibility = View.VISIBLE
+        ObjectAnimator.ofFloat(lightening, "alpha",  0.9f).setDuration(300).start()
+        ObjectAnimator.ofFloat(close, "rotation",  0f).setDuration(300).start()
+        animateFAB(createGoal, 1f, 0f)
+        animateTextView(goalTextView, 1f)
+        animateFAB(createReminder, 1f, 0f)
+        animateTextView(reminderTextView, 1f)
+    }
+
+    private fun transitionToClose(invisible: Boolean = false){
+        if (invisible) {
+            state = STATE_INVISIBLE
+            open.visibility = View.VISIBLE
+        } else state = STATE_CLOSED
+
+        animateFAB(createGoal, 0f, 1f*createGoal.height)
+        animateTextView(goalTextView, 0f)
+        animateFAB(createReminder, 0f, 2f*createGoal.height)
+        animateTextView(reminderTextView, 0f)
+        ObjectAnimator.ofFloat(lightening, "alpha",  0f).setDuration(300).start()
+        val animation = ObjectAnimator.ofFloat(close, "rotation",  255f).setDuration(300)
+        animation.addListener(object : Animator.AnimatorListener{
+            override fun onAnimationCancel(animation: Animator?) {}
+            override fun onAnimationRepeat(animation: Animator?) {}
+            override fun onAnimationStart(animation: Animator?) {}
+            override fun onAnimationEnd(animation: Animator?) {
+                lightening.visibility = View.INVISIBLE
+                close.visibility = View.INVISIBLE
+                createReminder.visibility = View.INVISIBLE
+                createGoal.visibility = View.INVISIBLE
+
+                if (invisible) open.hide()
+                else open.visibility = View.VISIBLE
+            }
+        })
+        animation.start()
+    }
+
+    private fun animateFAB(view: View, alpha: Float, translationY: Float){
+        ObjectAnimator.ofFloat(view, "translationY",  translationY).setDuration(300)
+            .apply { interpolator = Interpolator { if (it < 0.8f) it/0.8f else 1f } }.start()
+        ObjectAnimator.ofFloat(view, "alpha",  alpha).setDuration(300).start()
+    }
+
+    private fun animateTextView(view: View, alpha: Float){
+        ObjectAnimator.ofFloat(view, "alpha",  alpha).setDuration(300).start()
+    }
+
+    fun close() {
+        transitionToClose()
     }
 
     fun hide(){
-        state = STATE_INVISIBLE
-        motionLayout.transitionToStart()
-        open.hide()
+        if (state == STATE_OPENED) transitionToClose(true)
+        else {
+            state = STATE_INVISIBLE
+            open.hide()
+        }
     }
 
     fun show(){

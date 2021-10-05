@@ -71,8 +71,8 @@ class TimeTrackerFragment : Fragment() {
         })
 
         viewModel.day.observe(viewLifecycleOwner, {
-            binding.toolBar.title =
-                LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
+            binding.calendarView.date = viewModel.day.value!!*24*60*60*1000L
+            binding.toolBar.title = LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
         })
         viewModel.mActions.observe(viewLifecycleOwner, { setLoadingView() })
         viewModel.sections.observe(viewLifecycleOwner, {
@@ -131,6 +131,19 @@ class TimeTrackerFragment : Fragment() {
                 putBoolean("isCreated", true)
             }
             dialog.show(this.requireActivity().supportFragmentManager, "ActionDialog")
+        }
+
+        binding.toolBar.setNavigationOnClickListener {
+            viewModel.day.value = viewModel.day.value!!-1
+        }
+        binding.toolBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.right -> {
+                    viewModel.day.value = viewModel.day.value!!+1
+                    true
+                }
+                else -> false
+            }
         }
 
         return binding.root

@@ -21,6 +21,7 @@ import com.daiwerystudio.chronos.ui.FORMAT_DAY
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
+import com.daiwerystudio.chronos.ui.widgets.UnionFabMenu
 import java.time.format.FormatStyle
 
 class UnionGoalFragment : UnionAbstractFragment() {
@@ -42,8 +43,9 @@ class UnionGoalFragment : UnionAbstractFragment() {
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) binding.fab.hide()
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
+                    if (binding.fab.state != UnionFabMenu.STATE_INVISIBLE) binding.fab.hide()
+                    else binding.fab.show()
             }
         })
 

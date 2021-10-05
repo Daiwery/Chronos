@@ -18,7 +18,6 @@
 
 package com.daiwerystudio.chronos.ui.day
 
-import android.animation.LayoutTransition
 import android.animation.ObjectAnimator
 import android.app.AlertDialog
 import android.graphics.Color
@@ -79,7 +78,6 @@ class DayFragment: Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentDayBinding.inflate(inflater, container, false)
-        binding.motionLayout.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -88,6 +86,7 @@ class DayFragment: Fragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         viewModel.day.observe(viewLifecycleOwner, {
+            binding.calendarView.date = viewModel.day.value!!*24*60*60*1000L
             binding.toolBar.title = LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
         })
         viewModel.mActionsSchedule.observe(viewLifecycleOwner, { setLoadingView() })
@@ -136,7 +135,8 @@ class DayFragment: Fragment() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (binding.calendarView.visibility == View.GONE) {
                     if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
-                        if (binding.fab.isVisible) binding.fab.hide() else binding.fab.show()
+                        if (binding.fab.state != DayFabMenu.STATE_INVISIBLE) binding.fab.hide()
+                        else binding.fab.show()
                 }
             }
         })
@@ -150,7 +150,7 @@ class DayFragment: Fragment() {
             when (it){
                 TYPE_GOAL -> {
                     val goal = Goal(id=UUID.randomUUID().toString())
-//                    goal.deadline += viewModel.day.value!!*24*60*60*1000L-viewModel.local-System.currentTimeMillis()
+                    goal.deadline += (viewModel.day.value!!-System.currentTimeMillis()/(24*60*60*1000))*24*60*60*1000L
 
                     val dialog = GoalDialog()
                     dialog.arguments = Bundle().apply{
@@ -163,7 +163,7 @@ class DayFragment: Fragment() {
 
                 TYPE_REMINDER -> {
                     val reminder = Reminder(id=UUID.randomUUID().toString())
-//                    reminder.time += viewModel.day.value!!*24*60*60*1000L-viewModel.local-System.currentTimeMillis()
+                    reminder.time += (viewModel.day.value!!-System.currentTimeMillis()/(24*60*60*1000))*24*60*60*1000L
 
                     val dialog = ReminderDialog()
                     dialog.arguments = Bundle().apply{
@@ -179,13 +179,26 @@ class DayFragment: Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (binding.fab.isFocused) binding.fab.clearFocus()
+                    if (binding.fab.state == DayFabMenu.STATE_OPENED) binding.fab.close()
                     else {
                         isEnabled = false
                         activity?.onBackPressed()
                     }
                 }
             })
+
+        binding.toolBar.setNavigationOnClickListener {
+            viewModel.day.value = viewModel.day.value!!-1
+        }
+        binding.toolBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.right -> {
+                    viewModel.day.value = viewModel.day.value!!+1
+                    true
+                }
+                else -> false
+            }
+        }
 
         return binding.root
     }
@@ -220,7 +233,7 @@ class DayFragment: Fragment() {
 
         fun updateData(newData: List<Pair<Int, Any>>){
             val diffUtilCallback = CustomDiffUtil(data, newData)
-            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, false)
+            val diffResult = DiffUtil.calculateDiff(diffUtilCallback, true)
 
             data = newData
             diffResult.dispatchUpdatesTo(this)
@@ -326,14 +339,8 @@ class DayFragment: Fragment() {
         lateinit var goal: Goal
 
         init {
-            binding.edit.setOnClickListener{
-                val dialog = GoalDialog()
-                dialog.arguments = Bundle().apply{
-                    putSerializable("goal", goal)
-                    putBoolean("isCreated", false)
-                }
-                dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
-            }
+            itemView.setOnClickListener { onClick() }
+            binding.edit.setOnClickListener{ onClick() }
             binding.checkBox.setOnClickListener {
                 goal.isAchieved = binding.checkBox.isChecked
                 viewModel.updateGoal(goal)
@@ -351,6 +358,16 @@ class DayFragment: Fragment() {
             constraintSet.connect(R.id.imageView7, ConstraintSet.END,
                 R.id.drag_handle, ConstraintSet.END)
             constraintSet.applyTo(binding.constraintLayout)
+        }
+
+        private fun onClick(){
+            val dialog = GoalDialog()
+            dialog.arguments = Bundle().apply{
+                putSerializable("goal", goal)
+                putBoolean("isCreated", false)
+                putBoolean("isTemporal", true)
+            }
+            dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
         }
 
         fun bind(goal: Goal){

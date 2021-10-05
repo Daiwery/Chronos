@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionFolderBinding
 import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
+import com.daiwerystudio.chronos.ui.widgets.UnionFabMenu
 
 class UnionFolderFragment : UnionAbstractFragment() {
     override val viewModel: UnionFolderViewModel
@@ -37,8 +38,9 @@ class UnionFolderFragment : UnionAbstractFragment() {
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) binding.fab.hide()
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
+                    if (binding.fab.state != UnionFabMenu.STATE_INVISIBLE) binding.fab.hide()
+                    else binding.fab.show()
             }
         })
 

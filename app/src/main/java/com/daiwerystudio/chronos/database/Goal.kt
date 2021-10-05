@@ -19,6 +19,9 @@ import java.io.Serializable
 
 private const val GOAL_DATABASE_NAME = "goal-database"
 
+const val TYPE_GOAL_INDEFINITE = 0
+const val TYPE_GOAL_TEMPORARY = 1
+
 /**
  * @property id уникальный идентификатор
  * @property name название цели.
@@ -29,7 +32,8 @@ data class Goal(
     @PrimaryKey override val id: String,
     var name: String = "",
     var note: String = "",
-    var deadline: Long = 0,
+    var type: Int = TYPE_GOAL_INDEFINITE,
+    var deadline: Long = System.currentTimeMillis(),
     var isAchieved: Boolean = false,
 ) : Serializable, ID
 

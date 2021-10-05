@@ -13,6 +13,7 @@ import android.animation.LayoutTransition
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionPreviewBinding
+import com.daiwerystudio.chronos.ui.widgets.UnionFabMenu
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class UnionPreviewFragment : UnionAbstractFragment() {
@@ -35,7 +37,7 @@ class UnionPreviewFragment : UnionAbstractFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentUnionPreviewBinding.inflate(inflater, container, false)
-        binding.rootView.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+//        binding.rootView.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -49,7 +51,8 @@ class UnionPreviewFragment : UnionAbstractFragment() {
                 if (actionMode == null && viewModel.information.filterType == null
                     && viewModel.information.filterString == null) {
                     if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
-                        if (binding.fab.isVisible) binding.fab.hide() else binding.fab.show()
+                        if (binding.fab.state != UnionFabMenu.STATE_INVISIBLE) binding.fab.hide()
+                        else binding.fab.show()
                 }
             }
         })
@@ -107,13 +110,16 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         }
 
         binding.toolBar.setOnClickListener {
+            TransitionManager.beginDelayedTransition(binding.rootView)
             if (binding.selectFilterType.visibility == View.VISIBLE) {
                 binding.selectFilterType.visibility = View.GONE
+                binding.fab.show()
                 ObjectAnimator.ofFloat(binding.imageView9, "rotation",  0f)
                     .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
             }
             else {
                 binding.selectFilterType.visibility = View.VISIBLE
+                binding.fab.hide()
                 ObjectAnimator.ofFloat(binding.imageView9, "rotation",  90f)
                     .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
             }
@@ -128,9 +134,9 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (binding.search.isFocused || binding.fab.isFocused) {
+                if (binding.search.isFocused || binding.fab.state == UnionFabMenu.STATE_OPENED) {
                     binding.search.clearFocus()
-                    binding.fab.clearFocus()
+                    binding.fab.close()
                 } else {
                     isEnabled = false
                     activity?.onBackPressed()

@@ -165,14 +165,15 @@ class DayViewModel: ClockViewModel() {
 
     private fun buildData(): List<Pair<Int, Any>> {
         val newData = mutableListOf<Pair<Int, Any>>()
+        // Квазисортировка.
         mSections.value?.also { sections ->
             newData.addAll(sections.map { Pair(TYPE_SECTION, it) })
         }
-        mReminders.value?.also { reminders ->
-            newData.addAll(reminders.map { Pair(TYPE_REMINDER, it) })
-        }
         mGoals.value?.also { goals ->
             newData.addAll(goals.map { Pair(TYPE_GOAL, it) })
+        }
+        mReminders.value?.also { reminders ->
+            newData.addAll(reminders.map { Pair(TYPE_REMINDER, it) })
         }
         newData.sortBy {
             when (it.first){

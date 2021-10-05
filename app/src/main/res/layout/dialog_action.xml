@@ -43,9 +43,11 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:hint="@string/start"
+                android:textAlignment="center"
                 android:focusable="false"
                 android:inputType="none"
-                tools:text="15:21" />
+                tools:text="16:58"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -78,6 +80,8 @@
                 android:layout_height="match_parent"
                 android:focusable="false"
                 android:inputType="none"
+                android:hint="@string/end"
+                android:textAlignment="center"
                 tools:text="15:21" />
         </com.google.android.material.textfield.TextInputLayout>
 

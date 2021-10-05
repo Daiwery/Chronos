@@ -17,10 +17,7 @@ import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
-import com.daiwerystudio.chronos.database.Goal
-import com.daiwerystudio.chronos.database.GoalRepository
-import com.daiwerystudio.chronos.database.Union
-import com.daiwerystudio.chronos.database.UnionRepository
+import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.DialogGoalBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
 import com.daiwerystudio.chronos.ui.FORMAT_DAY
@@ -78,7 +75,7 @@ class GoalDialog : BottomSheetDialogFragment() {
         binding.goal = goal
         binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
         binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
-        if (goal.deadline == 0L) {
+        if (goal.type == TYPE_GOAL_INDEFINITE) {
             binding.checkBox.isChecked = true
             binding.day.visibility = View.GONE
             binding.time.visibility = View.GONE
@@ -94,11 +91,11 @@ class GoalDialog : BottomSheetDialogFragment() {
 
         binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                goal.deadline = 0L
+                goal.type = TYPE_GOAL_INDEFINITE
                 binding.day.visibility = View.GONE
                 binding.time.visibility = View.GONE
             } else {
-                goal.deadline = System.currentTimeMillis()
+                goal.type = TYPE_GOAL_TEMPORARY
                 binding.day.visibility = View.VISIBLE
                 binding.time.visibility = View.VISIBLE
             }

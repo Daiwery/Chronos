@@ -12,7 +12,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -88,6 +88,8 @@
                 android:layout_height="match_parent"
                 android:focusable="false"
                 android:inputType="none"
+                android:textAlignment="center"
+                android:hint="@string/time"
                 tools:text="15:21" />
         </com.google.android.material.textfield.TextInputLayout>
 

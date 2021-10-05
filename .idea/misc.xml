@@ -61,7 +61,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/font/roboto_thin.xml" value="0.284375" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/font/test_font.xml" value="0.284375" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/activity_main.xml" value="0.4" />
-        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action.xml" value="0.4" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action.xml" value="0.536" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_absolute_schedule.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_schedule.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_type.xml" value="0.4" />
@@ -121,7 +121,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_clock_timetracker.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_clock_view.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_day_clock_view.xml" value="0.1" />
-        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_day_fab_menu.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_day_fab_menu.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_empty.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_item_select_action_type.xml" value="0.72" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_line_select_action_type.xml" value="0.4" />
@@ -136,6 +136,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/list_item_action.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/menu/edit_delete_menu.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/menu/menu_action_bar.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/menu/menu_arrow_right.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/menu/menu_bottom_nav.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/menu/menu_create_day_item.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/menu/menu_create_union_item.xml" value="0.25416666666666665" />

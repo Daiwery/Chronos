@@ -27,6 +27,8 @@
                 android:id="@+id/toolBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                app:menu="@menu/menu_arrow_right"
+                app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
                 app:title="31 августа 2021">
 
                 <ImageView
@@ -35,8 +37,6 @@
                     android:layout_height="32dp"
                     android:translationY="2dp"
                     android:src="@drawable/ic_baseline_arrow_right_24"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="ContentDescription" />
             </com.google.android.material.appbar.MaterialToolbar>
 

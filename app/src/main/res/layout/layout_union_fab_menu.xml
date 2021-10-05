@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/motionLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layoutDescription="@xml/scene_layout_union_fab_menu">
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/imageView6"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toTopOf="@+id/textView7"
+        app:layout_constraintBottom_toTopOf="@+id/reminderTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:background="@color/white"
         android:visibility="invisible"
+        android:alpha="0"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -50,6 +50,8 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_folder"
         android:visibility="invisible"
+        android:alpha="0"
+        tools:alpha="1"
         android:translationY="304dp"
         app:backgroundTint="@color/white"
         app:fabSize="mini"
@@ -57,6 +59,7 @@
         app:layout_constraintEnd_toEndOf="@+id/close"
         app:layout_constraintStart_toStartOf="@+id/close"
         app:tint="@null"
+        tools:visibility="visible"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -66,12 +69,15 @@
         android:src="@drawable/ic_note"
         android:visibility="invisible"
         android:translationY="256dp"
+        android:alpha="0"
+        tools:alpha="1"
         app:backgroundTint="@color/white"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@+id/create_reminder"
         app:layout_constraintEnd_toEndOf="@+id/close"
         app:layout_constraintStart_toStartOf="@+id/close"
         app:tint="@null"
+        tools:visibility="visible"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -82,11 +88,14 @@
         app:backgroundTint="@color/white"
         android:visibility="invisible"
         android:translationY="208dp"
+        android:alpha="0"
+        tools:alpha="1"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@+id/create_goal"
         app:layout_constraintEnd_toEndOf="@+id/close"
         app:layout_constraintStart_toStartOf="@+id/close"
         app:tint="@null"
+        tools:visibility="visible"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -97,11 +106,14 @@
         app:backgroundTint="@color/white"
         android:visibility="invisible"
         android:translationY="160dp"
+        android:alpha="0"
+        tools:alpha="1"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@+id/create_schedule"
         app:layout_constraintEnd_toEndOf="@+id/close"
         app:layout_constraintStart_toStartOf="@+id/close"
         app:tint="@null"
+        tools:visibility="visible"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -111,12 +123,15 @@
         android:src="@drawable/ic_schedule"
         android:visibility="invisible"
         android:translationY="112dp"
+        android:alpha="0"
+        tools:alpha="1"
         app:backgroundTint="@color/white"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@+id/create_action_type"
         app:layout_constraintEnd_toEndOf="@+id/close"
         app:layout_constraintStart_toStartOf="@+id/close"
         app:tint="@null"
+        tools:visibility="visible"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -128,82 +143,91 @@
         android:translationY="64dp"
         android:visibility="invisible"
         app:backgroundTint="@color/white"
+        android:alpha="0"
+        tools:alpha="1"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@+id/close"
         app:layout_constraintEnd_toEndOf="@+id/close"
         app:layout_constraintStart_toStartOf="@+id/close"
         app:tint="@null"
+        tools:visibility="visible"
         tools:ignore="ContentDescription" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/actionTypeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text="@string/action_type"
         android:textAppearance="@style/Text.UnionFabMenu"
-        android:visibility="invisible"
+        android:alpha="0"
+        tools:alpha="1"
         app:layout_constraintBottom_toBottomOf="@+id/create_action_type"
         app:layout_constraintEnd_toStartOf="@+id/create_action_type"
         app:layout_constraintTop_toTopOf="@+id/create_action_type" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/scheduleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text="@string/schedule"
         android:textAppearance="@style/Text.UnionFabMenu"
-        android:visibility="invisible"
+        android:alpha="0"
+        tools:alpha="1"
         app:layout_constraintBottom_toBottomOf="@+id/create_schedule"
         app:layout_constraintEnd_toStartOf="@+id/create_schedule"
         app:layout_constraintTop_toTopOf="@+id/create_schedule" />
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/goalTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text="@string/goal"
         android:textAppearance="@style/Text.UnionFabMenu"
-        android:visibility="invisible"
+        android:alpha="0"
+        tools:alpha="1"
         app:layout_constraintBottom_toBottomOf="@+id/create_goal"
         app:layout_constraintEnd_toStartOf="@+id/create_goal"
         app:layout_constraintTop_toTopOf="@+id/create_goal" />
 
     <TextView
-        android:id="@+id/textView7"
+        android:id="@+id/reminderTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text="@string/reminder"
         android:textAppearance="@style/Text.UnionFabMenu"
-        android:visibility="invisible"
+        android:alpha="0"
+        tools:alpha="1"
         app:layout_constraintBottom_toBottomOf="@+id/create_reminder"
         app:layout_constraintEnd_toStartOf="@+id/create_reminder"
         app:layout_constraintTop_toTopOf="@+id/create_reminder" />
 
     <TextView
-        android:id="@+id/textView8"
+        android:id="@+id/noteTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text="@string/note"
         android:textAppearance="@style/Text.UnionFabMenu"
-        android:visibility="invisible"
+        android:alpha="0"
+        tools:alpha="1"
         app:layout_constraintBottom_toBottomOf="@+id/create_note"
         app:layout_constraintEnd_toStartOf="@+id/create_note"
         app:layout_constraintTop_toTopOf="@+id/create_note" />
 
     <TextView
-        android:id="@+id/textView9"
+        android:id="@+id/folderTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text="@string/folder"
         android:textAppearance="@style/Text.UnionFabMenu"
-        android:visibility="invisible"
+        android:alpha="0"
+        tools:alpha="1"
         app:layout_constraintBottom_toBottomOf="@+id/create_folder"
         app:layout_constraintEnd_toStartOf="@+id/create_folder"
         app:layout_constraintTop_toTopOf="@+id/create_folder" />
-</androidx.constraintlayout.motion.widget.MotionLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
