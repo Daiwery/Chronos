@@ -65,8 +65,8 @@ class TimeTrackerFragment : Fragment() {
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) binding.fab.hide()
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
+                    if (binding.fab.visibility == View.VISIBLE) binding.fab.hide() else binding.fab.show()
             }
         })
 

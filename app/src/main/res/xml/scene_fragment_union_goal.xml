@@ -23,8 +23,7 @@
                 app:visibilityMode="ignore" />
         </Constraint>
         <Constraint android:id="@+id/fab">
-            <PropertySet
-                app:visibilityMode="ignore" />
+            <PropertySet app:visibilityMode="ignore" />
         </Constraint>
     </ConstraintSet>
 
@@ -38,8 +37,7 @@
                 app:visibilityMode="ignore" />
         </Constraint>
         <Constraint android:id="@+id/fab">
-            <PropertySet
-                app:visibilityMode="ignore" />
+            <PropertySet app:visibilityMode="ignore" />
         </Constraint>
         <Constraint
             android:id="@+id/collapseContent"

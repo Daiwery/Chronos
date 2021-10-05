@@ -34,6 +34,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -134,8 +135,8 @@ class DayFragment: Fragment() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (binding.calendarView.visibility == View.GONE) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
-                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) binding.fab.hide()
+                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
+                        if (binding.fab.isVisible) binding.fab.hide() else binding.fab.show()
                 }
             }
         })
@@ -149,6 +150,7 @@ class DayFragment: Fragment() {
             when (it){
                 TYPE_GOAL -> {
                     val goal = Goal(id=UUID.randomUUID().toString())
+//                    goal.deadline += viewModel.day.value!!*24*60*60*1000L-viewModel.local-System.currentTimeMillis()
 
                     val dialog = GoalDialog()
                     dialog.arguments = Bundle().apply{
@@ -161,6 +163,7 @@ class DayFragment: Fragment() {
 
                 TYPE_REMINDER -> {
                     val reminder = Reminder(id=UUID.randomUUID().toString())
+//                    reminder.time += viewModel.day.value!!*24*60*60*1000L-viewModel.local-System.currentTimeMillis()
 
                     val dialog = ReminderDialog()
                     dialog.arguments = Bundle().apply{
@@ -336,12 +339,18 @@ class DayFragment: Fragment() {
                 viewModel.updateGoal(goal)
             }
 
-            binding.dragHandle.visibility = View.GONE
+            binding.dragHandle.visibility = View.INVISIBLE
             binding.textView21.visibility = View.GONE
             binding.progressTextView.visibility = View.GONE
             binding.progressBar.visibility = View.GONE
             binding.textView13.visibility = View.VISIBLE
             binding.deadlineTextView.visibility = View.VISIBLE
+
+            val constraintSet = ConstraintSet()
+            constraintSet.clone(binding.constraintLayout)
+            constraintSet.connect(R.id.imageView7, ConstraintSet.END,
+                R.id.drag_handle, ConstraintSet.END)
+            constraintSet.applyTo(binding.constraintLayout)
         }
 
         fun bind(goal: Goal){
@@ -360,7 +369,13 @@ class DayFragment: Fragment() {
             itemView.setOnClickListener{ onClicked() }
             binding.edit.setOnClickListener{ onClicked() }
 
-            binding.dragHandle.visibility = View.GONE
+            binding.dragHandle.visibility = View.INVISIBLE
+
+            val constraintSet = ConstraintSet()
+            constraintSet.clone(binding.constraintLayout)
+            constraintSet.connect(R.id.imageView4, ConstraintSet.END,
+                R.id.drag_handle, ConstraintSet.END)
+            constraintSet.applyTo(binding.constraintLayout)
         }
 
         private fun onClicked(){

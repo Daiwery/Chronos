@@ -46,10 +46,10 @@ class UnionPreviewFragment : UnionAbstractFragment() {
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (actionMode != null && viewModel.information.filterType != null
-                    && viewModel.information.filterString != null) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) binding.fab.show()
-                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) binding.fab.hide()
+                if (actionMode == null && viewModel.information.filterType == null
+                    && viewModel.information.filterString == null) {
+                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
+                        if (binding.fab.isVisible) binding.fab.hide() else binding.fab.show()
                 }
             }
         })

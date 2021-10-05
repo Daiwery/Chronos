@@ -39,6 +39,7 @@
     </style>
 
     <style name="ThemeOverlay.DatePicker" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorOnPrimary">@color/white</item>
     </style>
 
     <style name="Style.ColorPickerDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">

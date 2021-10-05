@@ -24,7 +24,7 @@ private const val REMINDER_DATABASE_NAME = "reminder-database"
 data class Reminder(
     @PrimaryKey override val id: String,
     var text: String = "",
-    var time: Long = System.currentTimeMillis()+60*60*1000
+    var time: Long = System.currentTimeMillis()
 ) : Serializable, ID
 
 

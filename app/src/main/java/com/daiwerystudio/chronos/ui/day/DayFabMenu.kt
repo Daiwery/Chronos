@@ -20,7 +20,7 @@ class DayFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context, 
     private val createReminder: FloatingActionButton
     private val createGoal: FloatingActionButton
     private val lightening: ImageView
-    private var isOpened: Boolean = false
+    private var state: Int = STATE_CLOSED
 
     init {
         inflate(context, R.layout.layout_day_fab_menu, this)
@@ -29,13 +29,13 @@ class DayFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context, 
 
         open = findViewById(R.id.open)
         open.setOnClickListener {
-            isOpened = true
+            state = STATE_OPENED
             motionLayout.transitionToEnd()
         }
 
         close = findViewById(R.id.close)
         close.setOnClickListener {
-            isOpened = false
+            state = STATE_CLOSED
             motionLayout.transitionToStart()
         }
 
@@ -55,20 +55,23 @@ class DayFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context, 
         lightening.setOnClickListener { motionLayout.transitionToStart() }
     }
 
-    override fun isFocused(): Boolean = isOpened
+    override fun isFocused(): Boolean = state == STATE_OPENED
+    val isVisible: Boolean
+        get() = state != STATE_INVISIBLE
 
     override fun clearFocus() {
-        isOpened = false
+        state = STATE_CLOSED
         motionLayout.transitionToStart()
     }
 
     fun hide(){
-        isOpened = false
+        state = STATE_INVISIBLE
         motionLayout.transitionToStart()
         open.hide()
     }
 
     fun show(){
+        state = STATE_CLOSED
         open.show()
     }
 
@@ -84,6 +87,10 @@ class DayFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context, 
     companion object {
         const val TYPE_GOAL = 0
         const val TYPE_REMINDER = 1
+
+        const val STATE_OPENED = 0
+        const val STATE_CLOSED = 1
+        const val STATE_INVISIBLE = 0
     }
 
 }

@@ -11,6 +11,7 @@ package com.daiwerystudio.chronos.ui.widgets
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import android.widget.ImageView
 import androidx.constraintlayout.motion.widget.MotionLayout
 import com.daiwerystudio.chronos.R
@@ -29,7 +30,7 @@ class UnionFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context
     private val createSchedule: FloatingActionButton
     private val createActionType: FloatingActionButton
     private val lightening: ImageView
-    private var isOpened: Boolean = false
+    private var state: Int = STATE_CLOSED
 
     init {
         inflate(context, R.layout.layout_union_fab_menu, this)
@@ -38,13 +39,13 @@ class UnionFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context
 
         open = findViewById(R.id.open)
         open.setOnClickListener {
-            isOpened = true
+            state = STATE_OPENED
             motionLayout.transitionToEnd()
         }
 
         close = findViewById(R.id.close)
         close.setOnClickListener {
-            isOpened = false
+            state = STATE_CLOSED
             motionLayout.transitionToStart()
         }
 
@@ -89,20 +90,23 @@ class UnionFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context
         lightening.setOnClickListener { motionLayout.transitionToStart() }
     }
 
-    override fun isFocused(): Boolean = isOpened
+    override fun isFocused(): Boolean = state == STATE_OPENED
+    val isVisible: Boolean
+        get() = state != STATE_INVISIBLE
 
     override fun clearFocus() {
-        isOpened = false
+        state = STATE_CLOSED
         motionLayout.transitionToStart()
     }
 
     fun hide(){
-        isOpened = false
+        state = STATE_INVISIBLE
         motionLayout.transitionToStart()
         open.hide()
     }
 
     fun show(){
+        state = STATE_CLOSED
         open.show()
     }
 
@@ -113,6 +117,12 @@ class UnionFabMenu(context: Context, attrs: AttributeSet) : MotionLayout(context
     }
     fun setOnMenuItemClickListener(onMenuItemClickListener: OnMenuItemClickListener){
         mOnMenuItemClickListener = onMenuItemClickListener
+    }
+
+    companion object {
+        const val STATE_OPENED = 0
+        const val STATE_CLOSED = 1
+        const val STATE_INVISIBLE = 0
     }
 
 }

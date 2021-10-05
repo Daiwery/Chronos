@@ -212,7 +212,7 @@ abstract class NoteAbstractHolder(val binding: ItemRecyclerViewNoteBinding):
         else constraintSet.clear(R.id.name, ConstraintSet.BOTTOM)
         constraintSet.applyTo(binding.constraintLayout)
 
-        // Изменения должны быть последовательноми, я не происходить одновременно.
+        // Изменения должны быть последовательноми, а не происходить одновременно.
         if (note.note == "") binding.noteTextView.visibility = View.GONE
         else binding.noteTextView.visibility = View.VISIBLE
     }
