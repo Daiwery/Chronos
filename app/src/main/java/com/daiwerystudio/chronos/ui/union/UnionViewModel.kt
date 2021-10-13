@@ -313,4 +313,5 @@ open class UnionViewModel : ViewModel() {
     }
 
     fun getPercentAchieved(id: String): LiveData<Int> = mUnionRepository.getPercentAchieved(id)
+    fun existenceGoals(id: String): LiveData<Boolean> = mUnionRepository.existenceGoals(id)
 }

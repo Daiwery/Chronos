@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Style.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
-        <item name="android:background">@color/white</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.BottomNavigationView</item>
         <item name="itemTextAppearanceInactive">@style/Text.BottomNavigationView</item>
         <item name="itemTextAppearanceActive">@style/Text.BottomNavigationView</item>
+    </style>
+    <style name="ThemeOverlay.BottomNavigationView" parent="">
+        <item name="android:background">?attr/colorSurface</item>
+        <item name="colorOnPrimary">?attr/colorOnSurface</item>
     </style>
     <style name="Text.BottomNavigationView" parent="@style/TextAppearance.MaterialComponents.Caption">
         <item name="fontFamily">@font/montserrat_medium</item>
@@ -20,8 +24,8 @@
         <item name="android:textSize">14sp</item>
         <item name="cornerRadius">20dp</item>
         <item name="android:elevation">0dp</item>
-        <item name="backgroundTint">@color/blue</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">?attr/colorSecondary</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
         <item name="fontFamily">@font/montserrat_medium</item>
     </style>
 
@@ -39,40 +43,38 @@
     </style>
 
     <style name="ThemeOverlay.DatePicker" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
-        <item name="colorOnPrimary">@color/white</item>
     </style>
 
     <style name="Style.ColorPickerDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <item name="buttonBarPositiveButtonStyle">@style/Widget.ColorPickerDialog.Button</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.ColorPickerDialog.Button</item>
-        <item name="android:background">@color/white_1000</item>
+        <item name="android:background">?attr/colorSurface</item>
     </style>
     <style name="Widget.ColorPickerDialog.Button" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/white_300</item>
+        <item name="android:textColor">?attr/colorTintIcon</item>
         <item name="fontFamily">@font/montserrat_medium</item>
     </style>
 
     <style name="Style.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <item name="android:buttonBarPositiveButtonStyle">@style/Widget.AlertDialog.Button</item>
         <item name="android:buttonBarNegativeButtonStyle">@style/Widget.AlertDialog.Button</item>
-        <item name="android:background">@color/white_1000</item>
+        <item name="android:background">?attr/colorSurface</item>
         <item name="android:textSize">18sp</item>
         <item name="fontFamily">@font/montserrat_medium</item>
     </style>
     <style name="Widget.AlertDialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/white_300</item>
+        <item name="android:textColor">?attr/colorTintIcon</item>
         <item name="fontFamily">@font/montserrat_medium</item>
     </style>
 
     <style name="Style.TabLayout" parent="Widget.MaterialComponents.TabLayout">
         <item name="materialThemeOverlay">@style/ThemeOverlay.TabLayout</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:background">?attr/colorSurface</item>
     </style>
     <style name="ThemeOverlay.TabLayout" parent="">
-        <item name="colorSurface">@color/white_1000</item>
-        <item name="colorOnSurface">@color/white_300</item>
+        <item name="colorPrimary">?attr/colorTintIcon</item>
         <item name="textAppearanceButton">@style/Text.TabLayout</item>
     </style>
     <style name="Text.TabLayout" parent="@style/TextAppearance.MaterialComponents.Tooltip">
@@ -82,7 +84,8 @@
     </style>
 
     <style name="Style.ToolBar" parent="Widget.MaterialComponents.Toolbar">
-        <item name="titleTextColor">@color/white</item>
+        <item name="titleTextColor">?attr/colorOnPrimary</item>
+        <item name="android:background">?attr/colorPrimary</item>
         <item name="titleTextAppearance">@style/Text.TitleToolBar</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.ToolBar</item>
     </style>
@@ -91,7 +94,8 @@
         <item name="fontFamily">@font/montserrat_semibold</item>
     </style>
     <style name="ThemeOverlay.ToolBar" parent="">
-        <item name="colorSecondary">@color/white</item>
+        <item name="colorSecondary">?attr/colorOnPrimary</item>
+        <item name="colorTintIcon">?attr/colorOnPrimary</item>
     </style>
 
     <style name="Style.CardView" parent="Widget.MaterialComponents.CardView">
@@ -103,16 +107,23 @@
         <item name="cornerSize">15dp</item>
     </style>
     <style name="ThemeOverlay.CardView" parent="">
-        <item name="colorSurface">@color/white</item>
     </style>
 
     <style name="Style.ActionMode" parent="Widget.AppCompat.ActionMode">
         <item name="titleTextStyle">@style/Text.ActionMode</item>>
-        <item name="background">@color/blue</item>
+        <item name="background">?attr/colorPrimary</item>
     </style>
     <style name="Text.ActionMode"  parent="@style/TextAppearance.MaterialComponents.Headline6">
         <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="fontFamily">@font/montserrat_medium</item>
+    </style>
+
+    <style name="Style.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:textAppearance">@style/Text.Content</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.CheckBox</item>
+    </style>
+    <style name="ThemeOverlay.CheckBox" parent="">
+        <item name="buttonTint">?attr/colorTintIcon</item>
     </style>
 </resources>

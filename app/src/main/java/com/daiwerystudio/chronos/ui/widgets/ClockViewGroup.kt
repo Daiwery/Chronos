@@ -158,6 +158,7 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
         mPaint.color = textColor
         mPaint.textSize = textSize
         mPaint.isAntiAlias = true
+        mPaint.alpha = 255/2
         mPaint.typeface = ResourcesCompat.getFont(getContext(), fontFamilyID)
 
         for (i in 0..23){

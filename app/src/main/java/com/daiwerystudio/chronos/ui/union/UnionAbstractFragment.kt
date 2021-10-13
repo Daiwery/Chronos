@@ -12,14 +12,13 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.ActionMode
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
+import android.view.*
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
@@ -30,7 +29,6 @@ import com.daiwerystudio.chronos.ui.folder.FolderDialog
 import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.schedule.ScheduleDialog
-import java.lang.IllegalArgumentException
 import java.util.*
 
 /**
@@ -77,8 +75,10 @@ abstract class UnionAbstractFragment : Fragment() {
                 val bundle = Bundle().apply {
                     putString("parentID", actionType.id)
                 }
+                itemView.transitionName = actionType.id
+                val extras = FragmentNavigatorExtras(itemView to actionType.id)
                 itemView.findNavController()
-                    .navigate(R.id.action_global_navigation_union_action_type, bundle)
+                    .navigate(R.id.action_global_navigation_union_action_type, bundle, null, extras)
             } else {
                 // Убираем анимацию клика на холдер.
                 itemView.isClickable = false
@@ -113,11 +113,20 @@ abstract class UnionAbstractFragment : Fragment() {
         }
 
         override fun setPercentAchieved() {
-            // Percent удаляется, так как это не RoomLiveData.
-            val percent = viewModel.getPercentAchieved(goal.id)
-            percent.observe(viewLifecycleOwner, {
-                binding.progressBar.progress = it
-                binding.progressTextView.text = ("$it%")
+            // Есть подозрение, что здесь утечка памяти.
+            val existence = viewModel.existenceGoals(goal.id)
+            existence.observe(viewLifecycleOwner, {
+                if (it) {
+                    binding.textView21.visibility = View.VISIBLE
+                    binding.progressTextView.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.VISIBLE
+
+                    val percent = viewModel.getPercentAchieved(goal.id)
+                    percent.observe(viewLifecycleOwner, { p ->
+                        binding.progressBar.progress = p
+                        binding.progressTextView.text = ("$p%")
+                    })
+                }
             })
         }
 
@@ -129,8 +138,10 @@ abstract class UnionAbstractFragment : Fragment() {
                 val bundle = Bundle().apply {
                     putString("parentID", goal.id)
                 }
+                itemView.transitionName = goal.id
+                val extras = FragmentNavigatorExtras(itemView to goal.id)
                 itemView.findNavController()
-                    .navigate(R.id.action_global_navigation_union_goal, bundle)
+                    .navigate(R.id.action_global_navigation_union_goal, bundle, null, extras)
             } else {
                 // Убираем анимацию клика на холдер.
                 itemView.isClickable = false
@@ -168,8 +179,10 @@ abstract class UnionAbstractFragment : Fragment() {
                 val bundle = Bundle().apply {
                     putString("parentID", schedule.id)
                 }
+                itemView.transitionName = schedule.id
+                val extras = FragmentNavigatorExtras(itemView to schedule.id)
                 itemView.findNavController()
-                    .navigate(R.id.action_global_navigation_union_schedule, bundle)
+                    .navigate(R.id.action_global_navigation_union_schedule, bundle, null, extras)
             } else {
                 // Убираем анимацию клика на холдер.
                 itemView.isClickable = false
@@ -202,8 +215,10 @@ abstract class UnionAbstractFragment : Fragment() {
                 val bundle = Bundle().apply {
                     putString("parentID", note.id)
                 }
+                itemView.transitionName = note.id
+                val extras = FragmentNavigatorExtras(itemView to note.id)
                 itemView.findNavController()
-                    .navigate(R.id.action_global_navigation_union_note, bundle)
+                    .navigate(R.id.action_global_navigation_union_note, bundle, null, extras)
             } else {
                 // Убираем анимацию клика на холдер.
                 itemView.isClickable = false
@@ -273,8 +288,10 @@ abstract class UnionAbstractFragment : Fragment() {
                 val bundle = Bundle().apply {
                     putString("parentID", folder.id)
                 }
+                itemView.transitionName = folder.id
+                val extras = FragmentNavigatorExtras(itemView to folder.id)
                 itemView.findNavController()
-                    .navigate(R.id.action_global_navigation_union_folder, bundle)
+                    .navigate(R.id.action_global_navigation_union_folder, bundle, null, extras)
             } else {
                 // Убираем анимацию клика на холдер.
                 itemView.isClickable = false
@@ -434,7 +451,9 @@ abstract class UnionAbstractFragment : Fragment() {
 
             override fun getMovementFlags(recyclerView: RecyclerView,
                                           viewHolder: RecyclerView.ViewHolder): Int {
-                return if (actionMode != null) 0 else super.getMovementFlags(recyclerView, viewHolder)
+                return if (actionMode != null || viewModel.information.filterString != null ||
+                    viewModel.information.filterType != null) 0
+                else super.getMovementFlags(recyclerView, viewHolder)
             }
         }
 
@@ -455,7 +474,7 @@ abstract class UnionAbstractFragment : Fragment() {
                     .setTitle(R.string.are_you_sure)
                     .setPositiveButton(R.string.yes) { _, _ ->
                         viewModel.deleteUnionWithChild(viewModel.data.value!![position].second.id)
-                        Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_SHORT).show()
                     }
                     .setNegativeButton(R.string.no){ _, _ -> }
                     .setCancelable(false).create().show()
@@ -466,7 +485,7 @@ abstract class UnionAbstractFragment : Fragment() {
                     .setTitle(R.string.are_you_sure)
                     .setPositiveButton(R.string.yes) { _, _ ->
                         viewModel.moveUnionUp(position)
-                        Toast.makeText(requireContext(), R.string.text_toast_move, Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), R.string.text_toast_move, Toast.LENGTH_SHORT).show()
                     }
                     .setNegativeButton(R.string.no){ _, _ -> }
                     .setCancelable(false).create().show()

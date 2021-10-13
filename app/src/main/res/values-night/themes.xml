@@ -2,10 +2,13 @@
     <style name="Theme.Chronos" parent="BaseTheme.Chronos">
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/blue</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/blue</item>
         <item name="colorSecondaryVariant">@color/blue</item>
         <item name="colorOnSecondary">@color/white</item>
-        <item name="android:colorBackground">@color/white_800</item>
+        <item name="colorSurface">@color/black_500</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="android:colorBackground">@color/black_300</item>
+        <item name="colorTintIcon">@color/white</item>
     </style>
 </resources>

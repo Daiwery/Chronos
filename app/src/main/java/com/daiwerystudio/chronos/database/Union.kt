@@ -77,6 +77,14 @@ interface UnionDao{
             "SELECT id FROM union_table WHERE id IN (SELECT id FROM sub_table WHERE type=1)")
     fun getGoalWithChild(id: String): List<String>
 
+    // Для значения type используется абсолютное значение, а не переменная TYPE_GOAL.
+    @Query("WITH RECURSIVE sub_table(id, parent, type) " +
+            "AS (SELECT id, parent, type FROM union_table WHERE parent=(:id) " +
+            "UNION ALL " +
+            "SELECT a.id, a.parent, a.type FROM union_table AS a JOIN sub_table AS b ON a.parent=b.id) " +
+            "SELECT COUNT(*) != 0 FROM union_table WHERE id IN (SELECT id FROM sub_table WHERE type=1)")
+    fun existenceGoals(id: String): LiveData<Boolean>
+
     // Функция возвращает ВСЕ unions. Она называется так, потом что используется для SelectActionType.
     @Query("WITH RECURSIVE sub_table(id, parent) " +
             "AS (SELECT id, parent FROM union_table WHERE parent=(:id) " +
@@ -193,6 +201,8 @@ class UnionRepository private constructor(context: Context) {
         }
         return percent
     }
+
+    fun existenceGoals(id: String): LiveData<Boolean> = mDao.existenceGoals(id)
 
     fun getUnionWithChild(id: String): LiveData<List<Union>> =
         mDao.getUnionWithChild(id)

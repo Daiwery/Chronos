@@ -10,6 +10,7 @@
 package com.daiwerystudio.chronos.ui.schedule
 
 import android.app.AlertDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,21 +24,35 @@ import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionScheduleBinding
 import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
+import com.daiwerystudio.chronos.ui.union.UnionItemAnimator
 import com.daiwerystudio.chronos.ui.widgets.UnionFabMenu
+import com.google.android.material.transition.MaterialContainerTransform
 
 class UnionScheduleFragment : UnionAbstractFragment() {
     override val viewModel: UnionScheduleViewModel
         by lazy { ViewModelProvider(this).get(UnionScheduleViewModel::class.java) }
     private lateinit var binding: FragmentUnionScheduleBinding
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nav_host_fragment
+            duration = 750
+            scrimColor = Color.TRANSPARENT
+            fadeMode = MaterialContainerTransform.FADE_MODE_OUT
+        }
+        sharedElementReturnTransition = null
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentUnionScheduleBinding.inflate(inflater, container, false)
+        binding.root.transitionName = viewModel.information.parentID
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = UnionAdapter()
+            itemAnimator = UnionItemAnimator()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 

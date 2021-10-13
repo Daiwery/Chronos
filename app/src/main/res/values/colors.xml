@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="white_300">#8C8B8B</color>
+    <color name="white_500">#A5A5A5</color>
     <color name="white_800">#FFE6E6E6</color>
     <color name="white_1000">#FBFBFB</color>
     <color name="white">#FFFFFFFF</color>
@@ -8,6 +9,8 @@
     <color name="blue">#0070bd</color>
 
     <color name="black">#FF000000</color>
+    <color name="black_300">#151515</color>
+    <color name="black_500">#202020</color>
 
     <color name="red">#CA0000</color>
 </resources>

@@ -19,12 +19,15 @@ import java.io.Serializable
 
 private const val GOAL_DATABASE_NAME = "goal-database"
 
+/* Предупреждение: getGoalsFromTimeInterval  */
 const val TYPE_GOAL_INDEFINITE = 0
 const val TYPE_GOAL_TEMPORARY = 1
 
 /**
  * @property id уникальный идентификатор
  * @property name название цели.
+ * @property type тип цели.
+ * @property deadline дедлайн цели. У бессрочной цели фиктивно.
  * @property isAchieved выполнена ли цель или нет.
  */
 @Entity(tableName = "goal_table")
@@ -43,7 +46,8 @@ interface GoalTypeDao {
     @Query("SELECT * FROM goal_table WHERE id IN (:ids) ORDER BY name")
     fun getGoals(ids: List<String>): LiveData<List<Goal>>
 
-    @Query("SELECT * FROM goal_table WHERE deadline >= (:time1) AND deadline <= (:time2)")
+    // Для значения type используется абсолютное значение, а не переменная TYPE_GOAL_TEMPORARY.
+    @Query("SELECT * FROM goal_table WHERE deadline >= (:time1) AND deadline <= (:time2) AND type == 1")
     fun getGoalsFromTimeInterval(time1: Long, time2: Long): LiveData<List<Goal>>
 
     @Query("SELECT * FROM goal_table WHERE id=(:id)")

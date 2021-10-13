@@ -9,17 +9,15 @@
 
 package com.daiwerystudio.chronos.ui.union
 
-import android.animation.LayoutTransition
 import android.animation.ObjectAnimator
-import android.content.Context
 import android.os.Bundle
 import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
-import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.doOnPreDraw
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -37,11 +35,11 @@ class UnionPreviewFragment : UnionAbstractFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentUnionPreviewBinding.inflate(inflater, container, false)
-//        binding.rootView.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = UnionAdapter()
+            itemAnimator = UnionItemAnimator()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
@@ -81,8 +79,9 @@ class UnionPreviewFragment : UnionAbstractFragment() {
                 viewModel.information.setFilterName("")
 
                 binding.fab.hide()
-                binding.imageView8.setImageResource(R.drawable.ic_baseline_arrow_back_24)
                 requireActivity().findViewById<BottomNavigationView>(R.id.nav_view).visibility = View.GONE
+
+                TransitionManager.beginDelayedTransition(binding.rootView)
                 binding.selectFilterType.visibility = View.VISIBLE
                 ObjectAnimator.ofFloat(binding.imageView9, "rotation",  90f)
                     .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
@@ -94,19 +93,14 @@ class UnionPreviewFragment : UnionAbstractFragment() {
                 viewModel.information.setFilterName(null)
 
                 binding.fab.show()
-                binding.imageView8.setImageResource(R.drawable.ic_baseline_search_24)
                 requireActivity().findViewById<BottomNavigationView>(R.id.nav_view).visibility = View.VISIBLE
                 if (viewModel.information.filterType == null){
+                    TransitionManager.beginDelayedTransition(binding.rootView)
                     binding.selectFilterType.visibility = View.GONE
                     ObjectAnimator.ofFloat(binding.imageView9, "rotation",  0f)
                         .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
                 }
             }
-        }
-        binding.imageView8.setOnClickListener {
-            val manager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-            manager?.hideSoftInputFromWindow(binding.search.windowToken, 0)
-            binding.search.clearFocus()
         }
 
         binding.toolBar.setOnClickListener {

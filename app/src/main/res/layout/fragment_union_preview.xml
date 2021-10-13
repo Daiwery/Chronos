@@ -41,7 +41,7 @@
                 android:id="@+id/select_filter_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="?attr/colorSurface"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:visibility="gone" />
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
-            android:background="@color/white"
+            android:background="?attr/colorSurface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout">

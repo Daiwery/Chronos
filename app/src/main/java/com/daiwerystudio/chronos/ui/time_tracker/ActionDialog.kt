@@ -11,10 +11,10 @@
 package com.daiwerystudio.chronos.ui.time_tracker
 
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
@@ -159,7 +159,11 @@ class ActionDialog : BottomSheetDialogFragment() {
         binding.button.setOnClickListener {
             var permission = true
             if (action.actionTypeID == "") permission = false
-            if (action.startTime > action.endTime) permission = false
+            if (action.startTime > action.endTime) {
+                permission = false
+                binding.endTime.error = " "
+            } else binding.endTime.error = null
+
 
             if (permission){
                 if (isCreated) mActionRepository.addAction(action)

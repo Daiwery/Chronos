@@ -5,6 +5,8 @@
 
 package com.daiwerystudio.chronos.ui.union
 
+import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -30,6 +32,7 @@ import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.schedule.ScheduleDialog
 import java.time.format.FormatStyle
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.recyclerview.widget.DefaultItemAnimator
 
 
 /**
@@ -53,6 +56,26 @@ class UnionDiffUtil(private val oldList: List<ID>,
         return oldList[oldItemPosition] == newList[newItemPosition]
     }
 }
+
+class UnionItemAnimator: DefaultItemAnimator(){
+    override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
+        val itemView = holder!!.itemView
+        itemView.alpha = 0f
+        val animation = ObjectAnimator.ofFloat(itemView, "alpha",  1f).setDuration(300)
+        animation.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator?) {}
+            override fun onAnimationCancel(animation: Animator?) {}
+            override fun onAnimationRepeat(animation: Animator?) {}
+            override fun onAnimationEnd(animation: Animator?) {
+                dispatchAnimationFinished(holder)
+            }
+        })
+        animation.start()
+
+        return true
+    }
+}
+
 
 /**
  * Абстрактный класс для всех холдеров.
@@ -122,7 +145,7 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
         if (goal.note != "") binding.note.visibility = View.VISIBLE
         else binding.note.visibility = View.GONE
 
-        if (goal.deadline != 0L) {
+        if (goal.type == TYPE_GOAL_TEMPORARY) {
             binding.textView13.visibility = View.VISIBLE
             binding.deadlineTextView.visibility = View.VISIBLE
         } else {

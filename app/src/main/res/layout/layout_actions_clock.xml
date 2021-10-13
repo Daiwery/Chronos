@@ -16,14 +16,14 @@
             android:id="@+id/clockFaceView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            android:background="?attr/colorSurface"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             custom:spaceHeight="50dp"
             custom:textSize="12sp"
             custom:marginText="4dp"
-            android:textColor="@color/white_300"
+            android:textColor="?attr/colorOnSurface"
             android:fontFamily="@font/montserrat_medium"/>
 
         <HorizontalScrollView
@@ -44,7 +44,7 @@
                     android:id="@+id/actionsView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    custom:colorColumn="@color/white_1000"
+                    custom:colorColumn="?attr/colorSurface"
                     custom:corner="10dp"
                     custom:spaceWidth="1dp"
                     custom:stripWidth="15dp"/>

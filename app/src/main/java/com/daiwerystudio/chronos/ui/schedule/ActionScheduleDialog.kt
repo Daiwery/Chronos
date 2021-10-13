@@ -15,10 +15,10 @@
 package com.daiwerystudio.chronos.ui.schedule
 
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.lifecycle.ViewModelProvider
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.*
@@ -123,7 +123,10 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
         binding.button.setOnClickListener {
             var permission = true
             if (actionSchedule.actionTypeID == "") permission = false
-            if (actionSchedule.startTime > actionSchedule.endTime) permission = false
+            if (actionSchedule.startTime > actionSchedule.endTime) {
+                permission = false
+                binding.endTime.error = " "
+            } else binding.endTime.error = null
 
             if (permission){
                 if (isCreated) mScheduleRepository.addActionSchedule(actionSchedule)

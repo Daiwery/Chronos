@@ -5,13 +5,12 @@
 
 package com.daiwerystudio.chronos.ui.note
 
-import android.content.Context
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -49,18 +48,45 @@ class NoteFragment : Fragment()  {
         }
 
         binding.toolBar.setNavigationOnClickListener {
-            it.findNavController().navigateUp()
+            AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                .setTitle(R.string.are_you_sure)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    it.findNavController().navigateUp()
+                }
+                .setNegativeButton(R.string.no){ _, _ -> }
+                .setCancelable(false).create().show()
         }
         binding.toolBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.save -> {
-                    viewModel.saveNote()
-                    requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+                    AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                        .setTitle(R.string.are_you_sure)
+                        .setPositiveButton(R.string.yes) { _, _ ->
+                            viewModel.saveNote()
+                            requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+                        }
+                        .setNegativeButton(R.string.no){ _, _ -> }
+                        .setCancelable(false).create().show()
                     true
                 }
                 else -> false
             }
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                        .setTitle(R.string.are_you_sure)
+                        .setPositiveButton(R.string.yes) { _, _ ->
+                            viewModel.saveNote()
+                            isEnabled = false
+                            activity?.onBackPressed()
+                        }
+                        .setNegativeButton(R.string.no){ _, _ -> }
+                        .setCancelable(false).create().show()
+                }
+            })
 
         return binding.root
     }

@@ -36,6 +36,9 @@ interface ReminderDao {
     @Query("SELECT * FROM reminder_table WHERE time >= (:time1) AND time <= (:time2)")
     fun getRemindersFromTimeInterval(time1: Long, time2: Long): LiveData<List<Reminder>>
 
+    @Query("SELECT * FROM reminder_table WHERE time >= (:time)")
+    fun getRemindersMoreThanTime(time: Long): List<Reminder>
+
     @Query("DELETE FROM reminder_table WHERE id IN (:ids)")
     fun deleteReminders(ids: List<String>)
 
@@ -75,6 +78,8 @@ class ReminderRepository private constructor(context: Context) {
 
     fun getRemindersFromTimeInterval(time1: Long, time2: Long): LiveData<List<Reminder>> =
         mDao.getRemindersFromTimeInterval(time1, time2)
+
+    fun getRemindersMoreThanTime(time: Long): List<Reminder> = mDao.getRemindersMoreThanTime(time)
 
     fun deleteReminders(ids: List<String>) {
         ids.forEach { mDeleteReminderListener?.deletedReminder(it) }

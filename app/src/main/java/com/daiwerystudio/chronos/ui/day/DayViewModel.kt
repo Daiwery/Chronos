@@ -26,6 +26,7 @@ import android.icu.util.TimeZone
 import androidx.lifecycle.*
 import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.ui.ClockViewModel
+import com.daiwerystudio.chronos.ui.union.ID
 import com.daiwerystudio.chronos.ui.widgets.ActionsView
 import java.util.concurrent.Executors
 
@@ -230,6 +231,16 @@ class DayViewModel: ClockViewModel() {
                 mReminderRepository.deleteReminder(item.second as Reminder)
             }
         }
+    }
+
+    fun deleteItems(positions: List<Int>){
+        val items = data.value!!.filterIndexed { index, _ -> index in positions }
+        mUnionRepository.deleteUnionsWithChild(items.map { (it.second as ID).id })
+        val goals = items.filter { it.first == TYPE_GOAL }
+        mGoalRepository.deleteGoals(goals.map { (it.second as ID).id })
+        val reminders = items.filter { it.first == TYPE_REMINDER }
+        mReminderRepository.deleteReminders(reminders.map { (it.second as ID).id })
+
     }
 
     companion object {

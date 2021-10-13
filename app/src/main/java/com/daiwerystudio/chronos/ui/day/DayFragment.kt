@@ -25,9 +25,7 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.OvershootInterpolator
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -56,6 +54,7 @@ import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.goal.GoalDialog
 import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.union.ID
+import com.daiwerystudio.chronos.ui.union.UnionItemAnimator
 import com.daiwerystudio.chronos.ui.union.UnionSimpleCallback
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -82,6 +81,7 @@ class DayFragment: Fragment() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = Adapter(emptyList())
+            itemAnimator = UnionItemAnimator()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
@@ -150,7 +150,8 @@ class DayFragment: Fragment() {
             when (it){
                 TYPE_GOAL -> {
                     val goal = Goal(id=UUID.randomUUID().toString())
-                    goal.deadline += (viewModel.day.value!!-System.currentTimeMillis()/(24*60*60*1000))*24*60*60*1000L
+                    val day = (System.currentTimeMillis()+viewModel.local)/(24*60*60*1000)
+                    goal.deadline += (viewModel.day.value!!-day)*24*60*60*1000L
 
                     val dialog = GoalDialog()
                     dialog.arguments = Bundle().apply{
@@ -163,7 +164,8 @@ class DayFragment: Fragment() {
 
                 TYPE_REMINDER -> {
                     val reminder = Reminder(id=UUID.randomUUID().toString())
-                    reminder.time += (viewModel.day.value!!-System.currentTimeMillis()/(24*60*60*1000))*24*60*60*1000L
+                    val day = (System.currentTimeMillis()+viewModel.local)/(24*60*60*1000)
+                    reminder.time += (viewModel.day.value!!-day)*24*60*60*1000L
 
                     val dialog = ReminderDialog()
                     dialog.arguments = Bundle().apply{
@@ -271,6 +273,17 @@ class DayFragment: Fragment() {
                 else -> throw IllegalArgumentException("Invalid type")
             }
         }
+
+        /* Если холдер есть в selectedItems, то мы с ним ничего не делаем.
+        Если же нет, то изменям прозрачность. */
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+            if (payloads.isNotEmpty())
+                if (selectedItems.isNotEmpty())
+                    if (holder.absoluteAdapterPosition in selectedItems) holder.itemView.alpha = 1f
+                    else holder.itemView.alpha = 0.5f
+                else holder.itemView.alpha = 1f
+            else super.onBindViewHolder(holder, position, payloads)
+        }
     }
 
     private inner class SectionHolder(val binding: ItemRecyclerViewActionSectionBinding):
@@ -345,11 +358,13 @@ class DayFragment: Fragment() {
                 goal.isAchieved = binding.checkBox.isChecked
                 viewModel.updateGoal(goal)
             }
+            itemView.setOnLongClickListener {
+                startActionMode()
+                changeItem(absoluteAdapterPosition)
+                true
+            }
 
             binding.dragHandle.visibility = View.INVISIBLE
-            binding.textView21.visibility = View.GONE
-            binding.progressTextView.visibility = View.GONE
-            binding.progressBar.visibility = View.GONE
             binding.textView13.visibility = View.VISIBLE
             binding.deadlineTextView.visibility = View.VISIBLE
 
@@ -361,13 +376,22 @@ class DayFragment: Fragment() {
         }
 
         private fun onClick(){
-            val dialog = GoalDialog()
-            dialog.arguments = Bundle().apply{
-                putSerializable("goal", goal)
-                putBoolean("isCreated", false)
-                putBoolean("isTemporal", true)
+            if (actionMode == null) {
+                // Восстанавливаем анимацию клика на холдер.
+                itemView.isClickable = true
+
+                val dialog = GoalDialog()
+                dialog.arguments = Bundle().apply {
+                    putSerializable("goal", goal)
+                    putBoolean("isCreated", false)
+                    putBoolean("isTemporal", true)
+                }
+                dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
+            } else {
+                // Убираем анимацию клика на холдер.
+                itemView.isClickable = false
+                changeItem(absoluteAdapterPosition)
             }
-            dialog.show(requireActivity().supportFragmentManager, "GoalDialog")
         }
 
         fun bind(goal: Goal){
@@ -385,6 +409,11 @@ class DayFragment: Fragment() {
         init {
             itemView.setOnClickListener{ onClicked() }
             binding.edit.setOnClickListener{ onClicked() }
+            itemView.setOnLongClickListener {
+                startActionMode()
+                changeItem(absoluteAdapterPosition)
+                true
+            }
 
             binding.dragHandle.visibility = View.INVISIBLE
 
@@ -396,18 +425,90 @@ class DayFragment: Fragment() {
         }
 
         private fun onClicked(){
-            val dialog = ReminderDialog()
-            dialog.arguments = Bundle().apply{
-                putSerializable("reminder", reminder)
-                putBoolean("isCreated", false)
+            if (actionMode == null) {
+                // Восстанавливаем анимацию клика на холдер.
+                itemView.isClickable = true
+
+                val dialog = ReminderDialog()
+                dialog.arguments = Bundle().apply {
+                    putSerializable("reminder", reminder)
+                    putBoolean("isCreated", false)
+                }
+                dialog.show(requireActivity().supportFragmentManager, "ReminderDialog")
+            } else {
+                // Убираем анимацию клика на холдер.
+                itemView.isClickable = false
+                changeItem(absoluteAdapterPosition)
             }
-            dialog.show(requireActivity().supportFragmentManager, "ReminderDialog")
         }
 
         fun bind(reminder: Reminder) {
             this.reminder = reminder
             binding.reminder = reminder
             binding.timeTextView.text = (formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME))
+        }
+    }
+
+    // Будем хранить позиции выбранных холдеров.
+    private val selectedItems: MutableList<Int> = mutableListOf()
+    private var actionMode: ActionMode? = null
+
+    private fun startActionMode(){
+        actionMode = requireActivity().startActionMode(callback)
+        actionMode?.title = "0"
+    }
+
+    private fun changeItem(position: Int){
+        val index = selectedItems.indexOf(position)
+        if (index == -1) selectedItems.add(position)
+        else selectedItems.removeAt(index)
+
+        binding.recyclerView.adapter?.notifyItemRangeChanged(0, viewModel.data.value!!.size, true)
+        actionMode?.title = selectedItems.size.toString()
+
+        if (selectedItems.size == 0) actionMode?.finish()
+    }
+
+    private val callback by lazy {
+        object : ActionMode.Callback {
+            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                mode?.menuInflater?.inflate(R.menu.menu_action_bar, menu)
+                menu?.findItem(R.id.up)?.isVisible = false
+                binding.fab.hide()
+                return true
+            }
+
+            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
+
+            override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                return when (item?.itemId) {
+                    R.id.delete -> {
+                        AlertDialog.Builder(context, R.style.Style_AlertDialog)
+                            .setTitle(R.string.are_you_sure)
+                            .setPositiveButton(R.string.yes) { _, _ ->
+                                // Нужно передать скопированное значение, из-за того, что
+                                // после этот массив удалится, а функция выполняется
+                                // в отдельном потоке.
+                                viewModel.deleteItems(selectedItems.map { it })
+                                Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_SHORT).show()
+                                actionMode?.finish()
+                            }
+                            .setNegativeButton(R.string.no){ _, _ ->
+                                actionMode?.finish()
+                            }
+                            .setCancelable(false).create().show()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            override fun onDestroyActionMode(mode: ActionMode?) {
+                actionMode = null
+                selectedItems.clear()
+                binding.recyclerView.adapter?.notifyItemRangeChanged(0, viewModel.data.value!!.size, false)
+                binding.fab.show()
+            }
         }
     }
 
@@ -453,7 +554,7 @@ class DayFragment: Fragment() {
                     .setTitle(R.string.are_you_sure)
                     .setPositiveButton(R.string.yes) { _, _ ->
                         viewModel.deleteItem(position)
-                        Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_SHORT).show()
                     }
                     .setNegativeButton(R.string.no){ _, _ -> }
                     .setCancelable(false).create().show()

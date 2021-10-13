@@ -101,10 +101,8 @@ class GoalDialog : BottomSheetDialogFragment() {
             }
 
             binding.goal = goal
-            if (goal.deadline != 0L) {
-                binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
-                binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
-            }
+            binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
+            binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
         }
         if (isTemporal == true) {
             binding.checkBox.isChecked = false  // Срабатывает слушатель, так как он уже установлен.

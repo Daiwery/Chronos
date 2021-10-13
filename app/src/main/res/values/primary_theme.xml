@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="PrimaryTheme.Chronos" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="bottomNavigationStyle">@style/Style.BottomNavigationView</item>
+        <item name="bottomSheetDialogTheme">@style/Style.BottomDialog</item>
+        <item name="textInputStyle">@style/Style.TextInputLayout</item>
+        <item name="tabStyle">@style/Style.TabLayout</item>
+        <item name="materialTimePickerTheme">@style/ThemeOverlay.TimePicker</item>
+        <item name="materialCalendarTheme">@style/ThemeOverlay.DatePicker</item>
+        <item name="toolbarStyle">@style/Style.ToolBar</item>
+        <item name="materialCardViewStyle">@style/Style.CardView</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/Style.ActionMode</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_baseline_close_24</item>
+        <item name="android:verticalScrollbarPosition">left</item>
+        <item name="checkboxStyle">@style/Style.CheckBox</item>
+        <item name="android:scrollbarThumbHorizontal">@null</item>
+        <item name="android:scrollbarThumbVertical">@null</item>
+    </style>
+    <attr name="colorTintIcon" format="color"/>
+</resources>

@@ -63,7 +63,7 @@
             android:hint="@string/start"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/schedule_count_days"
-            app:layout_constraintTop_toBottomOf="@+id/checkBox">
+            app:layout_constraintTop_toBottomOf="@+id/schedule_name">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -85,20 +85,24 @@
             app:iconTint="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.547"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/schedule_start" />
+            app:layout_constraintTop_toBottomOf="@+id/checkBox" />
 
         <CheckBox
             android:id="@+id/checkBox"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:paddingBottom="16dp"
+            android:paddingTop="16dp"
+            android:background="@drawable/background_dialog_checkbox"
             android:text="@string/periodic_schedule"
             android:textAppearance="@style/Text.Content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/schedule_name" />
+            app:layout_constraintTop_toBottomOf="@+id/schedule_start" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

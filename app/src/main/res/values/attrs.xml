@@ -4,6 +4,7 @@
     <declare-styleable name="SelectActionTypeView"/>
     <declare-styleable name="UnionFabMenu"/>
     <declare-styleable name="DayFabMenu"/>
+    <declare-styleable name="TimeTrackerFabMenu"/>
 
     <declare-styleable name="ActionsView">
         <attr name="stripWidth" format="dimension" />

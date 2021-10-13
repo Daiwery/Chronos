@@ -4,13 +4,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
-        <variable
-            name="action"
-            type="com.daiwerystudio.chronos.database.Action" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -51,52 +48,17 @@
                 tools:text="16:58"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/endDay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="@string/end"
-            app:layout_constraintEnd_toEndOf="@+id/startDay"
-            app:layout_constraintTop_toTopOf="@+id/endTime">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:focusable="false"
-                android:inputType="none"
-                tools:text="7 сентября 2021 года" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/endTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/end"
-            app:layout_constraintStart_toStartOf="@+id/startTime"
-            app:layout_constraintTop_toBottomOf="@+id/startTime">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:focusable="false"
-                android:inputType="none"
-                android:hint="@string/end"
-                android:textAlignment="center"
-                tools:text="15:21" />
-        </com.google.android.material.textfield.TextInputLayout>
-
         <com.daiwerystudio.chronos.ui.widgets.SelectActionTypeView
             android:id="@+id/selectActionType"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:minHeight="50dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/endDay" />
+            app:layout_constraintTop_toBottomOf="@+id/startDay" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/button"

@@ -10,7 +10,7 @@
         android:id="@+id/imageView6"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toTopOf="@+id/reminderTextView"
+        app:layout_constraintBottom_toTopOf="@+id/actionTrackerTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -45,16 +45,17 @@
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/create_reminder"
+        android:id="@+id/create_action_tracker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_reminder"
+        android:src="@drawable/ic_baseline_timer_24"
         android:alpha="0"
         app:backgroundTint="?attr/colorSurface"
+        android:tint="?attr/colorTintIcon"
         app:fabSize="mini"
         android:translationY="96dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/create_goal"
+        app:layout_constraintBottom_toTopOf="@+id/create_action"
         app:layout_constraintEnd_toEndOf="@+id/close"
         app:layout_constraintStart_toStartOf="@+id/close"
         app:tint="@null"
@@ -63,47 +64,47 @@
         tools:visibility="visible"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/create_goal"
+        android:id="@+id/create_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:src="@drawable/ic_goal"
         android:alpha="0"
-        android:visibility="invisible"
+        android:src="@drawable/ic_action_type"
         android:translationY="48dp"
+        android:visibility="invisible"
         app:backgroundTint="?attr/colorSurface"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@id/close"
         app:layout_constraintEnd_toEndOf="@+id/close"
         app:layout_constraintStart_toStartOf="@+id/close"
         app:tint="@null"
-        tools:ignore="ContentDescription"
         tools:alpha="1"
-        tools:visibility="visible"/>
+        tools:ignore="ContentDescription"
+        tools:visibility="visible" />
 
     <TextView
-        android:id="@+id/goalTextView"
+        android:id="@+id/actionTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="@string/goal"
+        android:text="@string/action"
         android:textAppearance="@style/Text.UnionFabMenu"
         android:alpha="0"
-        app:layout_constraintBottom_toBottomOf="@+id/create_goal"
-        app:layout_constraintEnd_toStartOf="@+id/create_goal"
-        app:layout_constraintTop_toTopOf="@+id/create_goal"
+        app:layout_constraintBottom_toBottomOf="@+id/create_action"
+        app:layout_constraintEnd_toStartOf="@+id/create_action"
+        app:layout_constraintTop_toTopOf="@+id/create_action"
         tools:alpha="1"/>
 
     <TextView
-        android:id="@+id/reminderTextView"
+        android:id="@+id/actionTrackerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="@string/reminder"
+        android:text="@string/action_tracker"
         android:textAppearance="@style/Text.UnionFabMenu"
         android:alpha="0"
-        app:layout_constraintBottom_toBottomOf="@+id/create_reminder"
-        app:layout_constraintEnd_toStartOf="@+id/create_reminder"
-        app:layout_constraintTop_toTopOf="@+id/create_reminder"
+        app:layout_constraintBottom_toBottomOf="@+id/create_action_tracker"
+        app:layout_constraintEnd_toStartOf="@+id/create_action_tracker"
+        app:layout_constraintTop_toTopOf="@+id/create_action_tracker"
         tools:alpha="1"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -43,24 +43,18 @@
     <action
         android:id="@+id/action_global_navigation_union_action_type"
         app:destination="@id/navigation_union_action_type"
-        app:enterAnim="@android:anim/fade_in"
-        app:exitAnim="@android:anim/fade_out"
-        app:popEnterAnim="@android:anim/fade_in"
-        app:popExitAnim="@android:anim/fade_out" />
+        app:exitAnim="@anim/fade_out"
+        app:popExitAnim="@anim/fade_out" />
     <action
         android:id="@+id/action_global_navigation_union_goal"
         app:destination="@id/navigation_union_goal"
-        app:enterAnim="@android:anim/fade_in"
-        app:exitAnim="@android:anim/fade_out"
-        app:popEnterAnim="@android:anim/fade_in"
-        app:popExitAnim="@android:anim/fade_out" />
+        app:exitAnim="@anim/fade_out"
+        app:popExitAnim="@anim/fade_out" />
     <action
         android:id="@+id/action_global_navigation_union_schedule"
         app:destination="@id/navigation_union_schedule"
-        app:enterAnim="@android:anim/fade_in"
-        app:exitAnim="@android:anim/fade_out"
-        app:popEnterAnim="@android:anim/fade_in"
-        app:popExitAnim="@android:anim/fade_out" />
+        app:exitAnim="@anim/fade_out"
+        app:popExitAnim="@anim/fade_out" />
     <fragment
         android:id="@+id/navigation_schedule"
         android:name="com.daiwerystudio.chronos.ui.schedule.ScheduleFragment"
@@ -80,10 +74,8 @@
     <action
         android:id="@+id/action_global_navigation_union_note"
         app:destination="@id/navigation_union_note"
-        app:enterAnim="@android:anim/fade_in"
-        app:exitAnim="@android:anim/fade_out"
-        app:popEnterAnim="@android:anim/fade_in"
-        app:popExitAnim="@android:anim/fade_out"/>
+        app:exitAnim="@anim/fade_out"
+        app:popExitAnim="@anim/fade_out" />
     <fragment
         android:id="@+id/navigation_time_tracker"
         android:name="com.daiwerystudio.chronos.ui.time_tracker.TimeTrackerFragment"
@@ -96,8 +88,6 @@
     <action
         android:id="@+id/action_global_navigation_union_folder"
         app:destination="@id/navigation_union_folder"
-        app:enterAnim="@android:anim/fade_in"
-        app:exitAnim="@android:anim/fade_out"
-        app:popEnterAnim="@android:anim/fade_in"
-        app:popExitAnim="@android:anim/fade_out"/>
+        app:exitAnim="@anim/fade_out"
+        app:popExitAnim="@anim/fade_out" />
 </navigation>

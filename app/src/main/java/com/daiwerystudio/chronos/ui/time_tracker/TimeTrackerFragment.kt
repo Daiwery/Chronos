@@ -18,6 +18,7 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.OvershootInterpolator
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -30,11 +31,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Action
 import com.daiwerystudio.chronos.database.ActionType
+import com.daiwerystudio.chronos.database.TYPE_ACTION_TYPE
 import com.daiwerystudio.chronos.databinding.FragmentTimeTrackerBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionSectionBinding
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
+import com.daiwerystudio.chronos.ui.day.DayFabMenu
 import com.daiwerystudio.chronos.ui.formatTime
+import com.daiwerystudio.chronos.ui.time_tracker.TimeTrackerFabMenu.Companion.TYPE_ACTION
+import com.daiwerystudio.chronos.ui.time_tracker.TimeTrackerFabMenu.Companion.TYPE_ACTION_TRACKER
+import com.daiwerystudio.chronos.ui.union.UnionItemAnimator
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -60,13 +66,15 @@ class TimeTrackerFragment : Fragment() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = Adapter(emptyList())
+            itemAnimator = UnionItemAnimator()
         }
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
-                    if (binding.fab.visibility == View.VISIBLE) binding.fab.hide() else binding.fab.show()
+                    if (binding.fab.state != DayFabMenu.STATE_INVISIBLE) binding.fab.hide()
+                    else binding.fab.show()
             }
         })
 
@@ -116,21 +124,28 @@ class TimeTrackerFragment : Fragment() {
             viewModel.day.value = LocalDate.of(year, month+1, dayOfMonth).toEpochDay()
         }
 
-        binding.fab.setOnClickListener{
-            val dialog = ActionDialog()
+        binding.fab.setOnMenuItemClickListener {
+            when (it) {
+                TYPE_ACTION -> {
+                    val action = Action()
+                    val day = (System.currentTimeMillis()+viewModel.local)/(1000*60*60*24)
+                    action.startTime += (viewModel.day.value!!-day)*24*60*60*1000
+                    action.endTime += (viewModel.day.value!!-day)*24*60*60*1000
 
-            // При создании действия время ставится текущее.
-            // Если мы создаем в прошлом или в будущем, мы должны изменить время.
-            val action = Action()
-            val day = (System.currentTimeMillis()+viewModel.local)/(1000*60*60*24)
-            action.startTime += (viewModel.day.value!!-day)*24*60*60*1000
-            action.endTime += (viewModel.day.value!!-day)*24*60*60*1000
+                    val dialog = ActionDialog()
+                    dialog.arguments = Bundle().apply{
+                        putSerializable("action", action)
+                        putBoolean("isCreated", true)
+                    }
+                    dialog.show(this.requireActivity().supportFragmentManager, "ActionDialog")
+                }
 
-            dialog.arguments = Bundle().apply{
-                putSerializable("action", action)
-                putBoolean("isCreated", true)
+                TYPE_ACTION_TRACKER -> {
+                    val dialog = ActionTrackerDialog()
+                    dialog.show(this.requireActivity().supportFragmentManager, "ActionTrackerDialog")
+                }
+                else -> throw IllegalArgumentException("Invalid type")
             }
-            dialog.show(this.requireActivity().supportFragmentManager, "ActionDialog")
         }
 
         binding.toolBar.setNavigationOnClickListener {
@@ -145,6 +160,17 @@ class TimeTrackerFragment : Fragment() {
                 else -> false
             }
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (binding.fab.state == DayFabMenu.STATE_OPENED) binding.fab.close()
+                    else {
+                        isEnabled = false
+                        activity?.onBackPressed()
+                    }
+                }
+            })
 
         return binding.root
     }
@@ -362,10 +388,10 @@ class TimeTrackerFragment : Fragment() {
                             .setTitle(R.string.are_you_sure)
                             .setPositiveButton(R.string.yes) { _, _ ->
                                 // Нужно передать скопированное значение, из-за того, что
-                                // после этот массив удалится, а дфункция выполняется
+                                // после этот массив удалится, а функция выполняется
                                 // в отдельном потоке.
                                 viewModel.deleteActions(selectedItems.map { it })
-                                Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_LONG).show()
+                                Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_SHORT).show()
                                 actionMode?.finish()
                             }
                             .setNegativeButton(R.string.no){ _, _ ->

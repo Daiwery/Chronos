@@ -3,7 +3,7 @@
 * Автор: Лукьянов Андрей. Студент 3 курса Физического факультета МГУ.
 */
 
-package com.daiwerystudio.chronos
+package com.daiwerystudio.chronos.receivers
 
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -11,6 +11,9 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.daiwerystudio.chronos.MainActivity
+import com.daiwerystudio.chronos.MainApplication
+import com.daiwerystudio.chronos.R
 
 class NotificationReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

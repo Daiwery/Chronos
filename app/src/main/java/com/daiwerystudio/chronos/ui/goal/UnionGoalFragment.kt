@@ -6,6 +6,7 @@
 package com.daiwerystudio.chronos.ui.goal
 
 import android.app.AlertDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,26 +18,36 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.databinding.FragmentUnionGoalBinding
-import com.daiwerystudio.chronos.ui.FORMAT_DAY
-import com.daiwerystudio.chronos.ui.FORMAT_TIME
-import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.union.UnionAbstractFragment
+import com.daiwerystudio.chronos.ui.union.UnionItemAnimator
 import com.daiwerystudio.chronos.ui.widgets.UnionFabMenu
-import java.time.format.FormatStyle
+import com.google.android.material.transition.MaterialContainerTransform
 
 class UnionGoalFragment : UnionAbstractFragment() {
     override val viewModel: UnionGoalViewModel
         by lazy { ViewModelProvider(this).get(UnionGoalViewModel::class.java) }
     private lateinit var binding: FragmentUnionGoalBinding
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nav_host_fragment
+            duration = 750
+            scrimColor = Color.TRANSPARENT
+            fadeMode = MaterialContainerTransform.FADE_MODE_OUT
+        }
+        sharedElementReturnTransition = null
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentUnionGoalBinding.inflate(inflater, container, false)
+        binding.root.transitionName = viewModel.information.parentID
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = UnionAdapter()
+            itemAnimator = UnionItemAnimator()
         }
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
@@ -51,26 +62,6 @@ class UnionGoalFragment : UnionAbstractFragment() {
 
         viewModel.parent.observe(viewLifecycleOwner, { goal ->
             binding.goal = goal
-            binding.deadline.text = (formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME) +
-                    " - " + formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_DAY))
-
-            if (goal.note == "") binding.scrollView2.visibility = View.GONE
-            else binding.scrollView2.visibility = View.VISIBLE
-
-            if (goal.deadline == 0L) {
-                binding.textView13.visibility = View.GONE
-                binding.deadline.visibility = View.GONE
-            } else {
-                binding.textView13.visibility = View.VISIBLE
-                binding.deadline.visibility = View.VISIBLE
-            }
-
-            // Percent удаляется, так как это не RoomLiveData.
-            val percent = viewModel.getPercentAchieved(goal.id)
-            percent.observe(viewLifecycleOwner, {
-                binding.progressBar.progress = it
-                binding.progressTextView.text = ("$it%")
-            })
         })
 
         viewModel.data.observe(viewLifecycleOwner, {

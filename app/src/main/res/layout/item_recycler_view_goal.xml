@@ -21,7 +21,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
-            android:background="@color/white"
             android:paddingTop="8dp">
 
             <TextView
@@ -69,6 +68,7 @@
                 android:id="@+id/textView13"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:text="@string/deadline_"
                 android:textAppearance="@style/Text.Caption"
                 android:visibility="gone"
@@ -95,6 +95,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/progress_"
+                android:visibility="gone"
+                tools:visibility="visible"
                 android:textAppearance="@style/Text.Caption"
                 app:layout_constraintStart_toStartOf="@+id/name"
                 app:layout_constraintTop_toBottomOf="@+id/textView13" />
@@ -104,6 +106,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
+                android:visibility="gone"
+                tools:visibility="visible"
                 android:textAppearance="@style/Text.Caption"
                 app:layout_constraintStart_toEndOf="@+id/textView21"
                 app:layout_constraintTop_toTopOf="@+id/textView21"
@@ -114,6 +118,8 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView21" />
@@ -149,6 +155,7 @@
                 app:layout_constraintTop_toTopOf="@+id/imageView7"
                 app:srcCompat="@drawable/ic_baseline_drag_handle_24"
                 tools:ignore="ContentDescription" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 </layout>

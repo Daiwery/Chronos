@@ -2,8 +2,8 @@
     android:viewportWidth="31.66" android:width="16.267181dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path
         android:pathData="M3.94,45.54h4l5.87,-16.2 4.86,6.28 0.11,10.09h4l-0.67,-12.93 -5.27,-9.71 1.83,-5.67 2,3.64h9.92v-3.44h-7.69l-4.25,-7.09s-1,-2 -4,-1.21S4.33,12.74 4.33,12.74l-3,10h3.65l3,-7.13 4.45,-1.42Z"
-        android:strokeColor="?attr/colorSecondary" android:strokeWidth="2"/>
+        android:strokeColor="?attr/colorTintIcon" android:strokeWidth="2"/>
     <path
         android:pathData="M20.74,4.64m-3.64,0a3.64,3.64 0,1 1,7.28 0a3.64,3.64 0,1 1,-7.28 0"
-        android:strokeColor="?attr/colorSecondary" android:strokeWidth="2"/>
+        android:strokeColor="?attr/colorTintIcon" android:strokeWidth="2"/>
 </vector>

@@ -17,6 +17,7 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import com.daiwerystudio.chronos.database.*
+import com.daiwerystudio.chronos.receivers.NotificationReceiver
 import java.util.*
 
 class MainApplication: Application() {
@@ -41,15 +42,22 @@ class MainApplication: Application() {
         ActionRepository.initialize(this)
 
         // Канал уведомлений от напоминаний.
-        val name = getString(R.string.name_reminder_channel)
-        val importance = NotificationManager.IMPORTANCE_HIGH
-        val channel = NotificationChannel(CHANNEL_REMINDERS, name, importance)
+        var name = getString(R.string.name_reminder_channel)
+        var importance = NotificationManager.IMPORTANCE_DEFAULT
+        var channel = NotificationChannel(CHANNEL_REMINDERS, name, importance)
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+
+        // Канал уведомления от трекинга действий.
+        name = getString(R.string.name_tracking_channel)
+        importance = NotificationManager.IMPORTANCE_LOW
+        channel = NotificationChannel(CHANNEL_TRACKING, name, importance)
         notificationManager.createNotificationChannel(channel)
     }
 
     companion object {
         const val CHANNEL_REMINDERS = "channel_reminders"
+        const val CHANNEL_TRACKING = "channel_tracking"
     }
 }

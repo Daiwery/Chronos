@@ -8,6 +8,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/background_card_view.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/background_clock_face_view.xml" value="0.21481481481481482" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/background_dialog.xml" value="0.21481481481481482" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/background_dialog_checkbox.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/background_drag_to_view_holder.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/background_loading_view.xml" value="0.21481481481481482" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/background_loding_view.xml" value="0.2703125" />
@@ -44,6 +45,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/ic_baseline_more_24.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/ic_baseline_play_circle_filled_24.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/ic_baseline_stop_circle_24.xml" value="0.2703125" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/ic_baseline_timer_24.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/ic_folder.xml" value="0.25277777777777777" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/ic_foreground.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/ic_goal.xml" value="0.2703125" />
@@ -64,6 +66,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action.xml" value="0.536" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_absolute_schedule.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_schedule.xml" value="0.4" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_tracker.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_action_type.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_doing_action.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/dialog_folder.xml" value="0.4" />
@@ -92,9 +95,9 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_union.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_union_action_type.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_union_folder.xml" value="0.2542991141219385" />
-        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_union_goal.xml" value="0.4" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_union_goal.xml" value="0.264" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_union_note.xml" value="0.264" />
-        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_union_preview.xml" value="0.264" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_union_preview.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_union_schedule.xml" value="0.264" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_progress_goal.xml" value="0.536" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_achieved_goal.xml" value="0.4" />
@@ -131,6 +134,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_select_action_type_line.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_select_filter_type.xml" value="0.536" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_select_type_showing.xml" value="0.4" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_time_tracker_fab_menu.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_union_fab_menu.xml" value="0.264" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/layout_union_fab_menu_scene_open.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/list_item_action.xml" value="0.25416666666666665" />

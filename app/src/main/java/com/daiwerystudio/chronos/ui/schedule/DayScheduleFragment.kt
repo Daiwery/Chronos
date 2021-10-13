@@ -38,6 +38,7 @@ import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionSectionBinding
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
 import com.daiwerystudio.chronos.ui.formatTime
+import com.daiwerystudio.chronos.ui.union.UnionItemAnimator
 import java.time.format.FormatStyle
 
 class DayScheduleFragment : Fragment() {
@@ -60,6 +61,7 @@ class DayScheduleFragment : Fragment() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = Adapter(emptyList())
+            itemAnimator = UnionItemAnimator()
         }
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -292,7 +294,7 @@ class DayScheduleFragment : Fragment() {
                                 // после этот массив удалится, а дфункция выполняется
                                 // в отдельном потоке.
                                 viewModel.deleteActionsSchedule(selectedItems.map { it })
-                                Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_LONG).show()
+                                Toast.makeText(requireContext(), R.string.text_toast_delete, Toast.LENGTH_SHORT).show()
                                 actionMode?.finish()
                             }
                             .setNegativeButton(R.string.no){ _, _ ->
