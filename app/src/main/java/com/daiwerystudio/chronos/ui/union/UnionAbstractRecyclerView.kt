@@ -10,6 +10,7 @@ import android.animation.ObjectAnimator
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -138,8 +139,20 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
         this.goal = item as Goal
         binding.goal = goal
         if (binding.checkBox.isChecked != goal.isAchieved) binding.checkBox.isChecked = goal.isAchieved
-        binding.deadlineTextView.text = (formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME)+
-                " - " + formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_DAY))
+        binding.deadlineTextView.text = (formatTime(
+            goal.deadline,
+            FormatStyle.SHORT,
+            FORMAT_TIME,
+            true,
+            is24HourFormat(itemView.context)
+        )+
+                " - " + formatTime(
+            goal.deadline,
+            FormatStyle.SHORT,
+            FORMAT_DAY,
+            true,
+            is24HourFormat(itemView.context)
+        ))
         setPercentAchieved()
 
         if (goal.note != "") binding.note.visibility = View.VISIBLE
@@ -183,7 +196,13 @@ abstract class ScheduleAbstractHolder(val binding: ItemRecyclerViewScheduleBindi
     override fun bind(item: ID) {
         this.schedule = item as Schedule
         binding.schedule = schedule
-        binding.start.text = formatTime(schedule.start, true, FormatStyle.SHORT, FORMAT_DAY)
+        binding.start.text = formatTime(
+            schedule.start,
+            FormatStyle.SHORT,
+            FORMAT_DAY,
+            true,
+            is24HourFormat(itemView.context)
+        )
         when (schedule.type){
             TYPE_SCHEDULE_PERIODIC -> binding.type.text = itemView.context.getString(R.string.periodic_schedule)
             TYPE_SCHEDULE_ONCE -> binding.type.text = itemView.context.getString(R.string.once_schedule)
@@ -266,8 +285,20 @@ abstract class ReminderAbstractHolder(val binding: ItemRecyclerViewReminderBindi
     override fun bind(item: ID) {
         this.reminder = item as Reminder
         binding.reminder = reminder
-        binding.timeTextView.text = (formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME)+
-                " - " + formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_DAY))
+        binding.timeTextView.text = (formatTime(
+            reminder.time,
+            FormatStyle.SHORT,
+            FORMAT_TIME,
+            true,
+            is24HourFormat(itemView.context)
+        )+
+                " - " + formatTime(
+            reminder.time,
+            FormatStyle.SHORT,
+            FORMAT_DAY,
+            true,
+            is24HourFormat(itemView.context)
+        ))
     }
 
     abstract fun onClicked()
@@ -505,7 +536,7 @@ open class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
      * Это означает, что в ItemTouchHelper начнет обрабатывать наложение холдеров,
      * если процент их наложения больше x% (по умолчанию 50%)
      */
-    override fun getMoveThreshold(viewHolder: RecyclerView.ViewHolder): Float = .5f
+    override fun getMoveThreshold(viewHolder: RecyclerView.ViewHolder): Float = .1f
 
     /**
      * Здесь мы определяем, какое событие должно произойти: move или drag. Если current холдер
@@ -517,26 +548,35 @@ open class UnionSimpleCallback(dragDirs: Int, swipeDirs: Int):
                              current: RecyclerView.ViewHolder,
                              target: RecyclerView.ViewHolder): Boolean {
         val curY = current.itemView.translationY+current.itemView.top
-        val moveOrDrop = if (current.itemView.translationY > 0)
-            curY+current.itemView.height >= target.itemView.top+0.9*target.itemView.height
-        else curY <= target.itemView.top+(1-0.9)*target.itemView.height
+        val ratio = if (current.itemView.translationY > 0)
+            (curY+current.itemView.height-target.itemView.top)*1f/target.itemView.height
+        else (target.itemView.bottom-curY)*1f/target.itemView.height
 
-        return if (moveOrDrop){
-            dragToViewHolder = null
-            permissionDragging = false
-            mDraggindViewHolderSetter?.endDrag()
-            true
-        } else {
-            // Если это новый холдер, то это начало обработки события drag.
-            if (dragToViewHolder != target) {
-                dragToViewHolder = target
-                timeStartDragging = System.currentTimeMillis()
+        return when {
+            ratio < .25f -> {
+                dragToViewHolder = null
+                permissionDragging = false
+                mDraggindViewHolderSetter?.endDrag()
+                false
             }
-            else if (System.currentTimeMillis()-timeStartDragging > 100) {
-                permissionDragging = true
-                mDraggindViewHolderSetter?.startDrag(dragFromViewHolder!!, dragToViewHolder!!)
+            ratio < .75f -> {
+                // Если это новый холдер, то это начало обработки события drag.
+                if (dragToViewHolder != target) {
+                    dragToViewHolder = target
+                    timeStartDragging = System.currentTimeMillis()
+                }
+                else if (System.currentTimeMillis()-timeStartDragging > 100) {
+                    permissionDragging = true
+                    mDraggindViewHolderSetter?.startDrag(dragFromViewHolder!!, dragToViewHolder!!)
+                }
+                false
             }
-            false
+            else -> {
+                dragToViewHolder = null
+                permissionDragging = false
+                mDraggindViewHolderSetter?.endDrag()
+                true
+            }
         }
     }
 

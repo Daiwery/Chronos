@@ -42,7 +42,7 @@ class UnionFolderFragment : UnionAbstractFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentUnionFolderBinding.inflate(inflater, container, false)
-        binding.root.transitionName = viewModel.information.parentID
+        binding.toolBar.transitionName = viewModel.information.parentID
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -104,7 +104,7 @@ class UnionFolderFragment : UnionAbstractFragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (binding.fab.isFocused) binding.fab.clearFocus()
+                    if (binding.fab.state == UnionFabMenu.STATE_OPENED) binding.fab.close()
                     else {
                         isEnabled = false
                         activity?.onBackPressed()

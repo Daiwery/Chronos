@@ -25,6 +25,7 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.text.format.DateFormat.is24HourFormat
 import android.view.*
 import android.view.animation.OvershootInterpolator
 import android.widget.Toast
@@ -36,6 +37,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -56,6 +58,8 @@ import com.daiwerystudio.chronos.ui.reminder.ReminderDialog
 import com.daiwerystudio.chronos.ui.union.ID
 import com.daiwerystudio.chronos.ui.union.UnionItemAnimator
 import com.daiwerystudio.chronos.ui.union.UnionSimpleCallback
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -331,12 +335,33 @@ class DayFragment: Fragment() {
         private lateinit var actionSchedule: ActionSchedule
         private var actionType: ActionType? = null
 
+        init {
+            itemView.setOnClickListener {
+                val bundle = Bundle().apply {
+                    putString("scheduleID", actionSchedule.scheduleID)
+                }
+                itemView.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
+            }
+        }
+
         fun bind(item: Pair<ActionSchedule, ActionType?>) {
             this.actionSchedule = item.first
             this.actionType = item.second
 
-            binding.time.text = (formatTime(actionSchedule.startTime, false, FormatStyle.SHORT, FORMAT_TIME) +
-                    " - " + formatTime(actionSchedule.endTime, false, FormatStyle.SHORT, FORMAT_TIME))
+            binding.time.text = (formatTime(
+                actionSchedule.startTime,
+                FormatStyle.SHORT,
+                FORMAT_TIME,
+                false,
+                is24HourFormat(requireContext())
+            ) +
+                    " - " + formatTime(
+                actionSchedule.endTime,
+                FormatStyle.SHORT,
+                FORMAT_TIME,
+                false,
+                is24HourFormat(requireContext())
+            ))
             if (actionType == null) {
                 binding.actionType = ActionType(id="", color=0, name="???")
                 binding.invalid.visibility = View.VISIBLE
@@ -398,7 +423,13 @@ class DayFragment: Fragment() {
             this.goal = goal
             binding.goal = goal
             if (binding.checkBox.isChecked != goal.isAchieved) binding.checkBox.isChecked = goal.isAchieved
-            binding.deadlineTextView.text = formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME)
+            binding.deadlineTextView.text = formatTime(
+                goal.deadline,
+                FormatStyle.SHORT,
+                FORMAT_TIME,
+                true,
+                is24HourFormat(requireContext())
+            )
         }
     }
 
@@ -407,8 +438,8 @@ class DayFragment: Fragment() {
         lateinit var reminder: Reminder
 
         init {
-            itemView.setOnClickListener{ onClicked() }
-            binding.edit.setOnClickListener{ onClicked() }
+            itemView.setOnClickListener{ onClick() }
+            binding.edit.setOnClickListener{ onClick() }
             itemView.setOnLongClickListener {
                 startActionMode()
                 changeItem(absoluteAdapterPosition)
@@ -424,7 +455,7 @@ class DayFragment: Fragment() {
             constraintSet.applyTo(binding.constraintLayout)
         }
 
-        private fun onClicked(){
+        private fun onClick(){
             if (actionMode == null) {
                 // Восстанавливаем анимацию клика на холдер.
                 itemView.isClickable = true
@@ -445,7 +476,13 @@ class DayFragment: Fragment() {
         fun bind(reminder: Reminder) {
             this.reminder = reminder
             binding.reminder = reminder
-            binding.timeTextView.text = (formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME))
+            binding.timeTextView.text = (formatTime(
+                reminder.time,
+                FormatStyle.SHORT,
+                FORMAT_TIME,
+                true,
+                is24HourFormat(requireContext())
+            ))
         }
     }
 
@@ -472,8 +509,7 @@ class DayFragment: Fragment() {
     private val callback by lazy {
         object : ActionMode.Callback {
             override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-                mode?.menuInflater?.inflate(R.menu.menu_action_bar, menu)
-                menu?.findItem(R.id.up)?.isVisible = false
+                mode?.menuInflater?.inflate(R.menu.menu_action_bar_change_time, menu)
                 binding.fab.hide()
                 return true
             }
@@ -482,6 +518,46 @@ class DayFragment: Fragment() {
 
             override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
                 return when (item?.itemId) {
+                    R.id.time_plus -> {
+                        val isSystem24Hour = is24HourFormat(requireContext())
+                        val clockFormat = if (isSystem24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+
+                        val dialog = MaterialTimePicker.Builder()
+                            .setTimeFormat(clockFormat)
+                            .setTitleText("")
+                            .build()
+                        dialog.addOnPositiveButtonClickListener {
+                            // Нужно передать скопированное значение, из-за того, что
+                            // после этот массив удалится, а функция выполняется
+                            // в отдельном потоке.
+                            viewModel.changeTimeItems(selectedItems.map { it },
+                                (dialog.hour*60+dialog.minute)*60*1000L)
+                            actionMode?.finish()
+                        }
+                        dialog.show(requireActivity().supportFragmentManager, "TimePickerDialog")
+                        true
+                    }
+
+                    R.id.time_minus -> {
+                        val isSystem24Hour = is24HourFormat(requireContext())
+                        val clockFormat = if (isSystem24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+
+                        val dialog = MaterialTimePicker.Builder()
+                            .setTimeFormat(clockFormat)
+                            .setTitleText("")
+                            .build()
+                        dialog.addOnPositiveButtonClickListener {
+                            // Нужно передать скопированное значение, из-за того, что
+                            // после этот массив удалится, а функция выполняется
+                            // в отдельном потоке.
+                            viewModel.changeTimeItems(selectedItems.map { it },
+                                -(dialog.hour*60+dialog.minute)*60*1000L)
+                            actionMode?.finish()
+                        }
+                        dialog.show(requireActivity().supportFragmentManager, "TimePickerDialog")
+                        true
+                    }
+
                     R.id.delete -> {
                         AlertDialog.Builder(context, R.style.Style_AlertDialog)
                             .setTitle(R.string.are_you_sure)

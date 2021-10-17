@@ -10,7 +10,8 @@
 package com.daiwerystudio.chronos.ui.goal
 
 import android.os.Bundle
-import android.transition.TransitionManager
+import android.text.format.DateFormat
+import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -73,8 +74,20 @@ class GoalDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogGoalBinding.inflate(inflater, container, false)
         binding.goal = goal
-        binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
-        binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
+        binding.day.editText?.setText(formatTime(
+            goal.deadline,
+            FormatStyle.LONG,
+            FORMAT_DAY,
+            true,
+            is24HourFormat(requireContext())
+        ))
+        binding.time.editText?.setText(formatTime(
+            goal.deadline,
+            FormatStyle.SHORT,
+            FORMAT_TIME,
+            true,
+            is24HourFormat(requireContext())
+        ))
         if (goal.type == TYPE_GOAL_INDEFINITE) {
             binding.checkBox.isChecked = true
             binding.day.visibility = View.GONE
@@ -101,8 +114,20 @@ class GoalDialog : BottomSheetDialogFragment() {
             }
 
             binding.goal = goal
-            binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
-            binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
+            binding.day.editText?.setText(formatTime(
+                goal.deadline,
+                FormatStyle.LONG,
+                FORMAT_DAY,
+                true,
+                is24HourFormat(requireContext())
+            ))
+            binding.time.editText?.setText(formatTime(
+                goal.deadline,
+                FormatStyle.SHORT,
+                FORMAT_TIME,
+                true,
+                is24HourFormat(requireContext())
+            ))
         }
         if (isTemporal == true) {
             binding.checkBox.isChecked = false  // Срабатывает слушатель, так как он уже установлен.
@@ -116,11 +141,20 @@ class GoalDialog : BottomSheetDialogFragment() {
             val hour = time/(1000*60*60)
             val minute = (time-hour*1000*60*60)/(1000*60)
 
-            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+            val isSystem24Hour = is24HourFormat(requireContext())
+            val clockFormat = if (isSystem24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(clockFormat)
                 .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 goal.deadline = day*1000*60*60*24+(dialog.hour*60+dialog.minute)*1000*60-local
-                binding.time.editText?.setText(formatTime(goal.deadline, true, FormatStyle.SHORT, FORMAT_TIME))
+                binding.time.editText?.setText(formatTime(
+                    goal.deadline,
+                    FormatStyle.SHORT,
+                    FORMAT_TIME,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
@@ -132,7 +166,13 @@ class GoalDialog : BottomSheetDialogFragment() {
             val dialog = MaterialDatePicker.Builder.datePicker().setSelection(localTime).build()
             dialog.addOnPositiveButtonClickListener {
                 goal.deadline = it+time-local
-                binding.day.editText?.setText(formatTime(goal.deadline, true, FormatStyle.LONG, FORMAT_DAY))
+                binding.day.editText?.setText(formatTime(
+                    goal.deadline,
+                    FormatStyle.LONG,
+                    FORMAT_DAY,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")
         }

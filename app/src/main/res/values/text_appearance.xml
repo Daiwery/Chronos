@@ -8,7 +8,6 @@
 
     <style name="Text.Caption" parent="@style/TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">?attr/colorOnSurface</item>
         <item name="fontFamily">@font/montserrat_medium</item>
     </style>
 

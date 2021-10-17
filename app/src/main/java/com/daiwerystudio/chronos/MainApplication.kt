@@ -29,14 +29,29 @@ class MainApplication: Application() {
         GoalRepository.initialize(this)
         ScheduleRepository.initialize(this)
         NoteRepository.initialize(this)
-        ReminderRepository.initialize(this) {
-            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(this, NotificationReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(this,
-                (UUID.fromString(it).mostSignificantBits and Long.MAX_VALUE).toInt(),
-                intent, 0)
-            alarmManager.cancel(pendingIntent)
-        }
+        ReminderRepository.initialize(this,
+            object : ReminderRepository.ChangeReminderListener {
+                override fun deleteReminder(id: String) {
+                    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    val intent = Intent(this@MainApplication, NotificationReceiver::class.java)
+                    val pendingIntent = PendingIntent.getBroadcast(this@MainApplication,
+                        (UUID.fromString(id).mostSignificantBits and Long.MAX_VALUE).toInt(),
+                        intent, 0)
+                    alarmManager.cancel(pendingIntent)
+                }
+
+                override fun changeReminder(reminder: Reminder) {
+                    val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    val intent = Intent(this@MainApplication, NotificationReceiver::class.java).apply {
+                        putExtra("reminder_text", reminder.text)
+                    }
+                    val pendingIntent = PendingIntent.getBroadcast(this@MainApplication,
+                        (UUID.fromString(reminder.id).mostSignificantBits and Long.MAX_VALUE).toInt(),
+                        intent, 0)
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminder.time, pendingIntent)
+                }
+
+            })
         FolderRepository.initialize(this)
         UnionRepository.initialize(this)
         ActionRepository.initialize(this)

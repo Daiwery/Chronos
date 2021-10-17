@@ -42,7 +42,7 @@ class UnionNoteFragment : UnionAbstractFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentUnionNoteBinding.inflate(inflater, container, false)
-        binding.root.transitionName = viewModel.information.parentID
+        binding.toolBar.transitionName = viewModel.information.parentID
 
         viewModel.parent.observe(viewLifecycleOwner, {
             binding.note = it
@@ -102,7 +102,7 @@ class UnionNoteFragment : UnionAbstractFragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (binding.fab.isFocused) binding.fab.clearFocus()
+                    if (binding.fab.state == UnionFabMenu.STATE_OPENED) binding.fab.close()
                     else {
                         isEnabled = false
                         activity?.onBackPressed()

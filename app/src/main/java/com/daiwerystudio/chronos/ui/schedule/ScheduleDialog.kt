@@ -14,6 +14,7 @@
 package com.daiwerystudio.chronos.ui.schedule
 
 import android.os.Bundle
+import android.text.format.DateFormat.is24HourFormat
 import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
@@ -70,7 +71,13 @@ class ScheduleDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogScheduleBinding.inflate(inflater, container, false)
         binding.schedule = schedule
-        binding.scheduleStart.editText?.setText(formatTime(schedule.start, true, FormatStyle.LONG, FORMAT_DAY))
+        binding.scheduleStart.editText?.setText(formatTime(
+            schedule.start,
+            FormatStyle.LONG,
+            FORMAT_DAY,
+            true,
+            is24HourFormat(requireContext())
+        ))
         if (schedule.type == TYPE_SCHEDULE_PERIODIC) binding.checkBox.isChecked = true
         if (schedule.type == TYPE_SCHEDULE_ONCE) binding.scheduleCountDays.visibility = View.GONE
 
@@ -104,7 +111,13 @@ class ScheduleDialog : BottomSheetDialogFragment() {
             val dialog = MaterialDatePicker.Builder.datePicker().setSelection(schedule.start+local).build()
             dialog.addOnPositiveButtonClickListener {
                 schedule.start = it-local
-                binding.scheduleStart.editText?.setText(formatTime(schedule.start, true, FormatStyle.LONG, FORMAT_DAY))
+                binding.scheduleStart.editText?.setText(formatTime(
+                    schedule.start,
+                    FormatStyle.LONG,
+                    FORMAT_DAY,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")
         }

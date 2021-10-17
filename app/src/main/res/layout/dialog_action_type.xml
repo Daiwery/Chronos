@@ -40,11 +40,9 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:text="@string/color"
             android:textAlignment="center"
             android:textAppearance="@style/Text.Content"
-            android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="@+id/color"
             app:layout_constraintStart_toStartOf="@+id/action_type_name"
             app:layout_constraintTop_toTopOf="@+id/color" />

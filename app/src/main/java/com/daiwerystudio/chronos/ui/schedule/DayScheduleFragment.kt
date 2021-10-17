@@ -21,6 +21,7 @@ package com.daiwerystudio.chronos.ui.schedule
 import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
+import android.text.format.DateFormat.is24HourFormat
 import android.view.*
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -241,8 +242,20 @@ class DayScheduleFragment : Fragment() {
             this.actionSchedule = item.first
             this.actionType = item.second
 
-            binding.time.text = (formatTime(actionSchedule.startTime, false, FormatStyle.SHORT, FORMAT_TIME) +
-                    " - " + formatTime(actionSchedule.endTime, false, FormatStyle.SHORT, FORMAT_TIME))
+            binding.time.text = (formatTime(
+                actionSchedule.startTime,
+                FormatStyle.SHORT,
+                FORMAT_TIME,
+                false,
+                is24HourFormat(requireContext())
+            ) +
+                    " - " + formatTime(
+                actionSchedule.endTime,
+                FormatStyle.SHORT,
+                FORMAT_TIME,
+                false,
+                is24HourFormat(requireContext())
+            ))
             if (actionType == null) {
                 binding.actionType = ActionType(id="", color=Color.BLACK, name="???")
                 binding.invalid.visibility = View.VISIBLE

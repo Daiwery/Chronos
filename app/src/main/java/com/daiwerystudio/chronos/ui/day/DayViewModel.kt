@@ -166,7 +166,6 @@ class DayViewModel: ClockViewModel() {
 
     private fun buildData(): List<Pair<Int, Any>> {
         val newData = mutableListOf<Pair<Int, Any>>()
-        // Квазисортировка.
         mSections.value?.also { sections ->
             newData.addAll(sections.map { Pair(TYPE_SECTION, it) })
         }
@@ -236,11 +235,24 @@ class DayViewModel: ClockViewModel() {
     fun deleteItems(positions: List<Int>){
         val items = data.value!!.filterIndexed { index, _ -> index in positions }
         mUnionRepository.deleteUnionsWithChild(items.map { (it.second as ID).id })
+
         val goals = items.filter { it.first == TYPE_GOAL }
         mGoalRepository.deleteGoals(goals.map { (it.second as ID).id })
+
         val reminders = items.filter { it.first == TYPE_REMINDER }
         mReminderRepository.deleteReminders(reminders.map { (it.second as ID).id })
+    }
 
+    fun changeTimeItems(positions: List<Int>, delta: Long){
+        val items = data.value!!.filterIndexed { index, _ -> index in positions }
+
+        val goals = items.filter { it.first == TYPE_GOAL }
+            .map { (it.second as Goal).copy().apply { deadline += delta } }
+        mGoalRepository.updateGoals(goals)
+
+        val reminders = items.filter { it.first == TYPE_REMINDER }
+            .map { (it.second as Reminder).copy().apply { time += delta } }
+        mReminderRepository.updateReminders(reminders)
     }
 
     companion object {

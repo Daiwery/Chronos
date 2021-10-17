@@ -11,7 +11,8 @@
 package com.daiwerystudio.chronos.ui.time_tracker
 
 import android.os.Bundle
-import android.transition.TransitionManager
+import android.text.format.DateFormat
+import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -64,10 +65,34 @@ class ActionDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogActionBinding.inflate(inflater, container, false)
         binding.action = action
-        binding.startDay.editText?.setText(formatTime(action.startTime, true, FormatStyle.LONG, FORMAT_DAY))
-        binding.startTime.editText?.setText(formatTime(action.startTime, true, FormatStyle.SHORT, FORMAT_TIME))
-        binding.endDay.editText?.setText(formatTime(action.endTime, true, FormatStyle.LONG, FORMAT_DAY))
-        binding.endTime.editText?.setText(formatTime(action.endTime, true, FormatStyle.SHORT, FORMAT_TIME))
+        binding.startDay.editText?.setText(formatTime(
+            action.startTime,
+            FormatStyle.LONG,
+            FORMAT_DAY,
+            true,
+            is24HourFormat(requireContext())
+        ))
+        binding.startTime.editText?.setText(formatTime(
+            action.startTime,
+            FormatStyle.SHORT,
+            FORMAT_TIME,
+            true,
+            is24HourFormat(requireContext())
+        ))
+        binding.endDay.editText?.setText(formatTime(
+            action.endTime,
+            FormatStyle.LONG,
+            FORMAT_DAY,
+            true,
+            is24HourFormat(requireContext())
+        ))
+        binding.endTime.editText?.setText(formatTime(
+            action.endTime,
+            FormatStyle.SHORT,
+            FORMAT_TIME,
+            true,
+            is24HourFormat(requireContext())
+        ))
 
 
         binding.selectActionType.setVisibilityIsAll(View.GONE)
@@ -98,11 +123,20 @@ class ActionDialog : BottomSheetDialogFragment() {
             val hour = time/(60*60*1000)
             val minute = (time-hour*60*60*1000)/(60*1000)
 
-            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+            val isSystem24Hour = is24HourFormat(requireContext())
+            val clockFormat = if (isSystem24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(clockFormat)
                 .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 action.startTime = day*24*60*60*1000+(dialog.hour*60+dialog.minute)*60*1000-local
-                binding.startTime.editText?.setText(formatTime(action.startTime, true, FormatStyle.SHORT, FORMAT_TIME))
+                binding.startTime.editText?.setText(formatTime(
+                    action.startTime,
+                    FormatStyle.SHORT,
+                    FORMAT_TIME,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
@@ -114,7 +148,13 @@ class ActionDialog : BottomSheetDialogFragment() {
             val dialog = MaterialDatePicker.Builder.datePicker().setSelection(localTime).build()
             dialog.addOnPositiveButtonClickListener {
                 action.startTime = it+time-local
-                binding.startDay.editText?.setText(formatTime(action.startTime, true, FormatStyle.LONG, FORMAT_DAY))
+                binding.startDay.editText?.setText(formatTime(
+                    action.startTime,
+                    FormatStyle.LONG,
+                    FORMAT_DAY,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
@@ -126,11 +166,20 @@ class ActionDialog : BottomSheetDialogFragment() {
             val hour = time/(60*60*1000)
             val minute = (time-hour*60*60*1000)/(60*1000)
 
-            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+            val isSystem24Hour = is24HourFormat(requireContext())
+            val clockFormat = if (isSystem24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(clockFormat)
                 .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 action.endTime = day*24*60*60*1000+(dialog.hour*60+dialog.minute)*60*1000-local
-                binding.endTime.editText?.setText(formatTime(action.endTime, true, FormatStyle.SHORT, FORMAT_TIME))
+                binding.endTime.editText?.setText(formatTime(
+                    action.endTime,
+                    FormatStyle.SHORT,
+                    FORMAT_TIME,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
@@ -142,7 +191,13 @@ class ActionDialog : BottomSheetDialogFragment() {
             val dialog = MaterialDatePicker.Builder.datePicker().setSelection(localTime).build()
             dialog.addOnPositiveButtonClickListener {
                 action.endTime = it+time-local
-                binding.endDay.editText?.setText(formatTime(action.endTime, true, FormatStyle.LONG, FORMAT_DAY))
+                binding.endDay.editText?.setText(formatTime(
+                    action.endTime,
+                    FormatStyle.LONG,
+                    FORMAT_DAY,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }

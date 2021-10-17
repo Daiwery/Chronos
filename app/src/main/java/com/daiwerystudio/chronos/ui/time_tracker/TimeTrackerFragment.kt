@@ -15,6 +15,7 @@ import android.animation.ObjectAnimator
 import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
+import android.text.format.DateFormat.is24HourFormat
 import android.view.*
 import android.view.animation.OvershootInterpolator
 import android.widget.Toast
@@ -31,7 +32,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Action
 import com.daiwerystudio.chronos.database.ActionType
-import com.daiwerystudio.chronos.database.TYPE_ACTION_TYPE
 import com.daiwerystudio.chronos.databinding.FragmentTimeTrackerBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionBinding
 import com.daiwerystudio.chronos.databinding.ItemRecyclerViewActionSectionBinding
@@ -338,8 +338,20 @@ class TimeTrackerFragment : Fragment() {
             this.action = item.first
             this.actionType = item.second
 
-            binding.time.text = (formatTime(action.startTime, true, FormatStyle.SHORT, FORMAT_TIME) +
-                    " - " + formatTime(action.endTime, true, FormatStyle.SHORT, FORMAT_TIME))
+            binding.time.text = (formatTime(
+                action.startTime,
+                FormatStyle.SHORT,
+                FORMAT_TIME,
+                true,
+                is24HourFormat(requireContext())
+            ) +
+                    " - " + formatTime(
+                action.endTime,
+                FormatStyle.SHORT,
+                FORMAT_TIME,
+                true,
+                is24HourFormat(requireContext())
+            ))
             if (actionType == null) {
                 binding.actionType = ActionType(id="", color=Color.BLACK, name="???")
                 binding.invalid.visibility = View.VISIBLE

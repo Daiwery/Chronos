@@ -68,6 +68,9 @@ interface GoalTypeDao {
     @Update
     fun updateGoal(goal: Goal)
 
+    @Update
+    fun updateGoals(goals: List<Goal>)
+
     @Insert
     fun addGoal(goal: Goal)
 }
@@ -115,6 +118,10 @@ class GoalRepository private constructor(context: Context) {
 
     fun updateGoal(goal: Goal) {
         mHandler.post { mDao.updateGoal(goal) }
+    }
+
+    fun updateGoals(goals: List<Goal>) {
+        mHandler.post { mDao.updateGoals(goals) }
     }
 
     fun addGoal(goal: Goal) {

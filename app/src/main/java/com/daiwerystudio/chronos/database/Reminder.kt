@@ -48,6 +48,9 @@ interface ReminderDao {
     @Update
     fun updateReminder(reminder: Reminder)
 
+    @Update
+    fun updateReminders(reminders: List<Reminder>)
+
     @Insert
     fun addReminder(reminder: Reminder)
 }
@@ -82,37 +85,45 @@ class ReminderRepository private constructor(context: Context) {
     fun getRemindersMoreThanTime(time: Long): List<Reminder> = mDao.getRemindersMoreThanTime(time)
 
     fun deleteReminders(ids: List<String>) {
-        ids.forEach { mDeleteReminderListener?.deletedReminder(it) }
+        ids.forEach { mChangeReminderListener?.deleteReminder(it) }
         mHandler.post { mDao.deleteReminders(ids) }
     }
 
     fun deleteReminder(reminder: Reminder){
-        mDeleteReminderListener?.deletedReminder(reminder.id)
+        mChangeReminderListener?.deleteReminder(reminder.id)
         mHandler.post { mDao.deleteReminder(reminder) }
     }
 
     fun updateReminder(reminder: Reminder){
+        mChangeReminderListener?.changeReminder(reminder)
         mHandler.post { mDao.updateReminder(reminder) }
     }
 
+    fun updateReminders(reminders: List<Reminder>){
+        reminders.forEach { mChangeReminderListener?.changeReminder(it) }
+        mHandler.post { mDao.updateReminders(reminders) }
+    }
+
     fun addReminder(reminder: Reminder){
+        mChangeReminderListener?.changeReminder(reminder)
         mHandler.post { mDao.addReminder(reminder) }
     }
 
-    private var mDeleteReminderListener: DeleteReminderListener? = null
-    fun interface DeleteReminderListener {
-        fun deletedReminder(id: String)
+    private var mChangeReminderListener: ChangeReminderListener? = null
+    interface ChangeReminderListener {
+        fun deleteReminder(id: String)
+        fun changeReminder(reminder: Reminder)
     }
-    fun setDeleteReminderListener(deleteReminderListener: DeleteReminderListener){
-        mDeleteReminderListener = deleteReminderListener
+    fun setChangeReminderListener(changeReminderListener: ChangeReminderListener){
+        mChangeReminderListener = changeReminderListener
     }
 
     companion object {
         private var INSTANCE: ReminderRepository? = null
-        fun initialize(context: Context, deleteReminderListener: DeleteReminderListener) {
+        fun initialize(context: Context, changeReminderListener: ChangeReminderListener) {
             if (INSTANCE == null) {
                 INSTANCE = ReminderRepository(context)
-                INSTANCE?.setDeleteReminderListener(deleteReminderListener)
+                INSTANCE?.setChangeReminderListener(changeReminderListener)
             }
         }
 

@@ -23,6 +23,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.text.format.DateFormat
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ScrollView
@@ -163,7 +164,7 @@ class ClockFaceView(context: Context, attrs: AttributeSet): View(context, attrs)
 
         for (i in 0..23){
             val textHour = TextHour(LocalTime.ofSecondOfDay(i*3600L)
-                .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)), i/24f)
+                    .format(DateTimeFormatter.ofPattern("HH:mm")), i/24f)
             mPaint.getTextBounds(textHour.text, 0, textHour.text.length, textHour.bounds)
             mTextHours.add(textHour)
         }

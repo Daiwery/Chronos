@@ -8,6 +8,8 @@ package com.daiwerystudio.chronos.ui.time_tracker
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.format.DateFormat
+import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -61,8 +63,20 @@ class ActionTrackerDialog : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = DialogActionTrackerBinding.inflate(inflater, container, false)
-        binding.startDay.editText?.setText(formatTime(trackingStartTime, true, FormatStyle.LONG, FORMAT_DAY))
-        binding.startTime.editText?.setText(formatTime(trackingStartTime, true, FormatStyle.SHORT, FORMAT_TIME))
+        binding.startDay.editText?.setText(formatTime(
+            trackingStartTime,
+            FormatStyle.LONG,
+            FORMAT_DAY,
+            true,
+            is24HourFormat(requireContext())
+        ))
+        binding.startTime.editText?.setText(formatTime(
+            trackingStartTime,
+            FormatStyle.SHORT,
+            FORMAT_TIME,
+            true,
+            is24HourFormat(requireContext())
+        ))
 
 
         binding.selectActionType.setVisibilityIsAll(View.GONE)
@@ -92,11 +106,20 @@ class ActionTrackerDialog : BottomSheetDialogFragment() {
             val hour = time/(60*60*1000)
             val minute = (time-hour*60*60*1000)/(60*1000)
 
-            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+            val isSystem24Hour = is24HourFormat(requireContext())
+            val clockFormat = if (isSystem24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(clockFormat)
                 .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 trackingStartTime = day*24*60*60*1000+(dialog.hour*60+dialog.minute)*60*1000-local
-                binding.startTime.editText?.setText(formatTime(trackingStartTime, true, FormatStyle.SHORT, FORMAT_TIME))
+                binding.startTime.editText?.setText(formatTime(
+                    trackingStartTime,
+                    FormatStyle.SHORT,
+                    FORMAT_TIME,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
@@ -108,7 +131,13 @@ class ActionTrackerDialog : BottomSheetDialogFragment() {
             val dialog = MaterialDatePicker.Builder.datePicker().setSelection(localTime).build()
             dialog.addOnPositiveButtonClickListener {
                 trackingStartTime = it+time-local
-                binding.startDay.editText?.setText(formatTime(trackingStartTime, true, FormatStyle.LONG, FORMAT_DAY))
+                binding.startDay.editText?.setText(formatTime(
+                    trackingStartTime,
+                    FormatStyle.LONG,
+                    FORMAT_DAY,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }

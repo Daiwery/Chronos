@@ -5,17 +5,14 @@
 
 package com.daiwerystudio.chronos.ui.reminder
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
+import android.text.format.DateFormat
+import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
-import com.daiwerystudio.chronos.receivers.NotificationReceiver
 import com.daiwerystudio.chronos.R
 import com.daiwerystudio.chronos.database.Reminder
 import com.daiwerystudio.chronos.database.ReminderRepository
@@ -68,8 +65,20 @@ class ReminderDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogReminderBinding.inflate(inflater, container, false)
         binding.reminder = reminder
-        binding.day.editText?.setText(formatTime(reminder.time, true, FormatStyle.LONG, FORMAT_DAY))
-        binding.time.editText?.setText(formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME))
+        binding.day.editText?.setText(formatTime(
+            reminder.time,
+            FormatStyle.LONG,
+            FORMAT_DAY,
+            true,
+            is24HourFormat(requireContext())
+        ))
+        binding.time.editText?.setText(formatTime(
+            reminder.time,
+            FormatStyle.SHORT,
+            FORMAT_TIME,
+            true,
+            is24HourFormat(requireContext())
+        ))
 
         binding.reminderText.editText?.doOnTextChanged { text, _, _, _ ->
             reminder.text = text.toString()
@@ -85,11 +94,20 @@ class ReminderDialog : BottomSheetDialogFragment() {
             val hour = time/(1000*60*60)
             val minute = (time-hour*1000*60*60)/(1000*60)
 
-            val dialog = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
+            val isSystem24Hour = is24HourFormat(requireContext())
+            val clockFormat = if (isSystem24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+
+            val dialog = MaterialTimePicker.Builder().setTimeFormat(clockFormat)
                 .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 reminder.time = day*1000*60*60*24+(dialog.hour*60+dialog.minute)*1000*60-local
-                binding.time.editText?.setText(formatTime(reminder.time, true, FormatStyle.SHORT, FORMAT_TIME))
+                binding.time.editText?.setText(formatTime(
+                    reminder.time,
+                    FormatStyle.SHORT,
+                    FORMAT_TIME,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
@@ -101,7 +119,13 @@ class ReminderDialog : BottomSheetDialogFragment() {
             val dialog = MaterialDatePicker.Builder.datePicker().setSelection(localTime).build()
             dialog.addOnPositiveButtonClickListener {
                 reminder.time = it+time-local
-                binding.day.editText?.setText(formatTime(reminder.time, true, FormatStyle.MEDIUM, FORMAT_DAY))
+                binding.day.editText?.setText(formatTime(
+                    reminder.time,
+                    FormatStyle.MEDIUM,
+                    FORMAT_DAY,
+                    true,
+                    is24HourFormat(requireContext())
+                ))
             }
             dialog.show(activity?.supportFragmentManager!!, "DatePickerDialog")
         }
@@ -125,15 +149,6 @@ class ReminderDialog : BottomSheetDialogFragment() {
             if (permission) {
                 if (isCreated) mReminderRepository.addReminder(reminder)
                 else mReminderRepository.updateReminder(reminder)
-
-                val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                val intent = Intent(requireContext(), NotificationReceiver::class.java).apply {
-                    putExtra("reminder_text", reminder.text)
-                }
-                val pendingIntent = PendingIntent.getBroadcast(requireContext(),
-                    (UUID.fromString(reminder.id).mostSignificantBits and Long.MAX_VALUE).toInt(),
-                    intent, 0)
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminder.time, pendingIntent)
 
                 if (union != null) mUnionRepository.addUnion(union!!)
 
