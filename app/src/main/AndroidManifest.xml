@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Chronos"
-        android:fullBackupContent="@xml/backup_descriptor">
+        android:fullBackupContent="@xml/backup_descriptor"
+        android:smallScreens="false">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,5 +30,8 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-2027715765267500~4832872392"/>
     </application>
 </manifest>

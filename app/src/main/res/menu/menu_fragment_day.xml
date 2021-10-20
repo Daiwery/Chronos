@@ -4,13 +4,13 @@
 
     <item
         android:id="@+id/time_plus"
-        android:icon="@drawable/ic_baseline_timer_24"
+        android:icon="@drawable/ic_timer_plus"
         android:title=""
         app:showAsAction="ifRoom|withText" />
 
     <item
         android:id="@+id/time_minus"
-        android:icon="@drawable/ic_baseline_timer_off_24"
+        android:icon="@drawable/ic_timer_minus"
         android:title=""
         app:showAsAction="ifRoom|withText" />
 

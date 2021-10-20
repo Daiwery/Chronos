@@ -72,9 +72,10 @@ class TimeTrackerFragment : Fragment() {
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {}
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
-                    if (binding.fab.state != DayFabMenu.STATE_INVISIBLE) binding.fab.hide()
-                    else binding.fab.show()
+                if (binding.calendarView.visibility == View.GONE)
+                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
+                        if (binding.fab.state != DayFabMenu.STATE_INVISIBLE) binding.fab.hide()
+                        else binding.fab.show()
             }
         })
 
@@ -95,11 +96,13 @@ class TimeTrackerFragment : Fragment() {
             binding.motionLayout.transitionToStart()
             if (binding.calendarView.visibility == View.VISIBLE) {
                 binding.calendarView.visibility = View.GONE
+                binding.fab.show()
                 ObjectAnimator.ofFloat(binding.imageView9, "rotation",  0f)
                     .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
             }
             else {
                 binding.calendarView.visibility = View.VISIBLE
+                binding.fab.hide()
                 ObjectAnimator.ofFloat(binding.imageView9, "rotation",  90f)
                     .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
             }
@@ -113,6 +116,7 @@ class TimeTrackerFragment : Fragment() {
             override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
                 if (currentId == R.id.end) {
                     binding.calendarView.visibility = View.GONE
+                    binding.fab.show()
                     ObjectAnimator.ofFloat(binding.imageView9, "rotation",  0f)
                         .setDuration(300).apply { interpolator = OvershootInterpolator() }.start()
                 }

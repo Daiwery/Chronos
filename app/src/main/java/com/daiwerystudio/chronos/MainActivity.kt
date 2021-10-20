@@ -23,6 +23,11 @@ import androidx.navigation.ui.setupWithNavController
 import com.daiwerystudio.chronos.MainApplication.Companion.CHANNEL_TRACKING
 import com.daiwerystudio.chronos.database.ActionTypeRepository
 import com.daiwerystudio.chronos.receivers.StopTrackerReceiver
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -37,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     private val mTimer: Handler = Handler(Looper.getMainLooper())
     private val runnableTimer = RunnableTimer()
     private var mHandler: Handler = Handler(Looper.getMainLooper())
-
+    private var mInterstitialAd: InterstitialAd? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,10 +54,26 @@ class MainActivity : AppCompatActivity() {
         mNavController = navHostFragment.navController
         navView.setupWithNavController(mNavController)
 
+        mNotificationManager = NotificationManagerCompat.from(this)
+        preferences = getSharedPreferences("settings", Context.MODE_PRIVATE)
+        showActionTracking()
+
         mNavController.addOnDestinationChangedListener { _, destination, _ ->
             val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
             manager?.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
             currentFocus?.clearFocus()
+
+            if (System.currentTimeMillis() - preferences.getLong(
+                    PREFERENCES_LAST_AD_TIME, 0) >= 1000L*60*60) {
+                if (mInterstitialAd != null) {
+                    mInterstitialAd?.show(this)
+                    mInterstitialAd = null
+
+                    val editor = preferences.edit()
+                    editor.putLong(PREFERENCES_LAST_AD_TIME, System.currentTimeMillis()).apply()
+                } else loadAd()
+            }
+
             when (destination.id) {
                 R.id.navigation_union_preview ->  navView.visibility = View.VISIBLE
                 R.id.navigation_day ->  navView.visibility = View.VISIBLE
@@ -61,9 +82,21 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        mNotificationManager = NotificationManagerCompat.from(this)
-        preferences = getSharedPreferences("settings", Context.MODE_PRIVATE)
-        showActionTracking()
+        MobileAds.initialize(this) {}
+    }
+
+    private fun loadAd(){
+        val adRequest = AdRequest.Builder().build()
+        InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712",
+            adRequest, object : InterstitialAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    mInterstitialAd = null
+                }
+
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    mInterstitialAd = interstitialAd
+                }
+            })
     }
 
     fun showActionTracking(){
@@ -117,6 +150,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val PREFERENCES_TRACKING_ACTION_TYPE_ID = "preferencesTrackingActionTypeID"
         const val PREFERENCES_TRACKING_START_TIME = "preferencesTrackingStartTime"
+        const val PREFERENCES_LAST_AD_TIME = "preferencesLastAdTime"
     }
 }
 

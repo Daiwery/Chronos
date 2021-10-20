@@ -509,7 +509,7 @@ class DayFragment: Fragment() {
     private val callback by lazy {
         object : ActionMode.Callback {
             override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-                mode?.menuInflater?.inflate(R.menu.menu_action_bar_change_time, menu)
+                mode?.menuInflater?.inflate(R.menu.menu_fragment_day, menu)
                 binding.fab.hide()
                 return true
             }
