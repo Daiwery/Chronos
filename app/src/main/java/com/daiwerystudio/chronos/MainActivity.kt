@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
     private val runnableTimer = RunnableTimer()
     private var mHandler: Handler = Handler(Looper.getMainLooper())
     private var mInterstitialAd: InterstitialAd? = null
-
+    private var mLoadingAd: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,8 +63,9 @@ class MainActivity : AppCompatActivity() {
             manager?.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
             currentFocus?.clearFocus()
 
-            if (System.currentTimeMillis() - preferences.getLong(
-                    PREFERENCES_LAST_AD_TIME, 0) >= 1000L*60*60) {
+            val lastAdTime = preferences.getLong(PREFERENCES_LAST_AD_TIME, 0)
+            if ((System.currentTimeMillis() - lastAdTime >= 1000L*60*60 ||
+                System.currentTimeMillis() < lastAdTime) && !mLoadingAd) {
                 if (mInterstitialAd != null) {
                     mInterstitialAd?.show(this)
                     mInterstitialAd = null
@@ -87,14 +88,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadAd(){
         val adRequest = AdRequest.Builder().build()
+        mLoadingAd = true
         InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712",
             adRequest, object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     mInterstitialAd = null
+                    mLoadingAd = false
                 }
 
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
                     mInterstitialAd = interstitialAd
+                    mLoadingAd = false
                 }
             })
     }

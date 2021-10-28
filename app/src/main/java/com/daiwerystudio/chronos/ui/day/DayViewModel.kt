@@ -166,6 +166,7 @@ class DayViewModel: ClockViewModel() {
 
     private fun buildData(): List<Pair<Int, Any>> {
         val newData = mutableListOf<Pair<Int, Any>>()
+        // Квазисортировка по типу.
         mSections.value?.also { sections ->
             newData.addAll(sections.map { Pair(TYPE_SECTION, it) })
         }
@@ -177,7 +178,7 @@ class DayViewModel: ClockViewModel() {
         }
         newData.sortBy {
             when (it.first){
-                TYPE_SECTION -> (it.second as Section).data.first().first.startTime
+                TYPE_SECTION -> (it.second as Section).data.first().first.startTime+day.value!!*1000*60*60*24-local
                 TYPE_GOAL -> (it.second as Goal).deadline
                 TYPE_REMINDER -> (it.second as Reminder).time
                 else -> throw IllegalArgumentException("Invalid type")

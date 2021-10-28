@@ -12,6 +12,7 @@ package com.daiwerystudio.chronos.ui.time_tracker
 
 import android.animation.LayoutTransition
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
@@ -49,6 +50,7 @@ class TimeTrackerFragment : Fragment() {
     private val viewModel: TimeTrackerViewModel
         by lazy { ViewModelProvider(this).get(TimeTrackerViewModel::class.java) }
     private lateinit var binding: FragmentTimeTrackerBinding
+    private var animationClock: ObjectAnimator? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +60,7 @@ class TimeTrackerFragment : Fragment() {
             viewModel.day.value = (System.currentTimeMillis()+viewModel.local)/(1000*60*60*24)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentTimeTrackerBinding.inflate(inflater, container, false)
@@ -176,6 +179,14 @@ class TimeTrackerFragment : Fragment() {
                 }
             })
 
+        binding.clock.setOnTouchListener { _, _ ->
+            if (animationClock != null) {
+                animationClock?.cancel()
+                animationClock = null
+            }
+            false
+        }
+
         return binding.root
     }
 
@@ -186,7 +197,8 @@ class TimeTrackerFragment : Fragment() {
         val time = (System.currentTimeMillis()+viewModel.local)%(24*60*60*1000)-60*60*1000
         val ratio = time/(24*60*60*1000f)
         val scrollY = (binding.clock.getChildAt(0).height*ratio).toInt()
-        ObjectAnimator.ofInt(binding.clock, "scrollY",  scrollY).setDuration(1000).start()
+        animationClock = ObjectAnimator.ofInt(binding.clock, "scrollY",  scrollY).setDuration(1000)
+        animationClock?.start()
     }
 
 
@@ -278,6 +290,7 @@ class TimeTrackerFragment : Fragment() {
             holder.bind(data[position])
             if (itemCount == 1) {
                 holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+                holder.binding.linearLayout.layoutParams.width = 0
 
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(holder.binding.constraintLayout)
@@ -287,6 +300,7 @@ class TimeTrackerFragment : Fragment() {
             }
             else {
                 holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                holder.binding.linearLayout.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
 
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(holder.binding.constraintLayout)

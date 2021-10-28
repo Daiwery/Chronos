@@ -18,8 +18,11 @@
 
 package com.daiwerystudio.chronos.ui.schedule
 
+import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
+import android.icu.util.TimeZone
 import android.os.Bundle
 import android.text.format.DateFormat.is24HourFormat
 import android.view.*
@@ -46,6 +49,7 @@ class DayScheduleFragment : Fragment() {
     private val viewModel: DayScheduleViewModel
             by lazy { ViewModelProvider(this).get(DayScheduleViewModel::class.java) }
     private lateinit var binding: FragmentDayScheduleBinding
+    private var animationClock: ObjectAnimator? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +59,7 @@ class DayScheduleFragment : Fragment() {
             Pair(arguments?.getString("scheduleID")!!, arguments?.getInt("dayIndex")!!)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentDayScheduleBinding.inflate(inflater, container, false)
@@ -101,7 +106,26 @@ class DayScheduleFragment : Fragment() {
             dialog.show(activity?.supportFragmentManager!!, "ActionScheduleDialog")
         }
 
+        binding.clock.setOnTouchListener { _, _ ->
+            if (animationClock != null) {
+                animationClock?.cancel()
+                animationClock = null
+            }
+            false
+        }
+
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val currentTime = System.currentTimeMillis()
+        val time = (currentTime+TimeZone.getDefault().getOffset(currentTime))%(24*60*60*1000)-60*60*1000
+        val ratio = time/(24*60*60*1000f)
+        val scrollY = (binding.clock.getChildAt(0).height*ratio).toInt()
+        animationClock = ObjectAnimator.ofInt(binding.clock, "scrollY",  scrollY).setDuration(1000)
+        animationClock?.start()
     }
 
     private fun setEmptyView(){
@@ -190,8 +214,14 @@ class DayScheduleFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ActionHolder, position: Int) {
             holder.bind(data[position])
-            if (itemCount == 1) holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
-            else holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+            if (itemCount == 1) {
+                holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+                holder.binding.linearLayout.layoutParams.width = 0
+            }
+            else {
+                holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                holder.binding.linearLayout.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+            }
         }
 
         /* Если холдер есть в selectedItems, то мы с ним ничего не делаем.
@@ -207,7 +237,7 @@ class DayScheduleFragment : Fragment() {
 
     }
 
-    private inner class ActionHolder(private val binding: ItemRecyclerViewActionBinding):
+    private inner class ActionHolder(val binding: ItemRecyclerViewActionBinding):
         RecyclerView.ViewHolder(binding.root){
         private lateinit var actionSchedule: ActionSchedule
         private var actionType: ActionType? = null

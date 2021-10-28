@@ -19,6 +19,7 @@
 package com.daiwerystudio.chronos.ui.day
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -69,6 +70,7 @@ class DayFragment: Fragment() {
     private val viewModel: DayViewModel
         by lazy { ViewModelProvider(this).get(DayViewModel::class.java) }
     private lateinit var binding: FragmentDayBinding
+    private var animationClock: ObjectAnimator? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +80,7 @@ class DayFragment: Fragment() {
             viewModel.day.value = (System.currentTimeMillis()+viewModel.local)/(1000*60*60*24)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentDayBinding.inflate(inflater, container, false)
@@ -206,6 +209,14 @@ class DayFragment: Fragment() {
             }
         }
 
+        binding.clock.setOnTouchListener { _, _ ->
+            if (animationClock != null) {
+                animationClock?.cancel()
+                animationClock = null
+            }
+            false
+        }
+
         return binding.root
     }
 
@@ -215,7 +226,8 @@ class DayFragment: Fragment() {
         val time = (System.currentTimeMillis()+viewModel.local)%(24*60*60*1000)-60*60*1000
         val ratio = time/(24*60*60*1000f)
         val scrollY = (binding.clock.getChildAt(0).height*ratio).toInt()
-        ObjectAnimator.ofInt(binding.clock, "scrollY",  scrollY).setDuration(1000).start()
+        animationClock = ObjectAnimator.ofInt(binding.clock, "scrollY",  scrollY).setDuration(1000)
+        animationClock?.start()
     }
 
     private fun setEmptyView(){
@@ -325,12 +337,18 @@ class DayFragment: Fragment() {
 
         override fun onBindViewHolder(holder: ActionHolder, position: Int) {
             holder.bind(data[position])
-            if (itemCount == 1) holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
-            else holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+            if (itemCount == 1) {
+                holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+                holder.binding.linearLayout.layoutParams.width = 0
+            }
+            else {
+                holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                holder.binding.linearLayout.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+            }
         }
     }
 
-    private inner class ActionHolder(private val binding: ItemRecyclerViewActionBinding):
+    private inner class ActionHolder(val binding: ItemRecyclerViewActionBinding):
         RecyclerView.ViewHolder(binding.root){
         private lateinit var actionSchedule: ActionSchedule
         private var actionType: ActionType? = null
