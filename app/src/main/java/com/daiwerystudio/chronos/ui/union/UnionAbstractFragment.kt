@@ -102,6 +102,7 @@ abstract class UnionAbstractFragment : Fragment() {
                 changeItem(absoluteAdapterPosition)
                 true
             }
+            binding.checkBox.setOnTouchListener { _, _ -> actionMode != null }
         }
 
         override fun onAchieved() {
@@ -165,6 +166,7 @@ abstract class UnionAbstractFragment : Fragment() {
                 changeItem(absoluteAdapterPosition)
                 true
             }
+            binding.activeSwitch.setOnTouchListener { _, _ -> actionMode != null }
         }
         override fun onActive() {
             schedule.isActive = !schedule.isActive
@@ -351,6 +353,7 @@ abstract class UnionAbstractFragment : Fragment() {
 
 
     fun createUnionItem(item: Int){
+        viewModel.updateUnions()
         when (item){
             TYPE_ACTION_TYPE -> {
                 val id = UUID.randomUUID().toString()

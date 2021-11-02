@@ -15,7 +15,6 @@
 package com.daiwerystudio.chronos.ui.schedule
 
 import android.os.Bundle
-import android.text.format.DateFormat
 import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
 import android.view.View
@@ -26,9 +25,9 @@ import com.daiwerystudio.chronos.database.*
 import com.daiwerystudio.chronos.databinding.DialogActionScheduleBinding
 import com.daiwerystudio.chronos.ui.DataViewModel
 import com.daiwerystudio.chronos.ui.FORMAT_TIME
-import com.daiwerystudio.chronos.ui.formatTime
 import com.daiwerystudio.chronos.ui.SelectActionTypeViewModel
 import com.daiwerystudio.chronos.ui.action_type.ActionTypeDialog
+import com.daiwerystudio.chronos.ui.formatTime
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -84,7 +83,10 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
             binding.selectActionType.setData(it)
         })
         binding.selectActionType.setSelectedActionType(actionSchedule.actionTypeID)
-        binding.selectActionType.setOnSelectListener{ actionSchedule.actionTypeID = it.id }
+        binding.selectActionType.setOnSelectListener{
+            binding.selectActionType.setError(false)
+            actionSchedule.actionTypeID = it.id
+        }
         binding.selectActionType.setOnEditIsAllListener{ viewModel.isAll.value = it }
         binding.selectActionType.setOnAddListener{
             val id = UUID.randomUUID().toString()
@@ -113,14 +115,9 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
                 .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 actionSchedule.startTime = (dialog.hour*60+dialog.minute)*1000*60L
-                binding.startTime.editText?.setText(
-                    formatTime(
-                        actionSchedule.startTime,
-                        FormatStyle.SHORT,
-                        FORMAT_TIME,
-                        false,
-                        is24HourFormat(requireContext())
-                    ))
+                binding.startTime.editText?.setText(formatTime(actionSchedule.startTime,
+                    FormatStyle.SHORT, FORMAT_TIME, false, is24HourFormat(requireContext())))
+                setErrorTime(actionSchedule.startTime > actionSchedule.endTime)
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
@@ -136,14 +133,9 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
                 .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 actionSchedule.endTime = (dialog.hour*60+dialog.minute)*1000*60L
-                binding.endTime.editText?.setText(
-                    formatTime(
-                        actionSchedule.endTime,
-                        FormatStyle.SHORT,
-                        FORMAT_TIME,
-                        false,
-                        is24HourFormat(requireContext())
-                    ))
+                binding.endTime.editText?.setText(formatTime(actionSchedule.endTime,
+                    FormatStyle.SHORT, FORMAT_TIME, false, is24HourFormat(requireContext())))
+                setErrorTime(actionSchedule.startTime > actionSchedule.endTime)
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
@@ -153,11 +145,14 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
 
         binding.button.setOnClickListener {
             var permission = true
-            if (actionSchedule.actionTypeID == "") permission = false
+            if (actionSchedule.actionTypeID == "") {
+                permission = false
+                binding.selectActionType.setError(true)
+            }
             if (actionSchedule.startTime > actionSchedule.endTime) {
                 permission = false
-                binding.endTime.error = " "
-            } else binding.endTime.error = null
+                setErrorTime(true)
+            } else setErrorTime(false)
 
             if (permission){
                 if (isCreated) mScheduleRepository.addActionSchedule(actionSchedule)
@@ -168,6 +163,11 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
         }
 
         return binding.root
+    }
+
+    private fun setErrorTime(error: Boolean){
+        if (error) binding.endTime.error = " "
+        else binding.endTime.error = null
     }
 
     override fun onDestroy() {

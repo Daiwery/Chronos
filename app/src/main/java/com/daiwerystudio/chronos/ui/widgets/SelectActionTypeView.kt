@@ -45,6 +45,7 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
     private var mIDs: MutableList<String> = mutableListOf("")
     private var selectedActionType: ActionType? = null
     private var color: ImageView
+    private var errorView: View
     private var name: TextView
     private var isAll: CheckBox
     private var mRecyclerView: RecyclerView
@@ -56,6 +57,7 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
         color = findViewById(R.id.imageView)
         color.visibility = View.INVISIBLE
         name = findViewById(R.id.textView1)
+        errorView = findViewById(R.id.errorView)
         isAll = findViewById(R.id.isAll)
         isAll.setOnClickListener { mOnEditIsAllListener?.editIsALl(isAll.isChecked) }
 
@@ -103,6 +105,14 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
         mActionTypes = actionTypes
         // После уведовляем, что могли изменится данные.
         mRecyclerView.adapter?.notifyItemRangeChanged(0, mIDs.size)
+    }
+
+    /**
+     * Устанавливает или убирает ошибку.
+     */
+    fun setError(error: Boolean){
+        if (error) errorView.visibility = View.VISIBLE
+        else errorView.visibility = View.GONE
     }
 
     /**

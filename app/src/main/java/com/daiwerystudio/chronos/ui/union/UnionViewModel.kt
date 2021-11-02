@@ -73,7 +73,6 @@ open class UnionViewModel : ViewModel() {
 
 
     /*                        Первый этап наблюдения                        */
-    // mUnions должно быть отсортированно по indexList.
     private var mUnions: LiveData<List<Union>> =
         Transformations.switchMap(information) {
             when {
@@ -241,8 +240,7 @@ open class UnionViewModel : ViewModel() {
     }
 
     fun deleteUnionsWithChild(positions: List<Int>){
-        mUnionRepository.deleteUnionsWithChild(mUnions.value!!
-            .map { it.id }
+        mUnionRepository.deleteUnionsWithChild(mUnions.value!!.map { it.id }
             .filterIndexed { index, _ -> index in positions })
     }
 

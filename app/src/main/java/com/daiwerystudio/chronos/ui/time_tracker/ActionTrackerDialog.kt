@@ -8,7 +8,6 @@ package com.daiwerystudio.chronos.ui.time_tracker
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.text.format.DateFormat
 import android.text.format.DateFormat.is24HourFormat
 import android.view.LayoutInflater
 import android.view.View
@@ -83,7 +82,10 @@ class ActionTrackerDialog : BottomSheetDialogFragment() {
         viewModel.actionTypes.observe(viewLifecycleOwner, {
             binding.selectActionType.setData(it)
         })
-        binding.selectActionType.setOnSelectListener{ trackingActionTypeID = it.id }
+        binding.selectActionType.setOnSelectListener{
+            binding.selectActionType.setError(false)
+            trackingActionTypeID = it.id
+        }
         binding.selectActionType.setOnAddListener{
             val id = UUID.randomUUID().toString()
             val actionType = ActionType(id=id)
@@ -113,13 +115,9 @@ class ActionTrackerDialog : BottomSheetDialogFragment() {
                 .setHour(hour).setMinute(minute).setTitleText("").build()
             dialog.addOnPositiveButtonClickListener {
                 trackingStartTime = day*24*60*60*1000+(dialog.hour*60+dialog.minute)*60*1000-local
-                binding.startTime.editText?.setText(formatTime(
-                    trackingStartTime,
-                    FormatStyle.SHORT,
-                    FORMAT_TIME,
-                    true,
-                    is24HourFormat(requireContext())
-                ))
+                binding.startTime.editText?.setText(formatTime(trackingStartTime, FormatStyle.SHORT,
+                    FORMAT_TIME, true, is24HourFormat(requireContext())))
+                setErrorTime(trackingStartTime > System.currentTimeMillis())
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
@@ -131,21 +129,23 @@ class ActionTrackerDialog : BottomSheetDialogFragment() {
             val dialog = MaterialDatePicker.Builder.datePicker().setSelection(localTime).build()
             dialog.addOnPositiveButtonClickListener {
                 trackingStartTime = it+time-local
-                binding.startDay.editText?.setText(formatTime(
-                    trackingStartTime,
-                    FormatStyle.LONG,
-                    FORMAT_DAY,
-                    true,
-                    is24HourFormat(requireContext())
-                ))
+                binding.startDay.editText?.setText(formatTime(trackingStartTime, FormatStyle.LONG,
+                    FORMAT_DAY, true, is24HourFormat(requireContext())))
+                setErrorTime(trackingStartTime > System.currentTimeMillis())
             }
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
         binding.button.setOnClickListener {
             var permission = true
-            if (trackingActionTypeID == "") permission = false
-            if (trackingStartTime > System.currentTimeMillis()) permission = false
+            if (trackingActionTypeID == "") {
+                permission = false
+                binding.selectActionType.setError(true)
+            }
+            if (trackingStartTime > System.currentTimeMillis()) {
+                permission = false
+                setErrorTime(true)
+            } else setErrorTime(false)
 
             if (permission){
                 // Если какое-то действие сейчас выполняется, то добавляем его.
@@ -169,6 +169,17 @@ class ActionTrackerDialog : BottomSheetDialogFragment() {
         }
 
         return binding.root
+    }
+
+    private fun setErrorTime(error: Boolean){
+        if (error) {
+            binding.startTime.error = " "
+            binding.startDay.error = " "
+        }
+        else {
+            binding.startTime.error = null
+            binding.startDay.error = null
+        }
     }
 
     override fun onDestroy() {
