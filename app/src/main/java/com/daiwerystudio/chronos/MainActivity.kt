@@ -89,6 +89,8 @@ class MainActivity : AppCompatActivity() {
     private fun loadAd(){
         val adRequest = AdRequest.Builder().build()
         mLoadingAd = true
+        // test Ad - ca-app-pub-3940256099942544/1033173712
+        // real Ad - ca-app-pub-2027715765267500/4322925878
         InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712",
             adRequest, object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
