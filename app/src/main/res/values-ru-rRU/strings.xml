@@ -45,4 +45,5 @@
     <string name="action_tracker">Трекер</string>
     <string name="name_tracking_channel">Трекинг действий</string>
     <string name="stop_tracking_action">Стоп</string>
+    <string name="start_tracking_action">Старт</string>
 </resources>

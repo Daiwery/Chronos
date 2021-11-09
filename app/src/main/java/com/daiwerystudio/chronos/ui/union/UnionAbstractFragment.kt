@@ -14,7 +14,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -170,7 +169,7 @@ abstract class UnionAbstractFragment : Fragment() {
         }
         override fun onActive() {
             schedule.isActive = !schedule.isActive
-            viewModel.updateSchedule(schedule)
+            viewModel.setActivityScheduleWithChild(schedule.id, schedule.isActive)
         }
 
         override fun onClicked() {
@@ -190,6 +189,13 @@ abstract class UnionAbstractFragment : Fragment() {
                 itemView.isClickable = false
                 changeItem(absoluteAdapterPosition)
             }
+        }
+
+        override fun onEdit() {
+            val bundle = Bundle().apply {
+                putString("scheduleID", schedule.id)
+            }
+            itemView.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
         }
     }
 

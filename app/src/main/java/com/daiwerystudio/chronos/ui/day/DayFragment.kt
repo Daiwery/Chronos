@@ -339,11 +339,25 @@ class DayFragment: Fragment() {
             holder.bind(data[position])
             if (itemCount == 1) {
                 holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
-                holder.binding.linearLayout.layoutParams.width = 0
+                holder.binding.textView.layoutParams.width = 0
+
+                val constraintSet = ConstraintSet()
+                constraintSet.clone(holder.binding.constraintLayout)
+                constraintSet.connect(R.id.textView, ConstraintSet.END,
+                    R.id.time, ConstraintSet.END)
+                constraintSet.clear(R.id.time, ConstraintSet.START)
+                constraintSet.applyTo(holder.binding.constraintLayout)
             }
             else {
                 holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-                holder.binding.linearLayout.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                holder.binding.textView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+
+                val constraintSet = ConstraintSet()
+                constraintSet.clone(holder.binding.constraintLayout)
+                constraintSet.clear(R.id.textView, ConstraintSet.END)
+                constraintSet.connect(R.id.time, ConstraintSet.START,
+                    R.id.textView, ConstraintSet.END, 4)
+                constraintSet.applyTo(holder.binding.constraintLayout)
             }
         }
     }
@@ -357,6 +371,7 @@ class DayFragment: Fragment() {
             itemView.setOnClickListener {
                 val bundle = Bundle().apply {
                     putString("scheduleID", actionSchedule.scheduleID)
+                    putInt("showDayIndex", actionSchedule.dayIndex)
                 }
                 itemView.findNavController().navigate(R.id.action_global_navigation_schedule, bundle)
             }
@@ -366,26 +381,20 @@ class DayFragment: Fragment() {
             this.actionSchedule = item.first
             this.actionType = item.second
 
-            binding.time.text = (formatTime(
-                actionSchedule.startTime,
-                FormatStyle.SHORT,
-                FORMAT_TIME,
-                false,
-                is24HourFormat(requireContext())
-            ) +
-                    " - " + formatTime(
-                actionSchedule.endTime,
-                FormatStyle.SHORT,
-                FORMAT_TIME,
-                false,
-                is24HourFormat(requireContext())
-            ))
+            binding.time.text = (formatTime(actionSchedule.startTime, FormatStyle.SHORT, FORMAT_TIME,
+                false, is24HourFormat(requireContext())) + " - " + formatTime(actionSchedule.endTime,
+                FormatStyle.SHORT, FORMAT_TIME, false, is24HourFormat(requireContext())))
+
             if (actionType == null) {
                 binding.actionType = ActionType(id="", color=0, name="???")
                 binding.invalid.visibility = View.VISIBLE
+                binding.color.setColorFilter(0)
+                binding.colorLine.setColorFilter(0)
             } else {
                 binding.invalid.visibility = View.GONE
                 binding.actionType = actionType
+                binding.color.setColorFilter(actionType!!.color)
+                binding.colorLine.setColorFilter(actionType!!.color)
             }
         }
     }
@@ -441,13 +450,8 @@ class DayFragment: Fragment() {
             this.goal = goal
             binding.goal = goal
             if (binding.checkBox.isChecked != goal.isAchieved) binding.checkBox.isChecked = goal.isAchieved
-            binding.deadlineTextView.text = formatTime(
-                goal.deadline,
-                FormatStyle.SHORT,
-                FORMAT_TIME,
-                true,
-                is24HourFormat(requireContext())
-            )
+            binding.deadlineTextView.text = formatTime(goal.deadline, FormatStyle.SHORT,
+                FORMAT_TIME, true, is24HourFormat(requireContext()))
         }
     }
 
@@ -494,13 +498,8 @@ class DayFragment: Fragment() {
         fun bind(reminder: Reminder) {
             this.reminder = reminder
             binding.reminder = reminder
-            binding.timeTextView.text = (formatTime(
-                reminder.time,
-                FormatStyle.SHORT,
-                FORMAT_TIME,
-                true,
-                is24HourFormat(requireContext())
-            ))
+            binding.timeTextView.text = (formatTime(reminder.time, FormatStyle.SHORT,
+                FORMAT_TIME, true, is24HourFormat(requireContext())))
         }
     }
 

@@ -24,56 +24,51 @@
             android:paddingEnd="4dp"
             android:paddingBottom="8dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/linearLayout"
+            <TextView
+                android:id="@+id/textView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@drawable/drawable_color_action_type"
-                android:backgroundTint="@{actionType.color}"
-                android:padding="4dp"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="8dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:singleLine="true"
+                android:text="@{actionType.name}"
+                android:textAppearance="@style/Text.NameItem"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/time"
+                app:layout_constraintStart_toEndOf="@+id/color"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Ядерная физика" />
+
+            <ImageView
+                android:id="@+id/color"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:id="@+id/imageView10"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/textView12"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/textView12"
-                    app:srcCompat="@drawable/ic_action_type"
-                    app:tint="@color/white"
-                    tools:ignore="ContentDescription" />
-
-                <TextView
-                    android:id="@+id/textView12"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:singleLine="true"
-                    android:text="@{actionType.name}"
-                    android:textAppearance="@style/Text.NameItem"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/imageView10"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Ядерная физика" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_action_type"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:textAppearance="@style/Text.Caption"
+                app:layout_constraintBottom_toBottomOf="@+id/textView"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+                app:layout_constraintTop_toTopOf="@+id/textView"
                 tools:text="14:00 - 15:00" />
+
+            <ImageView
+                android:id="@+id/colorLine"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginStart="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/textView"
+                app:layout_constraintTop_toBottomOf="@+id/textView"
+                app:srcCompat="@drawable/drawable_color_action_type" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView

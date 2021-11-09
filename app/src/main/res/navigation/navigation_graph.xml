@@ -62,10 +62,10 @@
     <action
         android:id="@+id/action_global_navigation_schedule"
         app:destination="@id/navigation_schedule"
-        app:enterAnim="@android:anim/slide_in_left"
-        app:exitAnim="@android:anim/slide_out_right"
-        app:popEnterAnim="@android:anim/slide_in_left"
-        app:popExitAnim="@android:anim/slide_out_right"/>
+        app:enterAnim="@android:anim/slide_out_right"
+        app:exitAnim="@android:anim/slide_in_left"
+        app:popEnterAnim="@android:anim/slide_out_right"
+        app:popExitAnim="@android:anim/slide_in_left" />
     <fragment
         android:id="@+id/navigation_union_note"
         android:name="com.daiwerystudio.chronos.ui.note.UnionNoteFragment"

@@ -2,15 +2,19 @@
 <resources>
     <style name="Style.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
         <item name="materialThemeOverlay">@style/ThemeOverlay.BottomNavigationView</item>
-        <item name="itemTextAppearanceInactive">@style/Text.BottomNavigationView</item>
-        <item name="itemTextAppearanceActive">@style/Text.BottomNavigationView</item>
+        <item name="itemTextAppearanceInactive">@style/Text.BottomNavigationView.Inactive</item>
+        <item name="itemTextAppearanceActive">@style/Text.BottomNavigationView.Active</item>
     </style>
     <style name="ThemeOverlay.BottomNavigationView" parent="">
-        <item name="android:background">?attr/colorSurface</item>
         <item name="colorOnPrimary">?attr/colorOnSurface</item>
     </style>
-    <style name="Text.BottomNavigationView" parent="@style/TextAppearance.MaterialComponents.Caption">
+    <style name="Text.BottomNavigationView.Inactive" parent="@style/TextAppearance.MaterialComponents.Caption">
         <item name="fontFamily">@font/montserrat_medium</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+    <style name="Text.BottomNavigationView.Active" parent="@style/TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/montserrat_medium</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
     <style name="Style.BottomDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">

@@ -132,7 +132,7 @@ class SelectActionTypeView(context: Context, attrs: AttributeSet): ConstraintLay
     fun setSelectedActionType(id: String){
         val index = mActionTypes.indexOfFirst { it.second.id == id }
         if (index != -1)
-            setSelectedActionType(mActionTypes[-1].second)
+            setSelectedActionType(mActionTypes[index].second)
     }
 
 

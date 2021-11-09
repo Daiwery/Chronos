@@ -302,8 +302,8 @@ open class UnionViewModel : ViewModel() {
         mUnionRepository.setAchievedGoalWithChild(id, true)
     }
 
-    fun updateSchedule(schedule: Schedule) {
-        mScheduleRepository.updateSchedule(schedule)
+    fun setActivityScheduleWithChild(id: String, isActive: Boolean) {
+        mUnionRepository.setActivityScheduleWithChild(id, isActive)
     }
 
     fun updateGoal(goal: Goal){

@@ -96,6 +96,9 @@ interface ScheduleDao {
             "(a.dayIndex=(:day)-(b.start+(:local))/(1000*60*60*24) AND b.type=1))")
     fun getActionsScheduleFromDay(day: Long, local: Int): LiveData<List<ActionSchedule>>
 
+    @Query("UPDATE schedule_table SET isActive=(:isActive) WHERE id IN (:ids)")
+    fun setActivitySchedules(ids: List<String>, isActive: Boolean)
+
     @Query("DELETE FROM schedule_table WHERE id IN (:ids)")
     fun deleteSchedules(ids: List<String>)
 
@@ -153,6 +156,10 @@ class ScheduleRepository private constructor(context: Context) {
             mDao.deleteActionsScheduleFromSchedulesID(ids)
             mDao.deleteSchedules(ids)
         }
+    }
+
+    fun setActivitySchedules(ids: List<String>, isActive: Boolean){
+        mDao.setActivitySchedules(ids, isActive)
     }
 
     fun addSchedule(schedule: Schedule){

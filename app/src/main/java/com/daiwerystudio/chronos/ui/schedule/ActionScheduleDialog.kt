@@ -64,25 +64,15 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View {
         binding = DialogActionScheduleBinding.inflate(inflater, container, false)
         binding.actionSchedule = actionSchedule
-        binding.startTime.editText?.setText(formatTime(
-            actionSchedule.startTime,
-            FormatStyle.SHORT,
-            FORMAT_TIME,
-            false,
-            is24HourFormat(requireContext())
-        ))
-        binding.endTime.editText?.setText(formatTime(
-            actionSchedule.endTime,
-            FormatStyle.SHORT,
-            FORMAT_TIME,
-            false,
-            is24HourFormat(requireContext())
-        ))
+        binding.startTime.editText?.setText(formatTime(actionSchedule.startTime, FormatStyle.SHORT,
+            FORMAT_TIME, false, is24HourFormat(requireContext())))
+        binding.endTime.editText?.setText(formatTime(actionSchedule.endTime, FormatStyle.SHORT,
+            FORMAT_TIME, false, is24HourFormat(requireContext())))
 
         viewModel.actionTypes.observe(viewLifecycleOwner, {
             binding.selectActionType.setData(it)
+            binding.selectActionType.setSelectedActionType(actionSchedule.actionTypeID)
         })
-        binding.selectActionType.setSelectedActionType(actionSchedule.actionTypeID)
         binding.selectActionType.setOnSelectListener{
             binding.selectActionType.setError(false)
             actionSchedule.actionTypeID = it.id
@@ -140,8 +130,14 @@ class ActionScheduleDialog : BottomSheetDialogFragment() {
             dialog.show(activity?.supportFragmentManager!!, "TimePickerDialog")
         }
 
-        if (isCreated) binding.button.text = resources.getString(R.string.add)
-        else binding.button.text = resources.getString(R.string.edit)
+        if (isCreated) {
+            binding.button.text = resources.getString(R.string.add)
+            binding.button.setIconResource(R.drawable.ic_baseline_add_24)
+        }
+        else {
+            binding.button.text = resources.getString(R.string.edit)
+            binding.button.setIconResource(R.drawable.ic_baseline_edit_24)
+        }
 
         binding.button.setOnClickListener {
             var permission = true

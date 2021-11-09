@@ -47,7 +47,13 @@ class ScheduleFragment : Fragment() {
         viewModel.schedule.observe(viewLifecycleOwner, {
             binding.toolBar.title = it.name
             (binding.viewPager2.adapter as PagerAdapter).setSchedule(it)
-            if (it.type == TYPE_SCHEDULE_ONCE) binding.tabLayout.visibility = View.GONE
+            if (it.type == TYPE_SCHEDULE_ONCE || it.countDays == 1)
+                binding.tabLayout.visibility = View.GONE
+
+            arguments?.getInt("showDayIndex")?.let { dayIndex ->
+                if (dayIndex < it.countDays)
+                    binding.tabLayout.getTabAt(dayIndex)?.select()
+            }
         })
 
         binding.toolBar.setNavigationOnClickListener {

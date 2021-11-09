@@ -85,6 +85,14 @@ interface UnionDao{
             "SELECT COUNT(*) != 0 FROM union_table WHERE id IN (SELECT id FROM sub_table WHERE type=1)")
     fun existenceGoals(id: String): LiveData<Boolean>
 
+    // Для значения type используется абсолютное значение, а не переменная TYPE_SCHEDULE.
+    @Query("WITH RECURSIVE sub_table(id, parent, type) " +
+            "AS (SELECT id, parent, type FROM union_table WHERE id=(:id) " +
+            "UNION ALL " +
+            "SELECT a.id, a.parent, a.type FROM union_table AS a JOIN sub_table AS b ON a.parent=b.id) " +
+            "SELECT id FROM union_table WHERE id IN (SELECT id FROM sub_table WHERE type=2)")
+    fun getScheduleWithChild(id: String): List<String>
+
     // Функция возвращает ВСЕ unions. Она называется так, потом что используется для SelectActionType.
     @Query("WITH RECURSIVE sub_table(id, parent) " +
             "AS (SELECT id, parent FROM union_table WHERE parent=(:id) " +
@@ -188,7 +196,7 @@ class UnionRepository private constructor(context: Context) {
     fun setAchievedGoalWithChild(id: String, isAchieved: Boolean){
         mHandler.post {
             val ids = mDao.getGoalWithChild(id)
-            mGoalRepository.setAchievedGoal(ids, isAchieved)
+            mGoalRepository.setAchievedGoals(ids, isAchieved)
         }
     }
 
@@ -200,6 +208,13 @@ class UnionRepository private constructor(context: Context) {
             percent.postValue(mGoalRepository.getPercentAchieved(ids))
         }
         return percent
+    }
+
+    fun setActivityScheduleWithChild(id: String, isActive: Boolean){
+        mHandler.post {
+            val ids = mDao.getScheduleWithChild(id)
+            mScheduleRepository.setActivitySchedules(ids, isActive)
+        }
     }
 
     fun existenceGoals(id: String): LiveData<Boolean> = mDao.existenceGoals(id)

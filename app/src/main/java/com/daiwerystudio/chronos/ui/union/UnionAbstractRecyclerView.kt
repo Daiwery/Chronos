@@ -139,20 +139,10 @@ abstract class GoalAbstractHolder(val binding: ItemRecyclerViewGoalBinding,
         this.goal = item as Goal
         binding.goal = goal
         if (binding.checkBox.isChecked != goal.isAchieved) binding.checkBox.isChecked = goal.isAchieved
-        binding.deadlineTextView.text = (formatTime(
-            goal.deadline,
-            FormatStyle.SHORT,
-            FORMAT_TIME,
-            true,
-            is24HourFormat(itemView.context)
-        )+
-                " - " + formatTime(
-            goal.deadline,
-            FormatStyle.SHORT,
-            FORMAT_DAY,
-            true,
-            is24HourFormat(itemView.context)
-        ))
+        binding.deadlineTextView.text = (formatTime(goal.deadline, FormatStyle.SHORT,
+            FORMAT_TIME, true, is24HourFormat(itemView.context)) + " - "
+                + formatTime(goal.deadline, FormatStyle.SHORT, FORMAT_DAY,
+            true, is24HourFormat(itemView.context)))
         setPercentAchieved()
 
         if (goal.note != "") binding.note.visibility = View.VISIBLE
@@ -182,27 +172,15 @@ abstract class ScheduleAbstractHolder(val binding: ItemRecyclerViewScheduleBindi
 
     init {
         itemView.setOnClickListener{ onClicked() }
-        binding.edit.setOnClickListener{
-            val dialog = ScheduleDialog()
-            dialog.arguments = Bundle().apply{
-                putSerializable("schedule", schedule)
-                putBoolean("isCreated", false)
-            }
-            dialog.show(fragmentManager, "ScheduleDialog")
-        }
+        binding.edit.setOnClickListener{ onEdit() }
         binding.activeSwitch.setOnClickListener { onActive() }
     }
 
     override fun bind(item: ID) {
         this.schedule = item as Schedule
         binding.schedule = schedule
-        binding.start.text = formatTime(
-            schedule.start,
-            FormatStyle.SHORT,
-            FORMAT_DAY,
-            true,
-            is24HourFormat(itemView.context)
-        )
+        binding.start.text = formatTime(schedule.start, FormatStyle.SHORT, FORMAT_DAY,
+            true, is24HourFormat(itemView.context))
         when (schedule.type){
             TYPE_SCHEDULE_PERIODIC -> binding.type.text = itemView.context.getString(R.string.periodic_schedule)
             TYPE_SCHEDULE_ONCE -> binding.type.text = itemView.context.getString(R.string.once_schedule)
@@ -224,6 +202,7 @@ abstract class ScheduleAbstractHolder(val binding: ItemRecyclerViewScheduleBindi
 
     abstract fun onActive()
     abstract fun onClicked()
+    abstract fun onEdit()
 }
 
 /**
@@ -285,20 +264,10 @@ abstract class ReminderAbstractHolder(val binding: ItemRecyclerViewReminderBindi
     override fun bind(item: ID) {
         this.reminder = item as Reminder
         binding.reminder = reminder
-        binding.timeTextView.text = (formatTime(
-            reminder.time,
-            FormatStyle.SHORT,
-            FORMAT_TIME,
-            true,
-            is24HourFormat(itemView.context)
-        )+
-                " - " + formatTime(
-            reminder.time,
-            FormatStyle.SHORT,
-            FORMAT_DAY,
-            true,
-            is24HourFormat(itemView.context)
-        ))
+        binding.timeTextView.text = (formatTime(reminder.time, FormatStyle.SHORT, FORMAT_TIME,
+            true, is24HourFormat(itemView.context))+ " - "
+                + formatTime(reminder.time, FormatStyle.SHORT, FORMAT_DAY,
+            true, is24HourFormat(itemView.context)))
     }
 
     abstract fun onClicked()

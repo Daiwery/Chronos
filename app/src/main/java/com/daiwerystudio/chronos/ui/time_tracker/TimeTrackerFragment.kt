@@ -290,21 +290,24 @@ class TimeTrackerFragment : Fragment() {
             holder.bind(data[position])
             if (itemCount == 1) {
                 holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
-                holder.binding.linearLayout.layoutParams.width = 0
+                holder.binding.textView.layoutParams.width = 0
 
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(holder.binding.constraintLayout)
-                constraintSet.connect(R.id.linearLayout, ConstraintSet.END,
-                    R.id.constraintLayout, ConstraintSet.END)
+                constraintSet.connect(R.id.textView, ConstraintSet.END,
+                    R.id.time, ConstraintSet.END)
+                constraintSet.clear(R.id.time, ConstraintSet.START)
                 constraintSet.applyTo(holder.binding.constraintLayout)
             }
             else {
                 holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
-                holder.binding.linearLayout.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                holder.binding.textView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
 
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(holder.binding.constraintLayout)
-                constraintSet.clear(R.id.linearLayout, ConstraintSet.END)
+                constraintSet.clear(R.id.textView, ConstraintSet.END)
+                constraintSet.connect(R.id.time, ConstraintSet.START,
+                    R.id.textView, ConstraintSet.END, 4)
                 constraintSet.applyTo(holder.binding.constraintLayout)
             }
         }
@@ -356,26 +359,20 @@ class TimeTrackerFragment : Fragment() {
             this.action = item.first
             this.actionType = item.second
 
-            binding.time.text = (formatTime(
-                action.startTime,
-                FormatStyle.SHORT,
-                FORMAT_TIME,
-                true,
-                is24HourFormat(requireContext())
-            ) +
-                    " - " + formatTime(
-                action.endTime,
-                FormatStyle.SHORT,
-                FORMAT_TIME,
-                true,
-                is24HourFormat(requireContext())
+            binding.time.text = (formatTime(action.startTime, FormatStyle.SHORT, FORMAT_TIME,
+                true, is24HourFormat(requireContext())) + " - " + formatTime(action.endTime,
+                FormatStyle.SHORT, FORMAT_TIME, true, is24HourFormat(requireContext())
             ))
             if (actionType == null) {
                 binding.actionType = ActionType(id="", color=Color.BLACK, name="???")
                 binding.invalid.visibility = View.VISIBLE
+                binding.color.setColorFilter(0)
+                binding.colorLine.setColorFilter(0)
             } else {
                 binding.invalid.visibility = View.GONE
                 binding.actionType = actionType
+                binding.color.setColorFilter(actionType!!.color)
+                binding.colorLine.setColorFilter(actionType!!.color)
             }
         }
     }

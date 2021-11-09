@@ -71,34 +71,18 @@ class ActionDialog : BottomSheetDialogFragment() {
             true,
             is24HourFormat(requireContext())
         ))
-        binding.startTime.editText?.setText(formatTime(
-            action.startTime,
-            FormatStyle.SHORT,
-            FORMAT_TIME,
-            true,
-            is24HourFormat(requireContext())
-        ))
-        binding.endDay.editText?.setText(formatTime(
-            action.endTime,
-            FormatStyle.LONG,
-            FORMAT_DAY,
-            true,
-            is24HourFormat(requireContext())
-        ))
-        binding.endTime.editText?.setText(formatTime(
-            action.endTime,
-            FormatStyle.SHORT,
-            FORMAT_TIME,
-            true,
-            is24HourFormat(requireContext())
-        ))
-
+        binding.startTime.editText?.setText(formatTime(action.startTime, FormatStyle.SHORT,
+            FORMAT_TIME, true, is24HourFormat(requireContext())))
+        binding.endDay.editText?.setText(formatTime(action.endTime, FormatStyle.LONG,
+            FORMAT_DAY, true, is24HourFormat(requireContext())))
+        binding.endTime.editText?.setText(formatTime(action.endTime, FormatStyle.SHORT,
+            FORMAT_TIME, true, is24HourFormat(requireContext())))
 
         binding.selectActionType.setVisibilityIsAll(View.GONE)
         viewModel.actionTypes.observe(viewLifecycleOwner, {
             binding.selectActionType.setData(it)
+            binding.selectActionType.setSelectedActionType(action.actionTypeID)
         })
-        binding.selectActionType.setSelectedActionType(action.actionTypeID)
         binding.selectActionType.setOnSelectListener{
             binding.selectActionType.setError(false)
             action.actionTypeID = it.id
