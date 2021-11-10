@@ -37,6 +37,7 @@ class DayViewModel: ClockViewModel() {
     private val mReminderRepository = ReminderRepository.get()
     private val mUnionRepository = UnionRepository.get()
     val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
+    var isAnimated: Boolean = false
 
     /**
      * Специальный класс, необходимый для адаптера.

@@ -31,6 +31,7 @@ import java.util.concurrent.Executors
 class DayScheduleViewModel : ClockViewModel() {
     private val mScheduleRepository = ScheduleRepository.get()
     private val mActionTypeRepository = ActionTypeRepository.get()
+    var isAnimated: Boolean = false
 
     /**
      * Специальный класс, необходимый для адаптера.

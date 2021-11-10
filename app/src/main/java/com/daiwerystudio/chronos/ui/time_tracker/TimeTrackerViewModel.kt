@@ -25,6 +25,7 @@ class TimeTrackerViewModel : ClockViewModel() {
     private val mActionRepository = ActionRepository.get()
     private val mActionTypeRepository = ActionTypeRepository.get()
     val local = TimeZone.getDefault().getOffset(System.currentTimeMillis())
+    var isAnimated: Boolean = false
 
     /**
      * Специальный класс, необходимый для адаптера.

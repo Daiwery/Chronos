@@ -9,6 +9,7 @@
         <item name="colorSurface">@color/black_500</item>
         <item name="colorOnSurface">@color/white</item>
         <item name="android:colorBackground">@color/black_300</item>
+        <item name="colorBackground">@color/black_300</item>
         <item name="colorTintIcon">@color/white</item>
     </style>
 </resources>

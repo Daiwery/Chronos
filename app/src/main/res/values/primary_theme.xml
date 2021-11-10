@@ -18,4 +18,5 @@
         <item name="android:scrollbarThumbVertical">@null</item>
     </style>
     <attr name="colorTintIcon" format="color"/>
+    <attr name="colorBackground" format="color"/>
 </resources>

@@ -223,11 +223,14 @@ class DayFragment: Fragment() {
     override fun onResume() {
         super.onResume()
 
-        val time = (System.currentTimeMillis()+viewModel.local)%(24*60*60*1000)-60*60*1000
-        val ratio = time/(24*60*60*1000f)
-        val scrollY = (binding.clock.getChildAt(0).height*ratio).toInt()
-        animationClock = ObjectAnimator.ofInt(binding.clock, "scrollY",  scrollY).setDuration(1000)
-        animationClock?.start()
+        if (!viewModel.isAnimated) {
+            val time = (System.currentTimeMillis()+viewModel.local)%(24*60*60*1000)-60*60*1000
+            val ratio = time/(24*60*60*1000f)
+            val scrollY = (binding.clock.getChildAt(0).height*ratio).toInt()
+            animationClock = ObjectAnimator.ofInt(binding.clock, "scrollY",  scrollY).setDuration(1000)
+            animationClock?.start()
+            viewModel.isAnimated = true
+        }
     }
 
     private fun setEmptyView(){
@@ -311,11 +314,31 @@ class DayFragment: Fragment() {
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
                 adapter = SectionAdapter(emptyList())
             }
+            binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+
+                    if (!recyclerView.canScrollHorizontally(1))
+                        ObjectAnimator.ofFloat(binding.imageView11,
+                            "alpha",  0f).setDuration(300).start()
+                    else {
+                        if (data.size == 1) ObjectAnimator.ofFloat(binding.imageView11,
+                            "alpha",  0f).setDuration(300).start()
+                        else ObjectAnimator.ofFloat(binding.imageView11,
+                            "alpha",  1f).setDuration(300).start()
+                    }
+                }
+            })
         }
 
         fun bind(data: List<Pair<ActionSchedule, ActionType?>>){
             this.data = data.map { it.copy() }
             (binding.recyclerView.adapter as SectionAdapter).updateData(data)
+
+            if (data.size == 1) ObjectAnimator.ofFloat(binding.imageView11,
+                "alpha",  0f).setDuration(300).start()
+            else ObjectAnimator.ofFloat(binding.imageView11,
+                "alpha",  1f).setDuration(300).start()
         }
     }
 
@@ -340,23 +363,22 @@ class DayFragment: Fragment() {
             if (itemCount == 1) {
                 holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
                 holder.binding.textView.layoutParams.width = 0
+                holder.binding.textView.maxWidth = 0
 
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(holder.binding.constraintLayout)
                 constraintSet.connect(R.id.textView, ConstraintSet.END,
-                    R.id.time, ConstraintSet.END)
-                constraintSet.clear(R.id.time, ConstraintSet.START)
+                    R.id.constraintLayout, ConstraintSet.END)
                 constraintSet.applyTo(holder.binding.constraintLayout)
             }
             else {
                 holder.itemView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
                 holder.binding.textView.layoutParams.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+                holder.binding.textView.maxWidth = binding.recyclerView.width*10/25
 
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(holder.binding.constraintLayout)
                 constraintSet.clear(R.id.textView, ConstraintSet.END)
-                constraintSet.connect(R.id.time, ConstraintSet.START,
-                    R.id.textView, ConstraintSet.END, 4)
                 constraintSet.applyTo(holder.binding.constraintLayout)
             }
         }
@@ -390,11 +412,15 @@ class DayFragment: Fragment() {
                 binding.invalid.visibility = View.VISIBLE
                 binding.color.setColorFilter(0)
                 binding.colorLine.setColorFilter(0)
+                binding.colorLine1.setColorFilter(0)
+                binding.colorSteps.setColorFilter(0)
             } else {
                 binding.invalid.visibility = View.GONE
                 binding.actionType = actionType
                 binding.color.setColorFilter(actionType!!.color)
                 binding.colorLine.setColorFilter(actionType!!.color)
+                binding.colorLine1.setColorFilter(actionType!!.color)
+                binding.colorSteps.setColorFilter(actionType!!.color)
             }
         }
     }

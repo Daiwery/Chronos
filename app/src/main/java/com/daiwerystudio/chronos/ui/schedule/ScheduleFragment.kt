@@ -50,9 +50,11 @@ class ScheduleFragment : Fragment() {
             if (it.type == TYPE_SCHEDULE_ONCE || it.countDays == 1)
                 binding.tabLayout.visibility = View.GONE
 
-            arguments?.getInt("showDayIndex")?.let { dayIndex ->
-                if (dayIndex < it.countDays)
+            if (!viewModel.showingDayIndex) {
+                arguments?.getInt("showDayIndex")?.let { dayIndex ->
                     binding.tabLayout.getTabAt(dayIndex)?.select()
+                    viewModel.showingDayIndex = true
+                }
             }
         })
 

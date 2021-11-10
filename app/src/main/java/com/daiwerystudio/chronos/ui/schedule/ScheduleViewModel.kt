@@ -16,6 +16,7 @@ import com.daiwerystudio.chronos.database.UnionRepository
 class ScheduleViewModel : ViewModel() {
     private val mScheduleRepository = ScheduleRepository.get()
     private val mUnionRepository = UnionRepository.get()
+    var showingDayIndex: Boolean = false
 
     val scheduleID: MutableLiveData<String> = MutableLiveData()
 

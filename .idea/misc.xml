@@ -17,10 +17,13 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/drawable_color_action_type.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/drawable_error_action_schedule.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/drawable_error_schedule.xml" value="0.2703125" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/drawable_gradient_end_action_section.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/drawable_invalid_action.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/drawable_invalid_action_type.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/drawable_scrollbar.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/drawable_select_type_showing.xml" value="0.2703125" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/drawable_separator_action.xml" value="0.2703125" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/drawable_steps_action.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/frame_select_action_type.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/ic_action_type.xml" value="0.2703125" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/drawable/ic_arrow_back.xml" value="0.2703125" />
@@ -101,7 +104,7 @@
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/fragment_union_schedule.xml" value="0.264" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_progress_goal.xml" value="0.536" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_achieved_goal.xml" value="0.4" />
-        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_action.xml" value="0.536" />
+        <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_action.xml" value="0.6242038216560509" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_action_schedule.xml" value="0.536" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_action_section.xml" value="0.4" />
         <entry key="..\:/Users/anluk/Documents/Projects/AndroidStudio/Chronos/app/src/main/res/layout/item_recycler_view_action_type.xml" value="0.536" />
