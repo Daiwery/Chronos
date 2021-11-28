@@ -388,10 +388,9 @@ class TimeTrackerFragment : Fragment() {
             if (actionType == null) {
                 binding.actionType = ActionType(id="", color=Color.BLACK, name="???")
                 binding.invalid.visibility = View.VISIBLE
-                binding.color.setColorFilter(0)
-                binding.colorLine.setColorFilter(0)
-                binding.colorLine1.setColorFilter(0)
-                binding.colorSteps.setColorFilter(0)
+                binding.colorLine.visibility = View.INVISIBLE
+                binding.colorLine1.visibility = View.INVISIBLE
+                binding.colorSteps.visibility = View.INVISIBLE
             } else {
                 binding.invalid.visibility = View.GONE
                 binding.actionType = actionType
