@@ -103,24 +103,6 @@ class MainActivity : AppCompatActivity() {
                 }
             )
         }
-
-//        splashScreen.setOnExitAnimationListener { splashScreenView ->
-//            // Create your custom animation.
-//            val slideUp = ObjectAnimator.ofFloat(
-//                splashScreenView,
-//                View.TRANSLATION_Y,
-//                0f,
-//                -splashScreenView.height.toFloat()
-//            )
-//            slideUp.interpolator = AnticipateInterpolator()
-//            slideUp.duration = 200L
-//
-//            // Call SplashScreenView.remove at the end of your custom animation.
-//            slideUp.doOnEnd { splashScreenView.remove() }
-//
-//            // Run your animation.
-//            slideUp.start()
-//        }
     }
 
     private fun loadAd(){
