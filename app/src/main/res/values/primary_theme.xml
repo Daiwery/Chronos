@@ -16,6 +16,7 @@
         <item name="checkboxStyle">@style/Style.CheckBox</item>
         <item name="android:scrollbarThumbHorizontal">@null</item>
         <item name="android:scrollbarThumbVertical">@null</item>
+        <item name="android:windowSplashscreenContent">@drawable/background_splash_screen</item>
     </style>
     <attr name="colorTintIcon" format="color"/>
     <attr name="colorBackground" format="color"/>

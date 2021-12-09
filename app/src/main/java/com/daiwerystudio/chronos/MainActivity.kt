@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
@@ -84,6 +85,42 @@ class MainActivity : AppCompatActivity() {
         }
 
         MobileAds.initialize(this) {}
+
+        val lastAdTime = preferences.getLong(PREFERENCES_LAST_AD_TIME, 0)
+        if (System.currentTimeMillis() - lastAdTime >= 1000L*60*60 ||
+            System.currentTimeMillis() < lastAdTime) {
+            loadAd()
+
+            val content: View = findViewById(android.R.id.content)
+            content.viewTreeObserver.addOnPreDrawListener(
+                object : ViewTreeObserver.OnPreDrawListener {
+                    override fun onPreDraw(): Boolean {
+                        return if (!mLoadingAd) {
+                            content.viewTreeObserver.removeOnPreDrawListener(this)
+                            true
+                        } else false
+                    }
+                }
+            )
+        }
+
+//        splashScreen.setOnExitAnimationListener { splashScreenView ->
+//            // Create your custom animation.
+//            val slideUp = ObjectAnimator.ofFloat(
+//                splashScreenView,
+//                View.TRANSLATION_Y,
+//                0f,
+//                -splashScreenView.height.toFloat()
+//            )
+//            slideUp.interpolator = AnticipateInterpolator()
+//            slideUp.duration = 200L
+//
+//            // Call SplashScreenView.remove at the end of your custom animation.
+//            slideUp.doOnEnd { splashScreenView.remove() }
+//
+//            // Run your animation.
+//            slideUp.start()
+//        }
     }
 
     private fun loadAd(){
